@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donate — Faraja Memorial Fund</title>
+  <meta name="description" content="Contribute to the harambee fund for Mary Wanjiku Kamau. Pay via M-PESA or card — every shilling is tracked and receipted." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<!-- Public Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">🕊</div>
+      <span class="nav-logo-text">Fa<span>raja</span></span>
+    </a>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<div style="padding-top:68px;min-height:100vh;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,168,76,0.07) 0%,transparent 60%),var(--charcoal);">
+  <div class="container" style="max-width:760px;padding-top:40px;padding-bottom:60px;">
+
+    <!-- Memorial Header -->
+    <div class="donation-hero">
+      <div class="donation-photo">🕊</div>
+      <div class="donation-info" style="flex:1;">
+        <div style="font-size:0.8rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">In Loving Memory</div>
+        <h2 style="font-size:1.75rem;margin-bottom:6px;">Mary Wanjiku Kamau</h2>
+        <div class="donation-dates">🌹 1952 – 2024 · Burial: Saturday, 28 June 2024</div>
+        <div style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;max-width:420px;">
+          "A loving mother, devoted grandmother, and pillar of our community. Her warmth touched every life she met."
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="badge badge-gold badge-dot">Active Harambee</span>
+          <span class="badge badge-muted">124 contributors</span>
+          <span class="badge badge-muted">12 days remaining</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="card" style="margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+        <div>
+          <span style="font-size:1.75rem;font-weight:700;color:var(--text-primary);font-family:var(--font-display);">KES 285,000</span>
+          <span style="font-size:0.88rem;color:var(--text-muted);margin-left:8px;">raised of KES 500,000 goal</span>
+        </div>
+        <span style="font-size:1.2rem;font-weight:700;color:var(--gold);">57%</span>
+      </div>
+      <div class="progress-wrap progress-xl">
+        <div class="progress-bar" data-progress="57"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:0.78rem;color:var(--text-muted);">
+        <span>124 contributors</span>
+        <span>KES 215,000 still needed</span>
+      </div>
+    </div>
+
+    <!-- Donation Form -->
+    <div class="card" style="margin-bottom:24px;">
+      <h3 style="margin-bottom:6px;color:var(--text-primary);">💚 Make Your Contribution</h3>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px;">Choose an amount and pay securely via M-PESA or card. You will receive an automatic receipt.</p>
+
+      <!-- Amount Presets -->
+      <div style="margin-bottom:20px;">
+        <div class="form-label">Select Amount (KES)</div>
+        <div class="amount-grid">
+          <button type="button" class="amount-btn" data-amount="500">KES 500</button>
+          <button type="button" class="amount-btn selected" data-amount="1000">KES 1,000</button>
+          <button type="button" class="amount-btn" data-amount="2000">KES 2,000</button>
+          <button type="button" class="amount-btn" data-amount="5000">KES 5,000</button>
+          <button type="button" class="amount-btn" data-amount="10000">KES 10,000</button>
+          <button type="button" class="amount-btn" data-amount="custom" id="customBtn">Custom</button>
+        </div>
+        <div style="margin-top:12px;" id="customAmountWrap" style="display:none;">
+          <label class="form-label" for="customAmount">Enter Custom Amount (KES)</label>
+          <div class="input-group">
+            <span class="input-icon" style="font-size:0.8rem;font-weight:700;">KES</span>
+            <input type="number" id="customAmount" class="form-control" placeholder="e.g. 3500" min="50" style="padding-left:52px;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: M-PESA / Card -->
+      <div class="tab-bar" id="payMethodTabs">
+        <button class="tab active" data-tab-target="mpesa">💚 M-PESA (STK Push)</button>
+        <button class="tab" data-tab-target="card">💳 Card Payment</button>
+        <button class="tab" data-tab-target="manual">📋 Manual / Bank</button>
+      </div>
+
+      <!-- M-PESA Form -->
+      <div id="mpesa-panel">
+        <div class="alert alert-success" style="margin-bottom:20px;">
+          <span>💚</span>
+          <div>You will receive an M-PESA prompt on your phone. Enter your PIN to complete the payment. <strong>Do not share your PIN.</strong></div>
+        </div>
+        <form id="mpesaForm" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="mpesaPhone">M-PESA Phone Number *</label>
+            <div class="input-group">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="mpesaPhone" class="form-control" placeholder="0712 345 678 or +254712345678" />
+            </div>
+            <div class="form-hint">The STK push will be sent to this number</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="donorName">Your Name *</label>
+            <div class="input-group">
+              <span class="input-icon">👤</span>
+              <input type="text" id="donorName" class="form-control" placeholder="John Kamau" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="donorMessage">Message (optional)</label>
+            <textarea id="donorMessage" class="form-control" placeholder="e.g. Rest in peace Mama Wanjiku. We love you." style="min-height:70px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-check">
+              <input type="checkbox" id="anonymous" />
+              <span class="form-check-label">Make this contribution anonymous</span>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg btn-full" id="mpesaBtn">
+            💚 Send KES <span id="amountDisplay">1,000</span> via M-PESA
+          </button>
+          <p style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:10px;">
+            Powered by Safaricom Daraja API · Secured by SSL
+          </p>
+        </form>
+      </div>
+
+      <!-- Card Form -->
+      <div id="card-panel" style="display:none;">
+        <form id="cardForm" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="cardName">Name on Card *</label>
+            <div class="input-group">
+              <span class="input-icon">👤</span>
+              <input type="text" id="cardName" class="form-control" placeholder="John Kamau" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cardNumber">Card Number *</label>
+            <div class="input-group">
+              <span class="input-icon">💳</span>
+              <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="cardExpiry">Expiry *</label>
+              <input type="text" id="cardExpiry" class="form-control" placeholder="MM / YY" maxlength="7" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cardCVV">CVV *</label>
+              <input type="text" id="cardCVV" class="form-control" placeholder="123" maxlength="4" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg btn-full" id="cardBtn">
+            💳 Pay KES <span id="cardAmountDisplay">1,000</span> Securely
+          </button>
+          <p style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:10px;">
+            🔒 256-bit SSL encryption · Powered by Stripe
+          </p>
+        </form>
+      </div>
+
+      <!-- Manual / Bank -->
+      <div id="manual-panel" style="display:none;">
+        <div class="card" style="background:var(--charcoal-3);margin-bottom:16px;">
+          <div style="font-weight:700;color:var(--text-primary);margin-bottom:12px;">🏦 Bank Transfer Details</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:0.88rem;">
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Bank:</span><span style="color:var(--text-primary);font-weight:600;">Equity Bank Kenya</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Account Name:</span><span style="color:var(--text-primary);font-weight:600;">Mary Wanjiku Memorial Fund</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Account No:</span><span style="color:var(--gold);font-weight:700;letter-spacing:0.1em;">0123456789</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Branch:</span><span style="color:var(--text-primary);font-weight:600;">Nairobi CBD</span></div>
+          </div>
+        </div>
+        <div class="card" style="background:var(--charcoal-3);">
+          <div style="font-weight:700;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;"><span class="mpesa-logo">M-PESA</span>Paybill</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:0.88rem;">
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Paybill No:</span><span style="color:var(--gold);font-weight:700;font-size:1.1rem;letter-spacing:0.1em;">891234</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Account No:</span><span style="color:var(--text-primary);font-weight:600;">WANJIKU2024</span></div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:16px;">
+          <label class="form-label" for="transRef">Your M-PESA / Transaction Reference</label>
+          <input type="text" id="transRef" class="form-control" placeholder="e.g. QHX12345AB" />
+          <div class="form-hint">Enter the M-PESA transaction code so we can confirm your payment</div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="confirmManual()">✅ Confirm My Payment</button>
+      </div>
+    </div>
+
+    <!-- Share Buttons -->
+    <div class="card">
+      <div class="card-header" style="border-bottom:none;margin-bottom:12px;padding-bottom:0;">
+        <div class="card-title">📢 Help Spread the Word</div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Share this harambee page so more family and friends can contribute.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-whatsapp" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
+        <button class="btn btn-facebook" onclick="shareFacebook()">Share on Facebook</button>
+        <button class="btn btn-secondary" data-copy="https://faraja.co.ke/donate/wanjiku2024">📋 Copy Link</button>
+      </div>
+    </div>
+
+    <!-- Recent Contributions mini -->
+    <div class="card" style="margin-top:24px;">
+      <div class="card-header">
+        <div class="card-title">Recent Contributions</div>
+        <span class="badge badge-success badge-dot">Live</span>
+      </div>
+      <div>
+        <div class="leaderboard-item">
+          <div class="leaderboard-rank gold">🥇</div>
+          <div class="avatar avatar-sm">JK</div>
+          <div class="leaderboard-info"><div class="leaderboard-name">James Kiprono</div><div class="leaderboard-method">M-PESA · 2 min ago</div></div>
+          <div class="leaderboard-amount">KES 10,000</div>
+        </div>
+        <div class="leaderboard-item">
+          <div class="leaderboard-rank silver">🥈</div>
+          <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">AN</div>
+          <div class="leaderboard-info"><div class="leaderboard-name">Alice Njeri</div><div class="leaderboard-method">Card · 15 min ago</div></div>
+          <div class="leaderboard-amount">KES 5,000</div>
+        </div>
+        <div class="leaderboard-item">
+          <div class="leaderboard-rank">3</div>
+          <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706);">**</div>
+          <div class="leaderboard-info"><div class="leaderboard-name">Anonymous</div><div class="leaderboard-method">M-PESA · 1 hr ago</div></div>
+          <div class="leaderboard-amount">KES 3,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:3.5rem;margin-bottom:16px;">🎉</div>
+    <h3 style="margin-bottom:8px;">Thank You!</h3>
+    <p style="color:var(--text-muted);margin-bottom:8px;">Your contribution of</p>
+    <p style="font-size:2rem;font-weight:700;color:var(--gold);font-family:var(--font-display);margin-bottom:8px;" id="successAmount">KES 1,000</p>
+    <p style="color:var(--text-muted);margin-bottom:24px;">has been received for the Mary Wanjiku Kamau Memorial Fund. A receipt has been sent to your phone.</p>
+    <div style="background:var(--charcoal-3);border-radius:var(--radius-sm);padding:14px;margin-bottom:24px;">
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;">Transaction Reference</div>
+      <div style="font-family:monospace;font-size:1rem;color:var(--gold);font-weight:700;" id="transRefDisplay">MP-XXXXXXXX</div>
+    </div>
+    <button class="btn btn-whatsapp btn-full" onclick="shareWhatsApp();closeModal('successModal');">💬 Share this Harambee</button>
+    <div style="margin-top:12px;"><a href="donate.html" class="btn btn-ghost" onclick="closeModal('successModal')">← Back to Memorial</a></div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll('#payMethodTabs .tab');
+  const panels = { mpesa: document.getElementById('mpesa-panel'), card: document.getElementById('card-panel'), manual: document.getElementById('manual-panel') };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      Object.entries(panels).forEach(([k, v]) => v.style.display = k === tab.dataset.tabTarget ? 'block' : 'none');
+    });
+  });
+
+  // Amount selection
+  let selectedAmount = 1000;
+  document.querySelectorAll('.amount-btn[data-amount]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      if (btn.dataset.amount === 'custom') {
+        document.getElementById('customAmountWrap').style.display = 'block';
+        document.getElementById('customAmount').focus();
+      } else {
+        document.getElementById('customAmountWrap').style.display = 'none';
+        selectedAmount = parseInt(btn.dataset.amount);
+        updateAmountDisplay();
+      }
+    });
+  });
+
+  document.getElementById('customAmount')?.addEventListener('input', function() {
+    selectedAmount = parseFloat(this.value) || 0;
+    updateAmountDisplay();
+  });
+
+  function updateAmountDisplay() {
+    const fmt = 'KES ' + selectedAmount.toLocaleString('en-KE');
+    document.getElementById('amountDisplay').textContent = fmt.replace('KES ','');
+    document.getElementById('cardAmountDisplay').textContent = fmt.replace('KES ','');
+  }
+
+  // M-PESA submit
+  document.getElementById('mpesaForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById('mpesaPhone');
+    const name  = document.getElementById('donorName');
+    let ok = true;
+    if (!validateField(phone, [validators.required, validators.phone], e.target)) ok = false;
+    if (!validateField(name,  [validators.required], e.target)) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('mpesaBtn');
+    Utils.setButtonLoading(btn, true);
+    const res = await FarajaAPI.mpesaSTKPush({ phone: phone.value, amount: selectedAmount, funeralId: 'fun_demo' });
+    Utils.setButtonLoading(btn, false);
+
+    if (res.success) {
+      showToast(res.message, 'info');
+      await FarajaAPI.delay(3000); // Simulate PIN entry
+      document.getElementById('successAmount').textContent = 'KES ' + selectedAmount.toLocaleString('en-KE');
+      document.getElementById('transRefDisplay').textContent = res.checkoutRequestID;
+      openModal('successModal');
+    } else {
+      showToast('M-PESA request failed. Please try again.', 'error');
+    }
+  });
+
+  // Card submit
+  document.getElementById('cardForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cardName   = document.getElementById('cardName');
+    const cardNumber = document.getElementById('cardNumber');
+    const cardExpiry = document.getElementById('cardExpiry');
+    const cardCVV    = document.getElementById('cardCVV');
+    let ok = true;
+    if (!validateField(cardName,   [validators.required], e.target)) ok = false;
+    if (!validateField(cardNumber, [validators.required], e.target)) ok = false;
+    if (!validateField(cardExpiry, [validators.required], e.target)) ok = false;
+    if (!validateField(cardCVV,    [validators.required], e.target)) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('cardBtn');
+    Utils.setButtonLoading(btn, true);
+    await FarajaAPI.delay(1500);
+    Utils.setButtonLoading(btn, false);
+
+    const ref = 'STR' + Math.random().toString(36).substr(2,8).toUpperCase();
+    document.getElementById('successAmount').textContent = 'KES ' + selectedAmount.toLocaleString('en-KE');
+    document.getElementById('transRefDisplay').textContent = ref;
+    openModal('successModal');
+  });
+
+  // Format card number
+  document.getElementById('cardNumber')?.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g,'').replace(/(.{4})/g,'$1 ').trim().slice(0,19);
+  });
+
+  function confirmManual() {
+    const ref = document.getElementById('transRef').value.trim();
+    if (!ref) { showToast('Please enter your transaction reference', 'error'); return; }
+    showToast('Payment confirmed! Reference: ' + ref, 'success');
+  }
+
+  function shareWhatsApp() {
+    const msg = encodeURIComponent('Please contribute to the harambee for Mary Wanjiku Kamau 🕊 Goal: KES 500,000 — https://faraja.co.ke/donate/wanjiku2024');
+    window.open('https://wa.me/?text=' + msg, '_blank');
+  }
+  function shareFacebook() {
+    window.open('https://facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://faraja.co.ke/donate/wanjiku2024'), '_blank');
+  }
+</script>
+</body>
+</html>

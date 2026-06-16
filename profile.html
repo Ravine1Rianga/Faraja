@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — Faraja</title>
+  <meta name="description" content="Manage your Faraja account, view your memorials, and track your donation history." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link active"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-subtitle">Manage your account, memorials, and contribution history</p>
+      </div>
+      <a href="edit-profile.html" class="btn btn-primary">✏️ Edit Profile</a>
+    </div>
+  </div>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-avatar-wrap">
+      <div class="avatar avatar-2xl" id="profileAvatar">JK</div>
+      <div class="profile-avatar-edit" onclick="document.getElementById('avatarUpload').click()" title="Change photo">📷</div>
+      <input type="file" id="avatarUpload" accept="image/*" style="display:none;" />
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
+        <h2 class="profile-name user-name">John Kamau</h2>
+        <span class="badge badge-gold">Administrator</span>
+        <span class="badge badge-success badge-dot">Verified</span>
+      </div>
+      <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px;">Member since January 2024 · Nairobi, Kenya</p>
+      <div class="profile-meta">
+        <div class="profile-meta-item">
+          <span>✉</span>
+          <span class="user-email">john.kamau@email.com</span>
+        </div>
+        <div class="profile-meta-item">
+          <span>📱</span>
+          <span>+254 712 345 678</span>
+        </div>
+        <div class="profile-meta-item">
+          <span>📍</span>
+          <span>Nairobi, Kenya</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center;min-width:240px;">
+      <div style="padding:16px;background:var(--charcoal-3);border-radius:var(--radius);border:1px solid var(--border-light);">
+        <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary);font-family:var(--font-display);" data-count="2">0</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;">Memorials</div>
+      </div>
+      <div style="padding:16px;background:var(--charcoal-3);border-radius:var(--radius);border:1px solid var(--border-light);">
+        <div style="font-size:1.4rem;font-weight:700;color:var(--gold);font-family:var(--font-display);" data-count="8">0</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;">Donations</div>
+      </div>
+      <div style="padding:16px;background:var(--charcoal-3);border-radius:var(--radius);border:1px solid var(--border-light);">
+        <div style="font-size:1.4rem;font-weight:700;color:var(--success);font-family:var(--font-display);" data-count="25500" data-prefix="KES ">0</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;">Contributed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar" id="profileTabs">
+    <button class="tab active" data-tab-target="memorials">🕊 My Memorials</button>
+    <button class="tab" data-tab-target="donations">💰 Donation History</button>
+    <button class="tab" data-tab-target="activity">📋 Activity</button>
+    <button class="tab" data-tab-target="settings">⚙️ Settings</button>
+  </div>
+
+  <!-- Memorials Tab -->
+  <div id="memorials" data-tab-panel="memorials">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h3 style="font-size:1rem;color:var(--text-primary);">My Memorials (2)</h3>
+      <a href="create-funeral.html" class="btn btn-primary btn-sm">➕ Create New</a>
+    </div>
+    <div class="grid grid-3">
+      <div class="funeral-card">
+        <div class="funeral-card-image">🕊<div class="funeral-card-image-overlay"></div><div style="position:absolute;bottom:8px;left:12px;z-index:2;"><span class="badge badge-success badge-dot">Active</span></div></div>
+        <div class="funeral-card-body">
+          <div class="funeral-card-name">Mary Wanjiku Kamau</div>
+          <div class="funeral-card-dates">1952 – 2024 · Burial: 28 June 2024</div>
+          <div class="funeral-card-progress">
+            <div class="funeral-card-progress-text"><span>KES 285,000 raised</span><span>57%</span></div>
+            <div class="progress-wrap"><div class="progress-bar" data-progress="57"></div></div>
+          </div>
+          <div class="funeral-card-footer">
+            <span class="badge badge-muted">124 contributors</span>
+            <a href="funeral-dashboard.html" class="btn btn-primary btn-sm">Manage</a>
+          </div>
+        </div>
+      </div>
+      <div class="funeral-card">
+        <div class="funeral-card-image">🕊<div class="funeral-card-image-overlay"></div><div style="position:absolute;bottom:8px;left:12px;z-index:2;"><span class="badge badge-muted">Completed</span></div></div>
+        <div class="funeral-card-body">
+          <div class="funeral-card-name">Joseph Kamau Gitonga</div>
+          <div class="funeral-card-dates">1948 – 2023 · Buried: 15 Nov 2023</div>
+          <div class="funeral-card-progress">
+            <div class="funeral-card-progress-text"><span>KES 420,000 raised</span><span>100%</span></div>
+            <div class="progress-wrap"><div class="progress-bar" data-progress="100" style="background:var(--success);"></div></div>
+          </div>
+          <div class="funeral-card-footer">
+            <span class="badge badge-muted">89 contributors</span>
+            <button class="btn btn-secondary btn-sm">View</button>
+          </div>
+        </div>
+      </div>
+      <a href="create-funeral.html" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border:2px dashed var(--border-light);border-radius:var(--radius-lg);padding:40px;color:var(--text-muted);transition:var(--transition);text-decoration:none;min-height:200px;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='var(--text-muted)';">
+        <span style="font-size:2.5rem;">➕</span>
+        <span style="font-size:0.9rem;font-weight:600;">New Memorial</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Donations Tab -->
+  <div id="donations" data-tab-panel="donations" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">My Donation History</div>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Receipt history exported','success')">⬇ Export</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Memorial</th><th>Amount</th><th>Method</th><th>Reference</th><th>Date</th><th>Receipt</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-primary">Mary Wanjiku Kamau</td>
+              <td style="color:var(--success);font-weight:600;">KES 5,000</td>
+              <td><span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span></td>
+              <td><code style="font-size:0.78rem;color:var(--gold);">QHX12345AB</code></td>
+              <td>16 Jun 2024</td>
+              <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+            </tr>
+            <tr>
+              <td class="td-primary">Joseph Kamau Gitonga</td>
+              <td style="color:var(--success);font-weight:600;">KES 10,000</td>
+              <td><span class="badge badge-info">💳 Card</span></td>
+              <td><code style="font-size:0.78rem;color:var(--gold);">STR_ABC456</code></td>
+              <td>10 Nov 2023</td>
+              <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+            </tr>
+            <tr>
+              <td class="td-primary">Mary Wanjiku Kamau</td>
+              <td style="color:var(--success);font-weight:600;">KES 2,000</td>
+              <td><span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span></td>
+              <td><code style="font-size:0.78rem;color:var(--gold);">QHX98765EF</code></td>
+              <td>14 Jun 2024</td>
+              <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Tab -->
+  <div id="activity" data-tab-panel="activity" style="display:none;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Recent Activity</div></div>
+      <div class="activity-list">
+        <div class="activity-item"><div class="activity-dot" style="background:var(--success);"></div><div class="activity-content"><div class="activity-text">Contributed <strong>KES 5,000</strong> to Mary Wanjiku Kamau fund</div><div class="activity-time">16 Jun 2024 · 10:32 AM</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--gold);"></div><div class="activity-content"><div class="activity-text">Added <strong>Grace Muthoni</strong> as Secretary to Mary Wanjiku Kamau</div><div class="activity-time">15 Jun 2024 · 3:15 PM</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--info);"></div><div class="activity-content"><div class="activity-text">Created memorial for <strong>Mary Wanjiku Kamau</strong></div><div class="activity-time">14 Jun 2024 · 9:00 AM</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--success);"></div><div class="activity-content"><div class="activity-text">Contributed <strong>KES 2,000</strong> to Mary Wanjiku Kamau fund</div><div class="activity-time">14 Jun 2024 · 11:45 AM</div></div></div>
+        <div class="activity-item"><div class="activity-dot" style="background:var(--text-muted);"></div><div class="activity-content"><div class="activity-text">Signed up for <strong>Faraja</strong></div><div class="activity-time">Jan 2024</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div id="settings" data-tab-panel="settings" style="display:none;">
+    <div class="grid grid-2" style="gap:24px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Notification Preferences</div></div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div><div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);">New Contributions</div><div style="font-size:0.78rem;color:var(--text-muted);">Get notified when someone donates</div></div>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;"><input type="checkbox" checked style="opacity:0;width:0;height:0;"><span style="position:absolute;cursor:pointer;inset:0;background:var(--gold);border-radius:24px;transition:0.3s;"></span></label>
+          </div>
+          <div class="divider" style="margin:0;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div><div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);">Task Reminders</div><div style="font-size:0.78rem;color:var(--text-muted);">Reminders for overdue tasks</div></div>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;"><input type="checkbox" checked style="opacity:0;width:0;height:0;"><span style="position:absolute;cursor:pointer;inset:0;background:var(--gold);border-radius:24px;transition:0.3s;"></span></label>
+          </div>
+          <div class="divider" style="margin:0;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div><div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);">WhatsApp Alerts</div><div style="font-size:0.78rem;color:var(--text-muted);">Important updates via WhatsApp</div></div>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;"><input type="checkbox" style="opacity:0;width:0;height:0;"><span style="position:absolute;cursor:pointer;inset:0;background:var(--charcoal-4);border-radius:24px;transition:0.3s;"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Account Actions</div></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <a href="edit-profile.html" class="btn btn-secondary btn-full">✏️ Edit Profile</a>
+          <button class="btn btn-secondary btn-full" onclick="showToast('Password reset email sent','success')">🔒 Change Password</button>
+          <button class="btn btn-secondary btn-full" onclick="showToast('2FA setup coming soon','info')">🔐 Enable 2FA</button>
+          <div class="divider"></div>
+          <button class="btn btn-danger btn-full" onclick="if(confirm('Delete your account? This cannot be undone.'))showToast('Account deletion requested','error')">🗑 Delete Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  populateUserInfo();
+
+  // Tab logic
+  document.querySelectorAll('#profileTabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#profileTabs .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('[data-tab-panel]').forEach(panel => {
+        panel.style.display = panel.dataset.tabPanel === tab.dataset.tabTarget ? 'block' : 'none';
+      });
+    });
+  });
+
+  // Avatar upload
+  document.getElementById('avatarUpload').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const avatar = document.getElementById('profileAvatar');
+      avatar.style.backgroundImage = `url(${e.target.result})`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.textContent = '';
+    };
+    reader.readAsDataURL(file);
+    showToast('Profile photo updated ✅', 'success');
+  });
+</script>
+</body>
+</html>

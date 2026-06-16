@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Profile — Faraja</title>
+  <meta name="description" content="Update your Faraja account information, phone number, and notification preferences." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link active"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="profile.html">Profile</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Edit Profile</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Edit Profile</h1>
+        <p class="page-subtitle">Update your personal information and preferences</p>
+      </div>
+      <a href="profile.html" class="btn btn-secondary btn-sm">← Cancel</a>
+    </div>
+  </div>
+
+  <div style="max-width:720px;">
+
+    <!-- Avatar Section -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header">
+        <div class="card-title">Profile Photo</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px;">
+        <div style="position:relative;cursor:pointer;" onclick="document.getElementById('avatarUpload').click()">
+          <div class="avatar avatar-2xl" id="avatarPreview" style="font-size:2rem;">JK</div>
+          <div style="position:absolute;bottom:0;right:0;width:32px;height:32px;border-radius:50%;background:var(--gold);border:2px solid var(--charcoal-2);display:flex;align-items:center;justify-content:center;font-size:0.85rem;">📷</div>
+        </div>
+        <div>
+          <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:12px;">Upload a new profile photo. JPEG or PNG, max 5MB.</p>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('avatarUpload').click()">📷 Change Photo</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="showToast('Photo removed','info')">✕ Remove</button>
+          </div>
+          <input type="file" id="avatarUpload" accept="image/*" style="display:none;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Info Form -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header">
+        <div class="card-title">Personal Information</div>
+      </div>
+      <form id="profileForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="pfirst">First Name *</label>
+            <input type="text" id="pfirst" name="firstName" class="form-control" value="John" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="plast">Last Name *</label>
+            <input type="text" id="plast" name="lastName" class="form-control" value="Kamau" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pemail">Email Address *</label>
+          <div class="input-group">
+            <span class="input-icon">✉</span>
+            <input type="email" id="pemail" name="email" class="form-control" value="john.kamau@email.com" />
+          </div>
+          <div class="form-hint">This email is used for sign-in and receipts</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pphone">Phone Number (M-PESA) *</label>
+          <div class="input-group">
+            <span class="input-icon">📱</span>
+            <input type="tel" id="pphone" name="phone" class="form-control" value="0712345678" />
+          </div>
+          <div class="form-hint">Used for M-PESA payments and SMS alerts</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="pcounty">County</label>
+            <select id="pcounty" name="county" class="form-control">
+              <option value="nairobi" selected>Nairobi</option>
+              <option value="mombasa">Mombasa</option>
+              <option value="kisumu">Kisumu</option>
+              <option value="nakuru">Nakuru</option>
+              <option value="eldoret">Uasin Gishu</option>
+              <option value="kiambu">Kiambu</option>
+              <option value="muranga">Murang'a</option>
+              <option value="nyeri">Nyeri</option>
+              <option value="machakos">Machakos</option>
+              <option value="diaspora">Diaspora 🌍</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pcountry">Country</label>
+            <select id="pcountry" name="country" class="form-control">
+              <option value="KE" selected>🇰🇪 Kenya</option>
+              <option value="GB">🇬🇧 United Kingdom</option>
+              <option value="US">🇺🇸 United States</option>
+              <option value="CA">🇨🇦 Canada</option>
+              <option value="AU">🇦🇺 Australia</option>
+              <option value="DE">🇩🇪 Germany</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pbio">Short Bio (optional)</label>
+          <textarea id="pbio" name="bio" class="form-control" placeholder="Tell us a bit about yourself..." style="min-height:90px;">Nairobi-based professional and family organiser. Passionate about community and heritage.</textarea>
+          <div class="form-hint"><span id="bioCount">88</span> / 250 characters</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="prole">Account Role</label>
+          <select id="prole" name="role" class="form-control">
+            <option value="family" selected>Family Member / Organiser</option>
+            <option value="contributor">Contributor / Well-wisher</option>
+            <option value="vendor">Vendor / Service Provider</option>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border-light);">
+          <a href="profile.html" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary" id="saveProfileBtn">💾 Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header">
+        <div class="card-title">🔒 Change Password</div>
+      </div>
+      <form id="passwordForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="currentPwd">Current Password *</label>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="currentPwd" class="form-control" placeholder="Enter current password" />
+            <span class="input-suffix" data-toggle-password="currentPwd">👁</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="newPwd">New Password *</label>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="newPwd" class="form-control" placeholder="At least 8 characters" />
+            <span class="input-suffix" data-toggle-password="newPwd">👁</span>
+          </div>
+          <div id="newPwdStrength" style="display:none;margin-top:6px;" class="password-strength"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="confirmPwd">Confirm New Password *</label>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="confirmPwd" class="form-control" placeholder="Repeat new password" />
+            <span class="input-suffix" data-toggle-password="confirmPwd">👁</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+          <button type="submit" class="btn btn-primary" id="changePwdBtn">🔒 Update Password</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card" style="border-color:rgba(239,68,68,0.3);">
+      <div class="card-header" style="border-bottom-color:rgba(239,68,68,0.2);">
+        <div class="card-title" style="color:var(--danger);">⚠️ Danger Zone</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);">Delete Account</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);">Permanently delete your account and all associated data. This cannot be undone.</div>
+        </div>
+        <button class="btn btn-danger" onclick="handleDeleteAccount()">🗑 Delete Account</button>
+      </div>
+      <div class="divider" style="margin:0;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);">Export My Data</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);">Download a copy of all your data including contributions and memorial details.</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Data export initiated. You will receive an email shortly.','info')">⬇ Export Data</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  populateUserInfo();
+
+  // Avatar preview
+  setupFileUpload('avatarUpload', 'avatarPreview');
+
+  // Bio character count
+  const bioInput  = document.getElementById('pbio');
+  const bioCount  = document.getElementById('bioCount');
+  if (bioInput && bioCount) {
+    bioInput.addEventListener('input', () => {
+      const len = bioInput.value.length;
+      bioCount.textContent = len;
+      bioCount.style.color = len > 240 ? 'var(--danger)' : len > 200 ? 'var(--warning)' : '';
+    });
+  }
+
+  // Password strength
+  setupPasswordStrength(
+    document.getElementById('newPwd'),
+    document.getElementById('newPwdStrength')
+  );
+
+  // Profile form
+  document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    const first = document.getElementById('pfirst');
+    const last  = document.getElementById('plast');
+    const email = document.getElementById('pemail');
+    const phone = document.getElementById('pphone');
+    if (!validateField(first,  [validators.required, validators.minLen(2)], e.target)) ok = false;
+    if (!validateField(last,   [validators.required, validators.minLen(2)], e.target)) ok = false;
+    if (!validateField(email,  [validators.required, validators.email],      e.target)) ok = false;
+    if (!validateField(phone,  [validators.required, validators.phone],      e.target)) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('saveProfileBtn');
+    Utils.setButtonLoading(btn, true);
+    await FarajaAPI.delay(800);
+
+    // Update stored user
+    const user = FarajaAPI.currentUser() || {};
+    user.name  = first.value.trim() + ' ' + last.value.trim();
+    user.email = email.value.trim();
+    user.phone = phone.value.trim();
+    localStorage.setItem('faraja_user', JSON.stringify(user));
+
+    Utils.setButtonLoading(btn, false);
+    showToast('Profile updated successfully ✅', 'success');
+    populateUserInfo();
+  });
+
+  // Password form
+  document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    const curr    = document.getElementById('currentPwd');
+    const newPwd  = document.getElementById('newPwd');
+    const confirm = document.getElementById('confirmPwd');
+    if (!validateField(curr,   [validators.required],                    e.target)) ok = false;
+    if (!validateField(newPwd, [validators.required, validators.minLen(8)], e.target)) ok = false;
+    if (newPwd.value && confirm.value !== newPwd.value) {
+      setFieldError(confirm, 'Passwords do not match');
+      ok = false;
+    } else if (confirm.value) {
+      setFieldSuccess(confirm);
+    }
+    if (!ok) return;
+
+    const btn = document.getElementById('changePwdBtn');
+    Utils.setButtonLoading(btn, true);
+    await FarajaAPI.delay(900);
+    Utils.setButtonLoading(btn, false);
+
+    showToast('Password updated successfully 🔒', 'success');
+    e.target.reset();
+  });
+
+  // Clear on input
+  ['pfirst','plast','pemail','pphone','currentPwd','newPwd','confirmPwd'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', function(){ clearFieldState(this); });
+  });
+
+  function handleDeleteAccount() {
+    const confirmed = prompt('Type DELETE to confirm account deletion:');
+    if (confirmed === 'DELETE') {
+      showToast('Account deletion request submitted. You will receive a confirmation email.', 'error');
+      setTimeout(() => FarajaAPI.logout(), 2000);
+    } else if (confirmed !== null) {
+      showToast('Deletion cancelled — you must type DELETE exactly.', 'info');
+    }
+  }
+</script>
+</body>
+</html>

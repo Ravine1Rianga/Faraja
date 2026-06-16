@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Committee Members — Faraja</title>
+  <meta name="description" content="Manage funeral committee members, roles, and responsibilities." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link active"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="funeral-dashboard.html">Dashboard</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Committee Members</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Committee Members</h1>
+        <p class="page-subtitle">Mary Wanjiku Kamau Memorial — 7 members</p>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('addMemberModal')">➕ Add Member</button>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="grid grid-4" style="margin-bottom:28px;">
+    <div class="widget">
+      <div class="widget-icon widget-icon-blue">👥</div>
+      <div class="widget-value" data-count="7">0</div>
+      <div class="widget-label">Total Members</div>
+    </div>
+    <div class="widget">
+      <div class="widget-icon widget-icon-gold">📱</div>
+      <div class="widget-value" data-count="6">0</div>
+      <div class="widget-label">M-PESA Linked</div>
+    </div>
+    <div class="widget">
+      <div class="widget-icon widget-icon-green">✅</div>
+      <div class="widget-value" data-count="5">0</div>
+      <div class="widget-label">Tasks Assigned</div>
+    </div>
+    <div class="widget">
+      <div class="widget-icon widget-icon-red">⏳</div>
+      <div class="widget-value" data-count="2">0</div>
+      <div class="widget-label">Overdue Tasks</div>
+    </div>
+  </div>
+
+  <!-- Committee cards grid -->
+  <div class="grid grid-3" style="margin-bottom:32px;" id="committeeGrid">
+
+    <!-- Chairperson -->
+    <div class="card" style="border-color:rgba(201,168,76,0.3);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+        <div class="badge badge-gold">👑 Chairperson</div>
+        <div class="dropdown">
+          <button class="btn btn-ghost btn-icon" data-dropdown="dd1" style="font-size:1.2rem;">⋮</button>
+          <div class="dropdown-menu" id="dd1">
+            <div class="dropdown-item" onclick="openEditModal('James Ochieng','Chairperson','0712345678','james@email.com')">✏️ Edit</div>
+            <div class="dropdown-item" onclick="showToast('Message sent via SMS','success')">💬 Send Message</div>
+            <div class="dropdown-sep"></div>
+            <div class="dropdown-item danger" onclick="confirmRemove('James Ochieng')">🗑 Remove</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <div class="avatar avatar-xl" style="margin:0 auto 12px;">JO</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);">James Ochieng</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">Nairobi</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);">
+          <span>📱</span><span>+254 712 345 678</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);">
+          <span>✉</span><span>james@email.com</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);">
+          <span>✅</span><span>3 tasks assigned</span>
+        </div>
+      </div>
+      <div class="divider" style="margin:16px 0;"></div>
+      <div class="flex-between">
+        <span class="badge badge-success badge-dot">Active</span>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Calling James...','info')">📞 Call</button>
+      </div>
+    </div>
+
+    <!-- Secretary -->
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+        <div class="badge badge-info">📝 Secretary</div>
+        <div class="dropdown">
+          <button class="btn btn-ghost btn-icon" data-dropdown="dd2" style="font-size:1.2rem;">⋮</button>
+          <div class="dropdown-menu" id="dd2">
+            <div class="dropdown-item">✏️ Edit</div>
+            <div class="dropdown-item" onclick="showToast('Message sent','success')">💬 Send Message</div>
+            <div class="dropdown-sep"></div>
+            <div class="dropdown-item danger" onclick="confirmRemove('Grace Muthoni')">🗑 Remove</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <div class="avatar avatar-xl" style="margin:0 auto 12px;background:linear-gradient(135deg,#7c3aed,#4f46e5);">GM</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);">Grace Muthoni</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">Nakuru</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>📱</span><span>+254 722 456 789</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>✉</span><span>grace@email.com</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>✅</span><span>2 tasks assigned</span></div>
+      </div>
+      <div class="divider" style="margin:16px 0;"></div>
+      <div class="flex-between">
+        <span class="badge badge-success badge-dot">Active</span>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Calling Grace...','info')">📞 Call</button>
+      </div>
+    </div>
+
+    <!-- Treasurer -->
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+        <div class="badge badge-success">💰 Treasurer</div>
+        <div class="dropdown">
+          <button class="btn btn-ghost btn-icon" data-dropdown="dd3" style="font-size:1.2rem;">⋮</button>
+          <div class="dropdown-menu" id="dd3">
+            <div class="dropdown-item">✏️ Edit</div>
+            <div class="dropdown-item" onclick="showToast('Message sent','success')">💬 Send Message</div>
+            <div class="dropdown-sep"></div>
+            <div class="dropdown-item danger" onclick="confirmRemove('Peter Kamau')">🗑 Remove</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <div class="avatar avatar-xl" style="margin:0 auto 12px;background:linear-gradient(135deg,#059669,#10b981);">PK</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);">Peter Kamau</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">Nairobi</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>📱</span><span>+254 733 567 890</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>✉</span><span>peter@email.com</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>✅</span><span>1 task assigned</span></div>
+      </div>
+      <div class="divider" style="margin:16px 0;"></div>
+      <div class="flex-between">
+        <span class="badge badge-success badge-dot">Active</span>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Calling Peter...','info')">📞 Call</button>
+      </div>
+    </div>
+
+    <!-- Member 4 — Diaspora -->
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+        <div class="badge badge-muted">🌍 Member</div>
+        <div class="dropdown">
+          <button class="btn btn-ghost btn-icon" data-dropdown="dd4" style="font-size:1.2rem;">⋮</button>
+          <div class="dropdown-menu" id="dd4">
+            <div class="dropdown-item">✏️ Edit</div>
+            <div class="dropdown-item danger" onclick="confirmRemove('Samuel Njoroge')">🗑 Remove</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <div class="avatar avatar-xl" style="margin:0 auto 12px;background:linear-gradient(135deg,#f59e0b,#d97706);">SN</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);">Samuel Njoroge</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">Manchester, UK 🇬🇧</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>📱</span><span>+44 7911 234 567</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>✉</span><span>sam@email.co.uk</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>💰</span><span>Contributed KES 20,000</span></div>
+      </div>
+      <div class="divider" style="margin:16px 0;"></div>
+      <div class="flex-between">
+        <span class="badge badge-info badge-dot">Diaspora</span>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Emailing Samuel...','info')">✉ Email</button>
+      </div>
+    </div>
+
+    <!-- Add member card -->
+    <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border:2px dashed var(--border-light);border-radius:var(--radius-lg);padding:40px;cursor:pointer;transition:var(--transition);" onclick="openModal('addMemberModal')" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='';">
+      <span style="font-size:2.5rem;">➕</span>
+      <span style="font-size:0.9rem;font-weight:600;color:var(--text-muted);">Add Committee Member</span>
+    </div>
+  </div>
+
+  <!-- Members Table -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">All Members</div>
+      <div style="display:flex;gap:10px;">
+        <div class="search-bar">
+          <span class="search-bar-icon">🔍</span>
+          <input type="text" id="memberSearch" placeholder="Search members..." oninput="filterMembers(this.value)" />
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Broadcast sent to all members!','success')">📢 Broadcast</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="membersTable">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Role</th>
+            <th>Phone</th>
+            <th>Location</th>
+            <th>Tasks</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="membersBody">
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm">JO</div><span class="td-primary">James Ochieng</span></div></td>
+            <td><span class="badge badge-gold">Chairperson</span></td>
+            <td>+254 712 345 678</td>
+            <td>Nairobi</td>
+            <td>3 assigned</td>
+            <td><span class="badge badge-success badge-dot">Active</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Options for James','info')">⋮</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">GM</div><span class="td-primary">Grace Muthoni</span></div></td>
+            <td><span class="badge badge-info">Secretary</span></td>
+            <td>+254 722 456 789</td>
+            <td>Nakuru</td>
+            <td>2 assigned</td>
+            <td><span class="badge badge-success badge-dot">Active</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Options for Grace','info')">⋮</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#059669,#10b981);">PK</div><span class="td-primary">Peter Kamau</span></div></td>
+            <td><span class="badge badge-success">Treasurer</span></td>
+            <td>+254 733 567 890</td>
+            <td>Nairobi</td>
+            <td>1 assigned</td>
+            <td><span class="badge badge-success badge-dot">Active</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Options for Peter','info')">⋮</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706);">SN</div><span class="td-primary">Samuel Njoroge</span></div></td>
+            <td><span class="badge badge-muted">Member</span></td>
+            <td>+44 7911 234 567</td>
+            <td>Manchester, UK</td>
+            <td>0 assigned</td>
+            <td><span class="badge badge-info badge-dot">Diaspora</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Options for Samuel','info')">⋮</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Add Member Modal -->
+<div class="modal-overlay" id="addMemberModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">➕ Add Committee Member</h3>
+      <button class="modal-close" onclick="closeModal('addMemberModal')">✕</button>
+    </div>
+    <form id="addMemberForm" novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="mFirst">First Name *</label>
+          <input type="text" id="mFirst" class="form-control" placeholder="John" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mLast">Last Name *</label>
+          <input type="text" id="mLast" class="form-control" placeholder="Kamau" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="mRole">Committee Role *</label>
+        <select id="mRole" class="form-control">
+          <option value="">Select role</option>
+          <option value="Chairperson">Chairperson</option>
+          <option value="Secretary">Secretary</option>
+          <option value="Treasurer">Treasurer</option>
+          <option value="Procurement">Procurement</option>
+          <option value="Protocol">Protocol</option>
+          <option value="Transport">Transport</option>
+          <option value="Catering">Catering</option>
+          <option value="Member">General Member</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="mPhone">Phone Number *</label>
+        <div class="input-group">
+          <span class="input-icon">📱</span>
+          <input type="tel" id="mPhone" class="form-control" placeholder="0712 345 678" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="mEmail">Email (optional)</label>
+        <div class="input-group">
+          <span class="input-icon">✉</span>
+          <input type="email" id="mEmail" class="form-control" placeholder="member@email.com" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="mLocation">Location</label>
+        <input type="text" id="mLocation" class="form-control" placeholder="e.g. Nairobi / Manchester, UK" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addMemberModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="addMemberBtn">Add Member</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  populateUserInfo();
+
+  document.getElementById('addMemberForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    if (!validateField(document.getElementById('mFirst'), [validators.required], e.target)) ok = false;
+    if (!validateField(document.getElementById('mLast'),  [validators.required], e.target)) ok = false;
+    if (!validateField(document.getElementById('mRole'),  [validators.required], e.target)) ok = false;
+    if (!validateField(document.getElementById('mPhone'), [validators.required, validators.phone], e.target)) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('addMemberBtn');
+    Utils.setButtonLoading(btn, true);
+    await FarajaAPI.delay(700);
+    Utils.setButtonLoading(btn, false);
+
+    const first = document.getElementById('mFirst').value;
+    const last  = document.getElementById('mLast').value;
+    const role  = document.getElementById('mRole').value;
+    const phone = document.getElementById('mPhone').value;
+
+    // Add to table
+    const tbody = document.getElementById('membersBody');
+    const initials = (first[0] + last[0]).toUpperCase();
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm">${initials}</div><span class="td-primary">${first} ${last}</span></div></td>
+      <td><span class="badge badge-muted">${role}</span></td>
+      <td>${phone}</td>
+      <td>${document.getElementById('mLocation').value || '—'}</td>
+      <td>0 assigned</td>
+      <td><span class="badge badge-success badge-dot">Active</span></td>
+      <td><button class="btn btn-ghost btn-sm">⋮</button></td>`;
+    tbody.appendChild(row);
+
+    showToast(`${first} ${last} added to committee ✅`, 'success');
+    closeModal('addMemberModal');
+    e.target.reset();
+  });
+
+  function confirmRemove(name) {
+    if (confirm(`Remove ${name} from the committee?`)) {
+      showToast(name + ' removed from committee', 'info');
+    }
+  }
+
+  function filterMembers(query) {
+    const rows = document.querySelectorAll('#membersBody tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

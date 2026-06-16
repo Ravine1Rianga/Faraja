@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Funeral — Faraja</title>
+  <meta name="description" content="Set up a new funeral memorial with fundraising, committee, and task management." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🕊</div>
+    <span class="sidebar-logo-text">Fa<span>raja</span></span>
+  </div>
+  <div class="sidebar-section-label">Menu</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link active"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<!-- Main Content -->
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="funeral-dashboard.html">Dashboard</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>New Memorial</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Create a Memorial</h1>
+        <p class="page-subtitle">Complete all 4 steps to set up the funeral management page</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:720px;">
+
+    <!-- Step Indicator -->
+    <div class="step-indicator" data-multistep>
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step-dot" id="dot-3">3</div>
+      <div class="step-line" id="line-3"></div>
+      <div class="step-dot" id="dot-4">4</div>
+    </div>
+
+    <form id="createFuneralForm" novalidate>
+
+      <!-- Step 1: Deceased Details -->
+      <div class="step-panel active card" id="panel-1">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Step 1 of 4 — Deceased's Details</div>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Information about the loved one being remembered</p>
+          </div>
+          <div class="badge badge-gold">🕊 Memorial</div>
+        </div>
+
+        <!-- Photo upload -->
+        <div class="form-group">
+          <label class="form-label">Photo of the Deceased (optional)</label>
+          <div id="photoPreview" style="width:120px;height:120px;border-radius:var(--radius-lg);background:var(--charcoal-3);border:2px dashed var(--border-light);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);font-size:2rem;margin-bottom:10px;" onclick="document.getElementById('photoUpload').click()" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border-light)'">
+            📷
+            <span style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">Upload</span>
+          </div>
+          <input type="file" id="photoUpload" accept="image/*" style="display:none;" />
+          <div class="form-hint">JPEG/PNG up to 5MB</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="deceasedFirst">First Name *</label>
+            <input type="text" id="deceasedFirst" name="deceasedFirst" class="form-control" placeholder="Mary" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="deceasedLast">Last Name *</label>
+            <input type="text" id="deceasedLast" name="deceasedLast" class="form-control" placeholder="Wanjiku Kamau" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="dateOfBirth">Date of Birth *</label>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dateOfDeath">Date of Death *</label>
+            <input type="date" id="dateOfDeath" name="dateOfDeath" class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="relationship">Your Relationship to Deceased *</label>
+          <select id="relationship" name="relationship" class="form-control">
+            <option value="">Select relationship</option>
+            <option value="son">Son</option>
+            <option value="daughter">Daughter</option>
+            <option value="spouse">Spouse</option>
+            <option value="sibling">Sibling</option>
+            <option value="grandchild">Grandchild</option>
+            <option value="nephew_niece">Nephew / Niece</option>
+            <option value="friend">Friend / Well-wisher</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="biography">Short Biography (optional)</label>
+          <textarea id="biography" name="biography" class="form-control" placeholder="A few words about the life and legacy of your loved one..." style="min-height:90px;"></textarea>
+        </div>
+
+        <div class="step-nav">
+          <div></div>
+          <button type="button" class="btn btn-primary" id="toStep2">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Funeral Details -->
+      <div class="step-panel card" id="panel-2">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Step 2 of 4 — Funeral Arrangements</div>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Date, venue, and service details</p>
+          </div>
+          <div class="badge badge-info">📋 Arrangements</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="funeralDate">Burial / Service Date *</label>
+            <input type="date" id="funeralDate" name="funeralDate" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="funeralTime">Service Time *</label>
+            <input type="time" id="funeralTime" name="funeralTime" class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="venue">Venue / Church *</label>
+          <div class="input-group">
+            <span class="input-icon">📍</span>
+            <input type="text" id="venue" name="venue" class="form-control" placeholder="e.g. PCEA St. Andrew's Church, Nairobi" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="burialSite">Burial Site</label>
+          <div class="input-group">
+            <span class="input-icon">⚱</span>
+            <input type="text" id="burialSite" name="burialSite" class="form-control" placeholder="e.g. Kariokor Cemetery / Home, Kiambu County" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="officiant">Officiating Minister / Person</label>
+          <div class="input-group">
+            <span class="input-icon">✝</span>
+            <input type="text" id="officiant" name="officiant" class="form-control" placeholder="Rev. Dr. James Mwangi" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="mortuary">Mortuary / Funeral Home</label>
+          <select id="mortuary" name="mortuary" class="form-control">
+            <option value="">Select mortuary (optional)</option>
+            <option value="lee">Lee Funeral Home, Nairobi</option>
+            <option value="montezuma">Montezuma Monalisa Funeral Home</option>
+            <option value="chiromo">Chiromo Mortuary</option>
+            <option value="knh">Kenyatta National Hospital Mortuary</option>
+            <option value="aga_khan">Aga Khan Hospital Mortuary</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="fundraisingGoal">Fundraising Goal (KES) *</label>
+          <div class="input-group">
+            <span class="input-icon">💰</span>
+            <input type="number" id="fundraisingGoal" name="fundraisingGoal" class="form-control" placeholder="e.g. 500000" min="1000" />
+          </div>
+          <div class="form-hint">How much do you hope to raise through harambee contributions?</div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-secondary" id="toStep1">← Back</button>
+          <button type="button" class="btn btn-primary" id="toStep3">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Committee -->
+      <div class="step-panel card" id="panel-3">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Step 3 of 4 — Committee Setup</div>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Add key committee members (you can add more later)</p>
+          </div>
+          <div class="badge badge-warning">👥 Committee</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px;" id="committeeList">
+          <!-- Chair -->
+          <div class="card" style="padding:20px;background:var(--charcoal-3);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <div class="badge badge-gold">Chairperson</div>
+              <span style="font-size:0.78rem;color:var(--text-muted);">Oversees all arrangements</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="chairName">Full Name *</label>
+                <input type="text" id="chairName" name="chairName" class="form-control" placeholder="James Ochieng" />
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="chairPhone">Phone (M-PESA) *</label>
+                <input type="tel" id="chairPhone" name="chairPhone" class="form-control" placeholder="0712 345 678" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Secretary -->
+          <div class="card" style="padding:20px;background:var(--charcoal-3);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <div class="badge badge-info">Secretary</div>
+              <span style="font-size:0.78rem;color:var(--text-muted);">Minutes & communications</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="secName">Full Name</label>
+                <input type="text" id="secName" name="secName" class="form-control" placeholder="Grace Muthoni" />
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="secPhone">Phone</label>
+                <input type="tel" id="secPhone" name="secPhone" class="form-control" placeholder="0722 456 789" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Treasurer -->
+          <div class="card" style="padding:20px;background:var(--charcoal-3);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <div class="badge badge-success">Treasurer</div>
+              <span style="font-size:0.78rem;color:var(--text-muted);">Manages funds & receipts</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="treasName">Full Name</label>
+                <input type="text" id="treasName" name="treasName" class="form-control" placeholder="Peter Kamau" />
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="treasPhone">Phone</label>
+                <input type="tel" id="treasPhone" name="treasPhone" class="form-control" placeholder="0733 567 890" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-secondary" id="toStep2b">← Back</button>
+          <button type="button" class="btn btn-primary" id="toStep4">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Privacy & Launch -->
+      <div class="step-panel card" id="panel-4">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Step 4 of 4 — Privacy & Launch</div>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Choose who can view and contribute to this memorial</p>
+          </div>
+          <div class="badge badge-muted">🔒 Privacy</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:28px;">
+          <label style="display:flex;gap:16px;padding:18px;border-radius:var(--radius);cursor:pointer;transition:var(--transition);border:1px solid var(--border-light);" id="optPublic" onclick="selectPrivacy('public')">
+            <input type="radio" name="privacy" value="public" style="accent-color:var(--gold);margin-top:2px;" />
+            <div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">🌍 Public Memorial</div>
+              <div style="font-size:0.85rem;color:var(--text-muted);">Anyone with the link can view and contribute. Best for maximum harambee reach.</div>
+            </div>
+          </label>
+          <label style="display:flex;gap:16px;padding:18px;border-radius:var(--radius);cursor:pointer;transition:var(--transition);border:1px solid var(--border-light);" id="optPrivate" onclick="selectPrivacy('private')">
+            <input type="radio" name="privacy" value="private" style="accent-color:var(--gold);margin-top:2px;" />
+            <div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">🔒 Private (Invite Only)</div>
+              <div style="font-size:0.85rem;color:var(--text-muted);">Only people you invite can view. Contributions require sign-in.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="notifyMsg">Launch Message (optional)</label>
+          <textarea id="notifyMsg" class="form-control" placeholder="E.g. We regret to announce the passing of our beloved mother. We invite all friends and family to contribute to her send-off..." style="min-height:100px;"></textarea>
+          <div class="form-hint">This will be sent via WhatsApp/SMS to your committee members</div>
+        </div>
+
+        <div class="alert alert-info">
+          <span>ℹ</span>
+          <div>After creating the memorial you can add more committee members, tasks, and vendor bookings from the dashboard.</div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-secondary" id="toStep3b">← Back</button>
+          <button type="submit" class="btn btn-primary btn-lg" id="submitFuneralBtn">
+            🕊 Create Memorial
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:3.5rem;margin-bottom:20px;">🕊</div>
+    <h3 style="margin-bottom:8px;">Memorial Created!</h3>
+    <p style="color:var(--text-muted);margin-bottom:24px;">Your funeral management page has been set up. Share the harambee link with family and friends.</p>
+    <div style="background:var(--charcoal-3);border-radius:var(--radius-sm);padding:14px;font-family:monospace;font-size:0.85rem;color:var(--gold);margin-bottom:24px;word-break:break-all;" id="shareLink">
+      https://faraja.co.ke/memorial/fun_xxxxxx
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-whatsapp" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
+      <button class="btn btn-secondary" data-copy="https://faraja.co.ke/memorial/fun_xxxxxx">📋 Copy Link</button>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <a href="funeral-dashboard.html" class="btn btn-primary btn-lg">Go to Dashboard →</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  // Auth guard
+  if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
+
+  // File upload preview
+  setupFileUpload('photoUpload', 'photoPreview');
+
+  // Step navigation
+  let currentStep = 1;
+  const totalSteps = 4;
+
+  function goToStep(n) {
+    document.querySelectorAll('.step-panel').forEach((p, i) => p.classList.toggle('active', i === n - 1));
+    for (let i = 1; i <= totalSteps; i++) {
+      const dot  = document.getElementById('dot-' + i);
+      if (!dot) continue;
+      dot.classList.toggle('active', i === n);
+      dot.classList.toggle('done', i < n);
+    }
+    for (let i = 1; i < totalSteps; i++) {
+      const line = document.getElementById('line-' + i);
+      if (line) line.classList.toggle('done', i < n);
+    }
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep1() {
+    let ok = true;
+    if (!validateField(document.getElementById('deceasedFirst'),   [validators.required, validators.minLen(2)], document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('deceasedLast'),    [validators.required, validators.minLen(2)], document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('dateOfBirth'),     [validators.required, validators.date],      document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('dateOfDeath'),     [validators.required, validators.date],      document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('relationship'),    [validators.required],                        document.getElementById('createFuneralForm'))) ok = false;
+    return ok;
+  }
+
+  function validateStep2() {
+    let ok = true;
+    if (!validateField(document.getElementById('funeralDate'),     [validators.required, validators.date], document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('funeralTime'),     [validators.required],                   document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('venue'),           [validators.required],                   document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('fundraisingGoal'),[validators.required, validators.positive], document.getElementById('createFuneralForm'))) ok = false;
+    return ok;
+  }
+
+  function validateStep3() {
+    let ok = true;
+    if (!validateField(document.getElementById('chairName'),  [validators.required], document.getElementById('createFuneralForm'))) ok = false;
+    if (!validateField(document.getElementById('chairPhone'), [validators.required, validators.phone], document.getElementById('createFuneralForm'))) ok = false;
+    return ok;
+  }
+
+  document.getElementById('toStep2').addEventListener('click',  () => { if (validateStep1()) goToStep(2); });
+  document.getElementById('toStep1').addEventListener('click',  () => goToStep(1));
+  document.getElementById('toStep3').addEventListener('click',  () => { if (validateStep2()) goToStep(3); });
+  document.getElementById('toStep2b').addEventListener('click', () => goToStep(2));
+  document.getElementById('toStep4').addEventListener('click',  () => { if (validateStep3()) goToStep(4); });
+  document.getElementById('toStep3b').addEventListener('click', () => goToStep(3));
+
+  // Privacy selection
+  function selectPrivacy(val) {
+    document.getElementById('optPublic').style.borderColor  = val === 'public'  ? 'var(--gold)' : 'var(--border-light)';
+    document.getElementById('optPrivate').style.borderColor = val === 'private' ? 'var(--gold)' : 'var(--border-light)';
+  }
+
+  // Form submit
+  document.getElementById('createFuneralForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitFuneralBtn');
+    Utils.setButtonLoading(btn, true);
+
+    const data = {
+      deceasedName: document.getElementById('deceasedFirst').value + ' ' + document.getElementById('deceasedLast').value,
+      dateOfBirth:  document.getElementById('dateOfBirth').value,
+      dateOfDeath:  document.getElementById('dateOfDeath').value,
+      funeralDate:  document.getElementById('funeralDate').value,
+      venue:        document.getElementById('venue').value,
+      goal:         parseFloat(document.getElementById('fundraisingGoal').value),
+      privacy:      document.querySelector('input[name="privacy"]:checked')?.value || 'public',
+    };
+
+    const res = await FarajaAPI.saveFuneral(data);
+    Utils.setButtonLoading(btn, false);
+
+    if (res.success) {
+      const link = `https://faraja.co.ke/memorial/${res.funeral.id}`;
+      document.getElementById('shareLink').textContent = link;
+      document.querySelector('[data-copy]').dataset.copy = link;
+      openModal('successModal');
+    } else {
+      showToast('Failed to create memorial. Please try again.', 'error');
+    }
+  });
+
+  function shareWhatsApp() {
+    const msg = encodeURIComponent('We invite you to contribute to the harambee for ' + document.getElementById('deceasedFirst').value + ': ' + document.getElementById('shareLink').textContent);
+    window.open('https://wa.me/?text=' + msg, '_blank');
+  }
+</script>
+</body>
+</html>

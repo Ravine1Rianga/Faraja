@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Summary — Faraja</title>
+  <meta name="description" content="Track income, expenses, and the financial balance of the memorial fund." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link active"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="funeral-dashboard.html">Dashboard</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Financial Summary</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Financial Summary</h1>
+        <p class="page-subtitle">Mary Wanjiku Kamau Memorial Fund · As of 16 June 2024</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Report exported','success')">📄 Export Report</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addExpenseModal')">➕ Add Expense</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics -->
+  <div class="grid grid-4" style="margin-bottom:28px;">
+    <div class="widget" style="border-color:rgba(34,197,94,0.3);">
+      <div class="widget-icon widget-icon-green">💰</div>
+      <div class="widget-value" data-count="285000" data-prefix="KES ">0</div>
+      <div class="widget-label">Total Income</div>
+      <div class="widget-trend up">↑ 57% of goal</div>
+    </div>
+    <div class="widget" style="border-color:rgba(239,68,68,0.3);">
+      <div class="widget-icon widget-icon-red">📤</div>
+      <div class="widget-value" data-count="48000" data-prefix="KES ">0</div>
+      <div class="widget-label">Total Expenses</div>
+      <div class="widget-trend down">↑ KES 12,000 this week</div>
+    </div>
+    <div class="widget" style="border-color:rgba(201,168,76,0.3);">
+      <div class="widget-icon widget-icon-gold">🏦</div>
+      <div class="widget-value" data-count="237000" data-prefix="KES ">0</div>
+      <div class="widget-label">Net Balance</div>
+      <div class="widget-trend up">Available for use</div>
+    </div>
+    <div class="widget">
+      <div class="widget-icon widget-icon-blue">🎯</div>
+      <div class="widget-value" data-count="215000" data-prefix="KES ">0</div>
+      <div class="widget-label">Still Needed</div>
+      <div class="widget-trend down">43% of goal remaining</div>
+    </div>
+  </div>
+
+  <!-- Bar Chart + Categories -->
+  <div class="grid" style="grid-template-columns:2fr 1fr;gap:24px;margin-bottom:28px;">
+
+    <!-- Income vs Expenses Bar Chart -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Income vs Expenses (Daily)</div>
+        <div style="display:flex;gap:12px;align-items:center;font-size:0.78rem;">
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--gold);display:inline-block;"></span>Income</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--danger);display:inline-block;"></span>Expenses</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <div style="display:flex;flex-direction:column;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);padding-bottom:24px;text-align:right;min-width:52px;">
+          <span>100K</span><span>75K</span><span>50K</span><span>25K</span><span>0</span>
+        </div>
+        <div style="flex:1;">
+          <div class="chart-bar-group" id="barChart">
+            <!-- Generated by JS -->
+          </div>
+          <div style="display:flex;gap:6px;padding:0 4px;margin-top:6px;" id="barLabels"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense Categories -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">Expense Breakdown</div></div>
+      <div id="expenseCategories">
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+            <span style="color:var(--text-muted);">⚰️ Mortuary & Coffin</span>
+            <span style="color:var(--text-primary);font-weight:600;">KES 25,000</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" data-progress="52" style="background:linear-gradient(90deg,#7c3aed,#4f46e5);"></div></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+            <span style="color:var(--text-muted);">🍽️ Catering</span>
+            <span style="color:var(--text-primary);font-weight:600;">KES 12,000</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" data-progress="25" style="background:linear-gradient(90deg,#f59e0b,#d97706);"></div></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+            <span style="color:var(--text-muted);">🚗 Transport / Hearse</span>
+            <span style="color:var(--text-primary);font-weight:600;">KES 8,000</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" data-progress="17" style="background:linear-gradient(90deg,#10b981,#059669);"></div></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+            <span style="color:var(--text-muted);">🖨️ Printing</span>
+            <span style="color:var(--text-primary);font-weight:600;">KES 3,000</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" data-progress="6" style="background:linear-gradient(90deg,var(--gold-dark),var(--gold));"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expense Log Table -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Expense Log</div>
+      <div style="display:flex;gap:10px;">
+        <div class="search-bar">
+          <span class="search-bar-icon">🔍</span>
+          <input type="text" placeholder="Search expenses..." oninput="filterExpenses(this.value)" />
+        </div>
+        <select class="form-control" style="width:140px;padding:8px 12px;font-size:0.85rem;" onchange="filterExpenses()">
+          <option value="">All Categories</option>
+          <option>Mortuary</option>
+          <option>Catering</option>
+          <option>Transport</option>
+          <option>Printing</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Paid By</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="expenseBody">
+          <tr>
+            <td style="color:var(--text-muted);">001</td>
+            <td class="td-primary">Lee Funeral Home — Mortuary (14 days)</td>
+            <td><span class="badge badge-muted">⚰️ Mortuary</span></td>
+            <td style="color:var(--danger);font-weight:600;">- KES 20,000</td>
+            <td>Peter Kamau</td>
+            <td>10 Jun 2024</td>
+            <td><span class="badge badge-success badge-dot">Paid</span></td>
+            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-muted);">002</td>
+            <td class="td-primary">ABC Caterers — Deposit for 300 guests</td>
+            <td><span class="badge badge-muted">🍽️ Catering</span></td>
+            <td style="color:var(--danger);font-weight:600;">- KES 12,000</td>
+            <td>Peter Kamau</td>
+            <td>12 Jun 2024</td>
+            <td><span class="badge badge-success badge-dot">Paid</span></td>
+            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-muted);">003</td>
+            <td class="td-primary">Standard Chartered Print Studio — 200 programs</td>
+            <td><span class="badge badge-muted">🖨️ Printing</span></td>
+            <td style="color:var(--danger);font-weight:600;">- KES 3,000</td>
+            <td>Grace Muthoni</td>
+            <td>14 Jun 2024</td>
+            <td><span class="badge badge-success badge-dot">Paid</span></td>
+            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-muted);">004</td>
+            <td class="td-primary">Coffin — Premium Oak with lining</td>
+            <td><span class="badge badge-muted">⚰️ Mortuary</span></td>
+            <td style="color:var(--danger);font-weight:600;">- KES 5,000</td>
+            <td>James Ochieng</td>
+            <td>15 Jun 2024</td>
+            <td><span class="badge badge-success badge-dot">Paid</span></td>
+            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-muted);">005</td>
+            <td class="td-primary">Hearse hire — Nairobi to Kiambu</td>
+            <td><span class="badge badge-muted">🚗 Transport</span></td>
+            <td style="color:var(--warning);font-weight:600;">- KES 8,000</td>
+            <td>James Ochieng</td>
+            <td>—</td>
+            <td><span class="badge badge-warning badge-dot">Pending</span></td>
+            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light);">
+      <div>
+        <span style="font-size:0.85rem;color:var(--text-muted);">Total expenses: </span>
+        <span style="font-size:0.95rem;font-weight:700;color:var(--danger);">KES 48,000</span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('addExpenseModal')">➕ Add Expense</button>
+    </div>
+  </div>
+</main>
+
+<!-- Add Expense Modal -->
+<div class="modal-overlay" id="addExpenseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">➕ Add Expense</h3>
+      <button class="modal-close" onclick="closeModal('addExpenseModal')">✕</button>
+    </div>
+    <form id="addExpenseForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="expDesc">Description *</label>
+        <input type="text" id="expDesc" class="form-control" placeholder="e.g. Catering deposit for 300 guests" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="expCategory">Category *</label>
+          <select id="expCategory" class="form-control">
+            <option value="">Select category</option>
+            <option>⚰️ Mortuary</option>
+            <option>🍽️ Catering</option>
+            <option>🚗 Transport</option>
+            <option>🖨️ Printing</option>
+            <option>⛺ Tent & Chairs</option>
+            <option>🔊 PA System</option>
+            <option>📦 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="expAmount">Amount (KES) *</label>
+          <div class="input-group">
+            <span class="input-icon" style="font-weight:700;font-size:0.8rem;">KES</span>
+            <input type="number" id="expAmount" class="form-control" placeholder="e.g. 15000" min="1" style="padding-left:52px;" />
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="expPaidBy">Paid By</label>
+          <select id="expPaidBy" class="form-control">
+            <option value="">Select member</option>
+            <option>James Ochieng</option>
+            <option>Grace Muthoni</option>
+            <option>Peter Kamau</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="expDate">Date</label>
+          <input type="date" id="expDate" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="expStatus">Status</label>
+        <select id="expStatus" class="form-control">
+          <option value="Paid">✅ Paid</option>
+          <option value="Pending">⏳ Pending</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="expNotes">Notes (optional)</label>
+        <textarea id="expNotes" class="form-control" placeholder="Additional details or receipt reference..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addExpenseModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="addExpenseBtn">Add Expense</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  populateUserInfo();
+
+  // Bar chart
+  const days   = ['10 Jun','11 Jun','12 Jun','13 Jun','14 Jun','15 Jun','16 Jun'];
+  const income = [45000, 22000, 38000, 15000, 52000, 73000, 40000];
+  const expns  = [20000, 0, 12000, 3000, 5000, 8000, 0];
+  const maxVal = Math.max(...income, ...expns);
+
+  const chartEl  = document.getElementById('barChart');
+  const labelsEl = document.getElementById('barLabels');
+
+  days.forEach((day, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'chart-bar-wrap';
+    wrap.style.flex = '1';
+
+    const incH = Math.round((income[i] / maxVal) * 100);
+    const expH = Math.round((expns[i]  / maxVal) * 100);
+
+    wrap.innerHTML = `
+      <div style="flex:1;display:flex;align-items:flex-end;gap:3px;width:100%;">
+        <div class="chart-bar-track" style="flex:1;">
+          <div class="chart-bar-fill" style="height:${incH}%;"></div>
+        </div>
+        <div class="chart-bar-track" style="flex:1;">
+          <div class="chart-bar-fill expense" style="height:${expH}%;"></div>
+        </div>
+      </div>`;
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'chart-label';
+    labelEl.style.flex = '1';
+    labelEl.style.textAlign = 'center';
+    labelEl.textContent = day.split(' ')[0] + '\n' + day.split(' ')[1];
+
+    chartEl.appendChild(wrap);
+    labelsEl.appendChild(labelEl);
+  });
+
+  document.getElementById('addExpenseForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    const desc   = document.getElementById('expDesc');
+    const cat    = document.getElementById('expCategory');
+    const amount = document.getElementById('expAmount');
+    if (!validateField(desc,   [validators.required], e.target)) ok = false;
+    if (!validateField(cat,    [validators.required], e.target)) ok = false;
+    if (!validateField(amount, [validators.required, validators.positive], e.target)) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('addExpenseBtn');
+    Utils.setButtonLoading(btn, true);
+    await FarajaAPI.delay(600);
+    Utils.setButtonLoading(btn, false);
+
+    const tbody   = document.getElementById('expenseBody');
+    const rowNum  = String(tbody.rows.length + 1).padStart(3,'0');
+    const status  = document.getElementById('expStatus').value;
+    const badgeClass = status === 'Paid' ? 'badge-success' : 'badge-warning';
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td style="color:var(--text-muted);">${rowNum}</td>
+      <td class="td-primary">${desc.value}</td>
+      <td><span class="badge badge-muted">${cat.value}</span></td>
+      <td style="color:var(--danger);font-weight:600;">- KES ${parseInt(amount.value).toLocaleString('en-KE')}</td>
+      <td>${document.getElementById('expPaidBy').value || '—'}</td>
+      <td>${document.getElementById('expDate').value || '—'}</td>
+      <td><span class="badge ${badgeClass} badge-dot">${status}</span></td>
+      <td><button class="btn btn-ghost btn-sm">⋮</button></td>`;
+    tbody.appendChild(row);
+
+    showToast('Expense added ✅', 'success');
+    closeModal('addExpenseModal');
+    e.target.reset();
+  });
+
+  function filterExpenses(query) {
+    const rows = document.querySelectorAll('#expenseBody tr');
+    rows.forEach(r => {
+      r.style.display = r.textContent.toLowerCase().includes((query || '').toLowerCase()) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

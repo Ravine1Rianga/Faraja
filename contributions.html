@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributions — Faraja</title>
+  <meta name="description" content="View and manage all harambee contributions for the memorial fund." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link active"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="funeral-dashboard.html">Dashboard</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Contributions</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Contributions</h1>
+        <p class="page-subtitle">Mary Wanjiku Kamau Memorial Fund · 124 contributors</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <a href="donate.html" target="_blank" class="btn btn-primary btn-sm">🔗 Share Donation Link</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Widgets -->
+  <div class="grid grid-4" style="margin-bottom:28px;">
+    <div class="widget">
+      <div class="widget-icon widget-icon-green">💰</div>
+      <div class="widget-value" data-count="285000" data-prefix="KES ">0</div>
+      <div class="widget-label">Total Raised</div>
+    </div>
+    <div class="widget">
+      <div class="widget-icon widget-icon-blue">👥</div>
+      <div class="widget-value" data-count="124">0</div>
+      <div class="widget-label">Contributors</div>
+    </div>
+    <div class="widget">
+      <div class="widget-icon widget-icon-gold">📱</div>
+      <div class="widget-value" data-count="89">0</div>
+      <div class="widget-label">Via M-PESA</div>
+    </div>
+    <div class="widget">
+      <div class="widget-icon" style="background:rgba(59,130,246,0.1);color:var(--info);">💳</div>
+      <div class="widget-value" data-count="35">0</div>
+      <div class="widget-label">Via Card</div>
+    </div>
+  </div>
+
+  <!-- Leaderboard + Payment methods -->
+  <div class="grid" style="grid-template-columns:2fr 1fr;gap:24px;margin-bottom:28px;">
+
+    <!-- Top contributors -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏆 Top Contributors</div>
+        <span style="font-size:0.78rem;color:var(--text-muted);">All time</span>
+      </div>
+      <div id="leaderboardFull">
+        <div class="leaderboard-item"><div class="leaderboard-rank gold">🥇</div><div class="avatar avatar-sm">JK</div><div class="leaderboard-info"><div class="leaderboard-name">James Kiprono</div><div class="leaderboard-method">M-PESA · 2 contributions</div></div><div class="leaderboard-amount">KES 25,000</div></div>
+        <div class="leaderboard-item"><div class="leaderboard-rank silver">🥈</div><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">AN</div><div class="leaderboard-info"><div class="leaderboard-name">Alice Njeri</div><div class="leaderboard-method">Card · 1 contribution</div></div><div class="leaderboard-amount">KES 15,000</div></div>
+        <div class="leaderboard-item"><div class="leaderboard-rank bronze">🥉</div><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706);">SN</div><div class="leaderboard-info"><div class="leaderboard-name">Samuel Njoroge (UK)</div><div class="leaderboard-method">Card · 1 contribution</div></div><div class="leaderboard-amount">KES 20,000</div></div>
+        <div class="leaderboard-item"><div class="leaderboard-rank">4</div><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#10b981,#059669);">DO</div><div class="leaderboard-info"><div class="leaderboard-name">David Omondi</div><div class="leaderboard-method">M-PESA · 3 contributions</div></div><div class="leaderboard-amount">KES 9,000</div></div>
+        <div class="leaderboard-item"><div class="leaderboard-rank">5</div><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#ec4899,#be185d);">MW</div><div class="leaderboard-info"><div class="leaderboard-name">Mary Waweru</div><div class="leaderboard-method">M-PESA · 1 contribution</div></div><div class="leaderboard-amount">KES 7,500</div></div>
+      </div>
+    </div>
+
+    <!-- Payment method breakdown -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">Payment Methods</div></div>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.85rem;">
+          <span style="color:var(--text-muted);">M-PESA</span>
+          <span style="color:var(--text-primary);font-weight:600;">71.8%</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" data-progress="72" style="background:linear-gradient(90deg,#00b300,#00d300);"></div></div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.85rem;">
+          <span style="color:var(--text-muted);">Card</span>
+          <span style="color:var(--text-primary);font-weight:600;">20.5%</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" data-progress="21" style="background:linear-gradient(90deg,#3b82f6,#1d4ed8);"></div></div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.85rem;">
+          <span style="color:var(--text-muted);">Bank Transfer</span>
+          <span style="color:var(--text-primary);font-weight:600;">7.7%</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" data-progress="8" style="background:linear-gradient(90deg,var(--gold-dark),var(--gold));"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:0.82rem;color:var(--text-muted);">Average contribution</div>
+      <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary);font-family:var(--font-display);">KES 2,298</div>
+    </div>
+  </div>
+
+  <!-- Contributions Table -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">All Contributions</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div class="search-bar">
+          <span class="search-bar-icon">🔍</span>
+          <input type="text" id="contribSearch" placeholder="Search by name..." oninput="filterContribs(this.value)" />
+        </div>
+        <select class="form-control" id="methodFilter" onchange="filterContribs()" style="width:130px;padding:8px 12px;font-size:0.85rem;">
+          <option value="">All Methods</option>
+          <option value="M-PESA">M-PESA</option>
+          <option value="Card">Card</option>
+          <option value="Bank">Bank</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Contributor</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Reference</th>
+            <th>Date</th>
+            <th>Message</th>
+            <th>Receipt</th>
+          </tr>
+        </thead>
+        <tbody id="contribBody">
+          <tr data-name="james kiprono" data-method="M-PESA">
+            <td style="color:var(--text-muted);">001</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm">JK</div><span class="td-primary">James Kiprono</span></div></td>
+            <td class="td-primary" style="color:var(--success);">KES 15,000</td>
+            <td><span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span></td>
+            <td><code style="font-size:0.78rem;color:var(--gold);">QHX12345AB</code></td>
+            <td>16 Jun 2024</td>
+            <td><span style="font-size:0.8rem;color:var(--text-muted);">God rest her soul</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+          </tr>
+          <tr data-name="samuel njoroge" data-method="Card">
+            <td style="color:var(--text-muted);">002</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706);">SN</div><span class="td-primary">Samuel Njoroge</span></div></td>
+            <td class="td-primary" style="color:var(--success);">KES 20,000</td>
+            <td><span class="badge badge-info">💳 Card</span></td>
+            <td><code style="font-size:0.78rem;color:var(--gold);">STR_ABC123</code></td>
+            <td>15 Jun 2024</td>
+            <td><span style="font-size:0.8rem;color:var(--text-muted);">From Manchester with love ❤️</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+          </tr>
+          <tr data-name="alice njeri" data-method="Card">
+            <td style="color:var(--text-muted);">003</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">AN</div><span class="td-primary">Alice Njeri</span></div></td>
+            <td class="td-primary" style="color:var(--success);">KES 5,000</td>
+            <td><span class="badge badge-info">💳 Card</span></td>
+            <td><code style="font-size:0.78rem;color:var(--gold);">STR_DEF456</code></td>
+            <td>15 Jun 2024</td>
+            <td><span style="font-size:0.8rem;color:var(--text-muted);">—</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+          </tr>
+          <tr data-name="david omondi" data-method="M-PESA">
+            <td style="color:var(--text-muted);">004</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#10b981,#059669);">DO</div><span class="td-primary">David Omondi</span></div></td>
+            <td class="td-primary" style="color:var(--success);">KES 3,000</td>
+            <td><span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span></td>
+            <td><code style="font-size:0.78rem;color:var(--gold);">QHX67890CD</code></td>
+            <td>14 Jun 2024</td>
+            <td><span style="font-size:0.8rem;color:var(--text-muted);">Pole sana</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+          </tr>
+          <tr data-name="anonymous" data-method="M-PESA">
+            <td style="color:var(--text-muted);">005</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm">**</div><span class="td-primary">Anonymous</span></div></td>
+            <td class="td-primary" style="color:var(--success);">KES 2,000</td>
+            <td><span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span></td>
+            <td><code style="font-size:0.78rem;color:var(--gold);">QHX11111EF</code></td>
+            <td>14 Jun 2024</td>
+            <td><span style="font-size:0.8rem;color:var(--text-muted);">—</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+          </tr>
+          <tr data-name="mary waweru" data-method="Bank">
+            <td style="color:var(--text-muted);">006</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#ec4899,#be185d);">MW</div><span class="td-primary">Mary Waweru</span></div></td>
+            <td class="td-primary" style="color:var(--success);">KES 7,500</td>
+            <td><span class="badge badge-muted">🏦 Bank</span></td>
+            <td><code style="font-size:0.78rem;color:var(--gold);">EQB_GHI789</code></td>
+            <td>13 Jun 2024</td>
+            <td><span style="font-size:0.8rem;color:var(--text-muted);">Hongera nyumbani</span></td>
+            <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);">
+      <div style="font-size:0.82rem;color:var(--text-muted);">Showing 6 of 124 contributions</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" disabled>← Prev</button>
+        <button class="btn btn-primary btn-sm">1</button>
+        <button class="btn btn-ghost btn-sm">2</button>
+        <button class="btn btn-ghost btn-sm">3</button>
+        <span style="align-self:center;color:var(--text-muted);font-size:0.85rem;">...</span>
+        <button class="btn btn-ghost btn-sm">21</button>
+        <button class="btn btn-secondary btn-sm">Next →</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  populateUserInfo();
+
+  function filterContribs(query) {
+    const searchQ  = (query || document.getElementById('contribSearch')?.value || '').toLowerCase();
+    const methodQ  = document.getElementById('methodFilter')?.value || '';
+    const rows     = document.querySelectorAll('#contribBody tr');
+    rows.forEach(row => {
+      const name   = row.dataset.name   || '';
+      const method = row.dataset.method || '';
+      const show   = name.includes(searchQ) && (!methodQ || method === methodQ);
+      row.style.display = show ? '' : 'none';
+    });
+  }
+
+  function exportCSV() {
+    const headers = ['#','Contributor','Amount','Method','Reference','Date','Message'];
+    const rows = [
+      ['001','James Kiprono','15000','M-PESA','QHX12345AB','16 Jun 2024','God rest her soul'],
+      ['002','Samuel Njoroge','20000','Card','STR_ABC123','15 Jun 2024','From Manchester with love'],
+      ['003','Alice Njeri','5000','Card','STR_DEF456','15 Jun 2024',''],
+      ['004','David Omondi','3000','M-PESA','QHX67890CD','14 Jun 2024','Pole sana'],
+      ['005','Anonymous','2000','M-PESA','QHX11111EF','14 Jun 2024',''],
+      ['006','Mary Waweru','7500','Bank','EQB_GHI789','13 Jun 2024','Hongera nyumbani'],
+    ];
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'faraja_contributions.csv';
+    a.click();
+    showToast('CSV exported successfully ✅', 'success');
+  }
+</script>
+</body>
+</html>

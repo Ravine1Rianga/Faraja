@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Faraja</title>
+  <meta name="description" content="Sign in to your Faraja account to manage funeral arrangements and harambee contributions." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<!-- Back link -->
+<a href="index.html" style="position:fixed;top:24px;left:24px;z-index:100;display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-muted);transition:var(--transition);" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">
+  ← Back to Home
+</a>
+
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+      <a href="index.html" style="display:inline-block;">
+        <div class="auth-logo-icon">🕊</div>
+        <div class="auth-logo-name">Fa<span>raja</span></div>
+      </a>
+    </div>
+
+    <!-- Alert area -->
+    <div id="authAlert" style="display:none;"></div>
+
+    <!-- Headings -->
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-subtitle text-muted">Sign in to continue managing your memorial</p>
+
+    <!-- Social sign-in -->
+    <button class="social-btn" id="googleBtn" onclick="handleGoogleLogin()">
+      <span class="social-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+      </span>
+      Continue with Google
+    </button>
+
+    <div class="auth-divider"><span>or sign in with email</span></div>
+
+    <!-- Login Form -->
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <div class="input-group">
+          <span class="input-icon">✉</span>
+          <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <label class="form-label" for="password" style="margin-bottom:0;">Password</label>
+          <a href="forgot-password.html" style="font-size:0.8rem;color:var(--gold);">Forgot password?</a>
+        </div>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" autocomplete="current-password" />
+          <span class="input-suffix" data-toggle-password="password" title="Show/hide password">👁</span>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:28px;">
+        <label class="form-check">
+          <input type="checkbox" id="rememberMe" name="rememberMe" />
+          <span class="form-check-label">Keep me signed in</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-full" id="loginBtn">
+        Sign In
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      Don't have an account? <a href="register.html">Create one free →</a>
+    </p>
+
+    <!-- Demo credentials notice -->
+    <div class="alert alert-info" style="margin-top:20px;font-size:0.8rem;">
+      <span>ℹ</span>
+      <div><strong>Demo:</strong> Use any email + password (min 6 chars) to sign in.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  // Page guard — already logged in? redirect
+  if (FarajaAPI.currentUser()) {
+    Utils.redirectTo('funeral-dashboard.html');
+  }
+
+  const loginForm = document.getElementById('loginForm');
+  const loginBtn  = document.getElementById('loginBtn');
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('email');
+    const password = document.getElementById('password');
+    let valid = true;
+
+    if (!validateField(email, [validators.required, validators.email], loginForm)) valid = false;
+    if (!validateField(password, [validators.required, validators.minLen(6)], loginForm)) valid = false;
+    if (!valid) return;
+
+    Utils.setButtonLoading(loginBtn, true);
+    const res = await FarajaAPI.login(email.value.trim(), password.value);
+    Utils.setButtonLoading(loginBtn, false);
+
+    if (res.success) {
+      showToast('Welcome back, ' + res.user.name.split(' ')[0] + '! 👋', 'success');
+      setTimeout(() => {
+        const redirect = Utils.getParam('redirect') || 'funeral-dashboard.html';
+        Utils.redirectTo(redirect);
+      }, 800);
+    } else {
+      const alert = document.getElementById('authAlert');
+      alert.style.display = 'block';
+      alert.innerHTML = `<div class="alert alert-danger"><span>❌</span>${res.message}</div>`;
+      showToast(res.message, 'error');
+    }
+  });
+
+  // Clear errors on input
+  ['email','password'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function(){
+      clearFieldState(this);
+      const alert = document.getElementById('authAlert');
+      alert.style.display = 'none';
+    });
+  });
+
+  function handleGoogleLogin() {
+    showToast('Google OAuth integration coming soon!', 'info');
+  }
+</script>
+</body>
+</html>

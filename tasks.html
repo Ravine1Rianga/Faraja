@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Management — Faraja</title>
+  <meta name="description" content="Manage funeral tasks using a Kanban board with assignees, priorities, and due dates." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link active"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="funeral-dashboard.html">Dashboard</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Tasks</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Task Management</h1>
+        <p class="page-subtitle">Mary Wanjiku Kamau Memorial · <span id="taskSummary">7 of 12 tasks complete</span></p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <select class="form-control" id="filterAssignee" onchange="filterTasks()" style="width:160px;padding:8px 12px;font-size:0.85rem;">
+          <option value="">All Assignees</option>
+          <option value="James">James Ochieng</option>
+          <option value="Grace">Grace Muthoni</option>
+          <option value="Peter">Peter Kamau</option>
+        </select>
+        <button class="btn btn-primary" onclick="openModal('addTaskModal')">➕ Add Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="card" style="margin-bottom:28px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <span style="font-size:0.88rem;font-weight:600;color:var(--text-primary);">Overall Progress</span>
+      <span style="font-size:0.88rem;color:var(--text-muted);" id="progressText">7 / 12 tasks</span>
+    </div>
+    <div class="progress-wrap progress-lg">
+      <div class="progress-bar" data-progress="58" id="mainProgressBar"></div>
+    </div>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kanban" id="kanbanBoard">
+
+    <!-- TO DO -->
+    <div class="kanban-col" id="col-todo" ondragover="onDragOver(event)" ondrop="onDrop(event,'todo')">
+      <div class="kanban-col-header">
+        <div class="kanban-col-title">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--text-muted);display:inline-block;"></span>
+          To Do
+          <span class="kanban-count" id="count-todo">5</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openAddTaskInCol('todo')">+</button>
+      </div>
+      <div id="tasks-todo">
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'todo')" data-assignee="James" data-priority="high">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-high"></div>
+            <span style="font-size:0.7rem;color:var(--danger);font-weight:600;text-transform:uppercase;">High</span>
+          </div>
+          <div class="task-card-title">Book hearse from Lee Funeral Home</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;">JO</div>
+            <span class="badge badge-danger">Overdue</span>
+          </div>
+        </div>
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'todo')" data-assignee="Grace" data-priority="high">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-high"></div>
+            <span style="font-size:0.7rem;color:var(--danger);font-weight:600;text-transform:uppercase;">High</span>
+          </div>
+          <div class="task-card-title">Confirm PA system hire — Nairobi Sound</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);">GM</div>
+            <span class="badge badge-warning">Tomorrow</span>
+          </div>
+        </div>
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'todo')" data-assignee="Peter" data-priority="medium">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-medium"></div>
+            <span style="font-size:0.7rem;color:var(--warning);font-weight:600;text-transform:uppercase;">Medium</span>
+          </div>
+          <div class="task-card-title">Book 20 chairs and 3 tents from vendor</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;background:linear-gradient(135deg,#059669,#10b981);">PK</div>
+            <span class="badge badge-muted">Jun 26</span>
+          </div>
+        </div>
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'todo')" data-assignee="James" data-priority="low">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-low"></div>
+            <span style="font-size:0.7rem;color:var(--success);font-weight:600;text-transform:uppercase;">Low</span>
+          </div>
+          <div class="task-card-title">Send order of service to diaspora via email</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;">JO</div>
+            <span class="badge badge-muted">Jun 27</span>
+          </div>
+        </div>
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'todo')" data-assignee="Grace" data-priority="medium">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-medium"></div>
+            <span style="font-size:0.7rem;color:var(--warning);font-weight:600;text-transform:uppercase;">Medium</span>
+          </div>
+          <div class="task-card-title">Prepare programme of events / service order</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);">GM</div>
+            <span class="badge badge-muted">Jun 27</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN PROGRESS -->
+    <div class="kanban-col" id="col-progress" ondragover="onDragOver(event)" ondrop="onDrop(event,'progress')">
+      <div class="kanban-col-header">
+        <div class="kanban-col-title">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block;"></span>
+          In Progress
+          <span class="kanban-count" id="count-progress">3</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openAddTaskInCol('progress')">+</button>
+      </div>
+      <div id="tasks-progress">
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'progress')" data-assignee="Peter" data-priority="high">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-high"></div>
+            <span style="font-size:0.7rem;color:var(--danger);font-weight:600;text-transform:uppercase;">High</span>
+          </div>
+          <div class="task-card-title">Coordinate catering for 300 guests — ABC Caterers</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;background:linear-gradient(135deg,#059669,#10b981);">PK</div>
+            <span class="badge badge-warning">Jun 26</span>
+          </div>
+        </div>
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'progress')" data-assignee="James" data-priority="medium">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-medium"></div>
+            <span style="font-size:0.7rem;color:var(--warning);font-weight:600;text-transform:uppercase;">Medium</span>
+          </div>
+          <div class="task-card-title">Notify church about service requirements</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;">JO</div>
+            <span class="badge badge-muted">Jun 25</span>
+          </div>
+        </div>
+        <div class="task-card" draggable="true" ondragstart="onDragStart(event,'progress')" data-assignee="Grace" data-priority="low">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <div class="task-priority priority-low"></div>
+            <span style="font-size:0.7rem;color:var(--success);font-weight:600;text-transform:uppercase;">Low</span>
+          </div>
+          <div class="task-card-title">Collect tributes and eulogies from family</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);">GM</div>
+            <span class="badge badge-muted">Jun 26</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONE -->
+    <div class="kanban-col" id="col-done" ondragover="onDragOver(event)" ondrop="onDrop(event,'done')">
+      <div class="kanban-col-header">
+        <div class="kanban-col-title">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block;"></span>
+          Done
+          <span class="kanban-count" id="count-done">4</span>
+        </div>
+        <span class="badge badge-success" style="font-size:0.7rem;">✓ 4 completed</span>
+      </div>
+      <div id="tasks-done" style="opacity:0.75;">
+        <div class="task-card" style="border-color:rgba(34,197,94,0.2);" draggable="true" ondragstart="onDragStart(event,'done')">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:0.85rem;">✅</span>
+            <span style="font-size:0.7rem;color:var(--success);font-weight:600;text-transform:uppercase;">Done</span>
+          </div>
+          <div class="task-card-title" style="text-decoration:line-through;color:var(--text-muted);">Print order of service — 200 copies</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);">GM</div>
+            <span class="badge badge-success">Completed</span>
+          </div>
+        </div>
+        <div class="task-card" style="border-color:rgba(34,197,94,0.2);" draggable="true" ondragstart="onDragStart(event,'done')">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:0.85rem;">✅</span>
+            <span style="font-size:0.7rem;color:var(--success);font-weight:600;text-transform:uppercase;">Done</span>
+          </div>
+          <div class="task-card-title" style="text-decoration:line-through;color:var(--text-muted);">Create Faraja memorial page and share link</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;">JO</div>
+            <span class="badge badge-success">Completed</span>
+          </div>
+        </div>
+        <div class="task-card" style="border-color:rgba(34,197,94,0.2);" draggable="true" ondragstart="onDragStart(event,'done')">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:0.85rem;">✅</span>
+            <span style="font-size:0.7rem;color:var(--success);font-weight:600;text-transform:uppercase;">Done</span>
+          </div>
+          <div class="task-card-title" style="text-decoration:line-through;color:var(--text-muted);">Obtain death certificate from hospital</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;background:linear-gradient(135deg,#059669,#10b981);">PK</div>
+            <span class="badge badge-success">Completed</span>
+          </div>
+        </div>
+        <div class="task-card" style="border-color:rgba(34,197,94,0.2);" draggable="true" ondragstart="onDragStart(event,'done')">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:0.85rem;">✅</span>
+            <span style="font-size:0.7rem;color:var(--success);font-weight:600;text-transform:uppercase;">Done</span>
+          </div>
+          <div class="task-card-title" style="text-decoration:line-through;color:var(--text-muted);">Book mortuary at Lee Funeral Home</div>
+          <div class="task-card-meta">
+            <div class="avatar avatar-sm" style="font-size:0.65rem;">JO</div>
+            <span class="badge badge-success">Completed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="addTaskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">➕ Add New Task</h3>
+      <button class="modal-close" onclick="closeModal('addTaskModal')">✕</button>
+    </div>
+    <form id="addTaskForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="taskTitle">Task Title *</label>
+        <input type="text" id="taskTitle" class="form-control" placeholder="e.g. Book hearse from Lee Funeral Home" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="taskDesc">Description (optional)</label>
+        <textarea id="taskDesc" class="form-control" placeholder="Additional details..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="taskAssignee">Assign To *</label>
+          <select id="taskAssignee" class="form-control">
+            <option value="">Select member</option>
+            <option value="James">James Ochieng (Chair)</option>
+            <option value="Grace">Grace Muthoni (Secretary)</option>
+            <option value="Peter">Peter Kamau (Treasurer)</option>
+            <option value="Samuel">Samuel Njoroge</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="taskPriority">Priority *</label>
+          <select id="taskPriority" class="form-control">
+            <option value="">Select priority</option>
+            <option value="high">🔴 High</option>
+            <option value="medium">🟡 Medium</option>
+            <option value="low">🟢 Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="taskDue">Due Date *</label>
+          <input type="date" id="taskDue" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="taskStatus">Initial Status</label>
+          <select id="taskStatus" class="form-control">
+            <option value="todo">To Do</option>
+            <option value="progress">In Progress</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addTaskModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="addTaskBtn">Add Task</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+  populateUserInfo();
+
+  let dragSrc = null;
+
+  function onDragStart(e, col) {
+    dragSrc = { card: e.currentTarget, col };
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }
+  function onDrop(e, targetCol) {
+    e.preventDefault();
+    if (!dragSrc || dragSrc.col === targetCol) return;
+    const targetContainer = document.getElementById('tasks-' + targetCol);
+    targetContainer.appendChild(dragSrc.card);
+    dragSrc.card.setAttribute('ondragstart', `onDragStart(event,'${targetCol}')`);
+    updateCounts();
+    showToast('Task moved to ' + (targetCol === 'todo' ? 'To Do' : targetCol === 'progress' ? 'In Progress' : 'Done'), 'success');
+    dragSrc = null;
+  }
+
+  function updateCounts() {
+    ['todo','progress','done'].forEach(col => {
+      const c = document.getElementById('tasks-' + col)?.children.length || 0;
+      const el = document.getElementById('count-' + col);
+      if (el) el.textContent = c;
+    });
+  }
+
+  document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    const title    = document.getElementById('taskTitle');
+    const assignee = document.getElementById('taskAssignee');
+    const priority = document.getElementById('taskPriority');
+    const due      = document.getElementById('taskDue');
+    if (!validateField(title,    [validators.required], e.target)) ok = false;
+    if (!validateField(assignee, [validators.required], e.target)) ok = false;
+    if (!validateField(priority, [validators.required], e.target)) ok = false;
+    if (!validateField(due,      [validators.required, validators.date], e.target)) ok = false;
+    if (!ok) return;
+
+    const btn = document.getElementById('addTaskBtn');
+    Utils.setButtonLoading(btn, true);
+    await FarajaAPI.delay(500);
+    Utils.setButtonLoading(btn, false);
+
+    const status = document.getElementById('taskStatus').value;
+    const pVal   = priority.value;
+    const pColor = pVal === 'high' ? 'var(--danger)' : pVal === 'medium' ? 'var(--warning)' : 'var(--success)';
+    const pLabel = pVal === 'high' ? 'High' : pVal === 'medium' ? 'Medium' : 'Low';
+    const initials = assignee.value.slice(0,2).toUpperCase();
+
+    const card = document.createElement('div');
+    card.className = 'task-card';
+    card.draggable = true;
+    card.setAttribute('ondragstart', `onDragStart(event,'${status}')`);
+    card.dataset.assignee = assignee.value;
+    card.dataset.priority = pVal;
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+        <div class="task-priority priority-${pVal}"></div>
+        <span style="font-size:0.7rem;color:${pColor};font-weight:600;text-transform:uppercase;">${pLabel}</span>
+      </div>
+      <div class="task-card-title">${title.value}</div>
+      <div class="task-card-meta">
+        <div class="avatar avatar-sm" style="font-size:0.65rem;">${initials}</div>
+        <span class="badge badge-muted">${Utils.formatDate(due.value)}</span>
+      </div>`;
+
+    document.getElementById('tasks-' + status).appendChild(card);
+    updateCounts();
+    showToast('Task added ✅', 'success');
+    closeModal('addTaskModal');
+    e.target.reset();
+  });
+
+  function openAddTaskInCol(col) {
+    document.getElementById('taskStatus').value = col;
+    openModal('addTaskModal');
+  }
+
+  function filterTasks() {
+    const filter = document.getElementById('filterAssignee').value.toLowerCase();
+    document.querySelectorAll('.task-card').forEach(card => {
+      const assignee = (card.dataset.assignee || '').toLowerCase();
+      card.style.display = (!filter || assignee.includes(filter)) ? '' : 'none';
+    });
+    updateCounts();
+  }
+</script>
+</body>
+</html>
