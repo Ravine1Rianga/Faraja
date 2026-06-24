@@ -34,6 +34,12 @@ async function register(req, res) {
       [result.insertId]
     );
 
+    // Welcome email (best-effort — won't block registration if it fails)
+    try {
+      const { sendWelcome } = require('../utils/email');
+      await sendWelcome(email, name);
+    } catch (_) { /* email not configured */ }
+
     return R.created(res, { token: signToken(userRows[0]), user: safeUser(userRows[0]) }, 'Account created');
   } catch (err) {
     return R.serverError(res, err);

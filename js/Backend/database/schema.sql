@@ -3,8 +3,8 @@
 --  Run this in HeidiSQL to create the faraja database.
 -- ================================================================
 
-CREATE DATABASE IF NOT EXISTS faraja CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE faraja;
+CREATE DATABASE IF NOT EXISTS faraja_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE faraja_db;
 
 -- ----------------------------------------------------------------
 -- ROLES

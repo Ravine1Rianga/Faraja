@@ -3,12 +3,17 @@ const R  = require('../utils/response');
 
 async function createFuneral(req, res) {
   try {
-    const {
+    let {
       deceasedName, dateOfBirth, dateOfDeath, biography,
       funeralDate, funeralTime, venue, burialSite,
       officiant, mortuary, fundraisingGoal, privacy, notifyMsg,
       committee = [],
     } = req.body;
+
+    // committee comes as JSON string from FormData
+    if (typeof committee === 'string') {
+      try { committee = JSON.parse(committee); } catch (_) { committee = []; }
+    }
 
     if (!deceasedName || !venue || !funeralDate) {
       return R.fail(res, 'Deceased name, venue and funeral date are required');
@@ -51,7 +56,9 @@ async function createFuneral(req, res) {
 async function getMyFunerals(req, res) {
   try {
     const [funerals] = await db.query(
-      'SELECT * FROM funeral_projects WHERE created_by = ? ORDER BY created_at DESC',
+      `SELECT f.*,
+        (SELECT COUNT(*) FROM contributions WHERE funeral_id = f.id AND status = 'confirmed') AS contributors_count
+       FROM funeral_projects f WHERE f.created_by = ? ORDER BY f.created_at DESC`,
       [req.user.id]
     );
     return R.ok(res, { funerals });
@@ -62,7 +69,12 @@ async function getMyFunerals(req, res) {
 
 async function getFuneral(req, res) {
   try {
-    const [rows] = await db.query('SELECT * FROM funeral_projects WHERE id = ?', [req.params.id]);
+    const [rows] = await db.query(
+      `SELECT f.*,
+        (SELECT COUNT(*) FROM contributions WHERE funeral_id = f.id AND status = 'confirmed') AS contributors_count
+       FROM funeral_projects f WHERE f.id = ?`,
+      [req.params.id]
+    );
     const funeral = rows[0];
     if (!funeral) return R.notFound(res, 'Memorial not found');
 
@@ -74,7 +86,11 @@ async function getFuneral(req, res) {
       'SELECT * FROM committee_members WHERE funeral_id = ?', [funeral.id]
     );
 
-    return R.ok(res, { funeral, committee });
+    const days_remaining = funeral.funeral_date
+      ? Math.max(0, Math.ceil((new Date(funeral.funeral_date) - new Date()) / 86400000))
+      : null;
+
+    return R.ok(res, { funeral: { ...funeral, days_remaining }, committee });
   } catch (err) {
     return R.serverError(res, err);
   }
@@ -164,12 +180,25 @@ async function getDashboard(req, res) {
       [id]
     );
 
+    const [upcomingTaskRows] = await db.query(
+      `SELECT id, title, status, due_date
+       FROM tasks WHERE funeral_id = ? AND status != 'completed'
+       ORDER BY due_date ASC LIMIT 5`,
+      [id]
+    );
+
     const [recentContributions] = await db.query(
       `SELECT contributor_name AS donor_name, is_anonymous, amount, payment_method, created_at
        FROM contributions WHERE funeral_id = ? AND status = 'confirmed'
        ORDER BY created_at DESC LIMIT 5`,
       [id]
     );
+
+    const activity = recentContributions.map(c => ({
+      text: `${c.is_anonymous ? 'Anonymous' : c.donor_name} contributed KES ${Number(c.amount).toLocaleString()}`,
+      description: `via ${c.payment_method}`,
+      created_at: c.created_at,
+    }));
 
     const daysLeft = funeral.funeral_date
       ? Math.max(0, Math.ceil((new Date(funeral.funeral_date) - new Date()) / 86400000))
@@ -188,9 +217,10 @@ async function getDashboard(req, res) {
         tasksDone:        taskStats[0]?.done  || 0,
         tasksTotal:       taskStats[0]?.total || 0,
         progressPct: fin.goal > 0 ? Math.round((fin.raised / fin.goal) * 100) : 0,
+        upcomingTasks:    upcomingTaskRows,
       },
       topContributors,
-      recentActivity: recentContributions,
+      recentActivity: activity,
     });
   } catch (err) {
     return R.serverError(res, err);

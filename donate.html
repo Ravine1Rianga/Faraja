@@ -335,12 +335,12 @@
       const dodYear = funeral.date_of_death ? new Date(funeral.date_of_death).getFullYear() : '?';
       const burialDate = funeral.funeral_date ? Utils.formatDate(funeral.funeral_date) : 'TBD';
       document.getElementById('donationDates').textContent = `🌹 ${dobYear} – ${dodYear} · Burial: ${burialDate}`;
-      document.getElementById('donationTribute').textContent = funeral.epitaph || '';
+      document.getElementById('donationTribute').textContent = funeral.biography || '';
 
       // Badges
       const badges = document.getElementById('donationBadges');
       badges.innerHTML = '';
-      const isActive = !funeral.is_complete;
+      const isActive = funeral.status === 'active';
       badges.innerHTML += `<span class="badge ${isActive ? 'badge-gold badge-dot' : 'badge-muted'}">${isActive ? 'Active Harambee' : 'Completed'}</span>`;
       if (funeral.contributors_count) badges.innerHTML += `<span class="badge badge-muted">${funeral.contributors_count} contributors</span>`;
       if (funeral.days_remaining && funeral.days_remaining > 0) badges.innerHTML += `<span class="badge badge-muted">${funeral.days_remaining} days remaining</span>`;
@@ -442,7 +442,7 @@
       showToast(res.message || 'STK push sent — enter your M-PESA PIN.', 'info');
       document.getElementById('successAmount').textContent = 'KES ' + selectedAmount.toLocaleString('en-KE');
       document.getElementById('successMsg').textContent = 'has been received for your memorial fund. A receipt will be sent to your phone.';
-      document.getElementById('transRefDisplay').textContent = res.checkoutRequestID || res.mpesa_ref || '—';
+      document.getElementById('transRefDisplay').textContent = res.checkoutRequestID || (res.contributionId ? 'CONF-' + res.contributionId : '—');
       openModal('successModal');
     } else {
       showToast(res.message || 'M-PESA request failed. Please try again.', 'error');
@@ -478,7 +478,7 @@
 
     Utils.setButtonLoading(btn, false);
 
-    const ref = res.transaction_id || ('STR' + Math.random().toString(36).substr(2,8).toUpperCase());
+    const ref = res.contributionId ? 'CONF-' + res.contributionId : ('STR' + Math.random().toString(36).substr(2,8).toUpperCase());
     document.getElementById('successAmount').textContent = 'KES ' + selectedAmount.toLocaleString('en-KE');
     document.getElementById('transRefDisplay').textContent = ref;
     openModal('successModal');

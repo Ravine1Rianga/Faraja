@@ -380,7 +380,7 @@
       const addCard   = document.getElementById('addFuneralCard');
       funerals.forEach(f => {
         const pct = Number(f.fundraising_goal) > 0 ? Math.round((Number(f.raised || 0) / Number(f.fundraising_goal)) * 100) : 0;
-        const isActive = !f.is_complete;
+        const isActive = f.status === 'active';
         const card = document.createElement('div');
         card.className = 'funeral-card';
         card.innerHTML = `
