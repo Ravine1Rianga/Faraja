@@ -63,6 +63,24 @@ async function createDonation(req, res) {
       [amount, funeralId]
     );
 
+    // Notify the funeral organiser (best-effort)
+    try {
+      const [orgRows] = await db.query(
+        'SELECT email FROM users WHERE id = (SELECT created_by FROM funeral_projects WHERE id = ?)',
+        [funeralId]
+      );
+      if (orgRows[0]?.email) {
+        const [fRows] = await db.query('SELECT deceased_name FROM funeral_projects WHERE id = ?', [funeralId]);
+        const { sendContributionAlert } = require('../utils/email');
+        await sendContributionAlert(orgRows[0].email, {
+          deceasedName: fRows[0]?.deceased_name || 'a memorial',
+          donorName: name,
+          amount,
+          paymentMethod,
+        });
+      }
+    } catch (_) { /* email not configured */ }
+
     return R.created(res, { contributionId }, 'Contribution recorded');
   } catch (err) {
     return R.serverError(res, err);
@@ -111,7 +129,9 @@ async function mpesaCallback(req, res) {
 async function getDonations(req, res) {
   try {
     const [contributions] = await db.query(
-      `SELECT c.*, t.mpesa_code, t.checkout_req_id
+      `SELECT c.id, c.funeral_id, c.contributor_name AS donor_name, c.amount,
+              c.payment_method, c.message, c.is_anonymous, c.status, c.created_at,
+              t.mpesa_code AS mpesa_ref, t.checkout_req_id AS transaction_id
        FROM contributions c
        LEFT JOIN transactions t ON t.contribution_id = c.id
        WHERE c.funeral_id = ? AND c.status = 'confirmed'

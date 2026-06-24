@@ -62,9 +62,11 @@ async function getMyContributions(req, res) {
     const [rows] = await db.query(
       `SELECT c.id, c.funeral_id, c.contributor_name, c.amount, c.payment_method,
               c.message, c.is_anonymous, c.status, c.created_at,
-              f.deceased_name
+              f.deceased_name,
+              t.mpesa_code AS mpesa_ref, t.checkout_req_id AS transaction_id
        FROM contributions c
        JOIN funeral_projects f ON f.id = c.funeral_id
+       LEFT JOIN transactions t ON t.contribution_id = c.id
        WHERE c.user_id = ?
        ORDER BY c.created_at DESC`,
       [req.user.id]
