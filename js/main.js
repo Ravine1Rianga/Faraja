@@ -255,7 +255,7 @@ document.querySelectorAll('.progress-bar[data-progress]').forEach(bar => {
 
 // ─── Counter animation ────────────────────────────────────────
 function animateCounter(el) {
-  const target = parseFloat(el.dataset.count);
+  const target = parseFloat(el.dataset.count) || 0;
   const duration = 1500;
   const start = performance.now();
   const prefix = el.dataset.prefix || '';
@@ -333,7 +333,12 @@ function setupFileUpload(inputId, previewId) {
   });
 }
 
-// ─── Fake API simulation ──────────────────────────────────────
+// ─── Fake API simulation (DEPRECATED — kept for reference only) ──
+// This entire block has been superseded by the REAL API client below,
+// which talks to the actual Express/MySQL backend at API_BASE instead
+// of localStorage. Left here (commented out) instead of deleted so the
+// previous data shapes/method names are easy to cross-check if needed.
+/*
 const FarajaAPI = {
   baseDelay: 600,
   delay: (ms) => new Promise(r => setTimeout(r, ms || FarajaAPI.baseDelay)),
@@ -414,6 +419,299 @@ const FarajaAPI = {
     return { success: true, checkoutRequestID: ref, message: `STK push sent to ${phone}. Enter M-PESA PIN to complete.` };
   }
 };
+*/
+
+// ─── Active funeral helper ─────────────────────────────────────
+// Internal management pages (dashboard, committee, tasks, financials,
+// contributions) need to know WHICH funeral the logged-in user is
+// currently managing. We store that single ID in localStorage the
+// moment the user clicks "Manage" on a memorial card, and every
+// management page reads it back on load.
+// donate.html is different: it's a PUBLIC page shared via WhatsApp/SMS
+// links, so it can't rely on a localStorage value — it reads the
+// funeral ID from the URL query string instead (donate.html?id=12).
+const ActiveFuneral = {
+  set:   (id) => localStorage.setItem('faraja_active_funeral', id),
+  get:   () => localStorage.getItem('faraja_active_funeral'),
+  clear: () => localStorage.removeItem('faraja_active_funeral'),
+};
+
+// ─── REAL API client ────────────────────────────────────────────
+// Talks to the actual Express/MySQL backend (js/Backend) instead of
+// localStorage. Update API_BASE if your backend runs somewhere other
+// than localhost:5000 (e.g. a Laragon virtual host).
+const API_BASE = 'http://localhost:5000/api';
+
+async function apiRequest(path, { method = 'GET', body, isFormData = false, auth = true } = {}) {
+  const headers = {};
+  if (!isFormData) headers['Content-Type'] = 'application/json';
+
+  if (auth) {
+    const token = localStorage.getItem('faraja_token');
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers,
+    body: isFormData ? body : (body ? JSON.stringify(body) : undefined),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Request failed');
+  return data; // { success, message, data }
+}
+
+const FarajaAPI = {
+  // ── Auth ──
+  login: async (email, password) => {
+    try {
+      const res = await apiRequest('/auth/login', { method: 'POST', body: { email, password }, auth: false });
+      localStorage.setItem('faraja_token', res.data.token);
+      localStorage.setItem('faraja_user', JSON.stringify(res.data.user));
+      return { success: true, user: res.data.user };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  register: async (data) => {
+    // data: { name, email, phone, password, role }
+    try {
+      const res = await apiRequest('/auth/register', { method: 'POST', body: data, auth: false });
+      localStorage.setItem('faraja_token', res.data.token);
+      localStorage.setItem('faraja_user', JSON.stringify(res.data.user));
+      return { success: true, user: res.data.user };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  forgotPassword: async (email) => {
+    try {
+      await apiRequest('/auth/forgot-password', { method: 'POST', body: { email }, auth: false });
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  logout: () => {
+    localStorage.removeItem('faraja_token');
+    localStorage.removeItem('faraja_user');
+    ActiveFuneral.clear();
+    window.location.href = 'login.html';
+  },
+
+  currentUser: () => {
+    try { return JSON.parse(localStorage.getItem('faraja_user')); } catch { return null; }
+  },
+
+  // ── User profile ──
+  getProfile: async () => {
+    const res = await apiRequest('/users/profile');
+    return res.data.user;
+  },
+
+  getMyContributions: async () => {
+    const res = await apiRequest('/users/profile/contributions');
+    return res.data.contributions;
+  },
+
+  updateProfile: async (data) => {
+    // data: { name, phone, currentPassword, newPassword } — plain object (no photo)
+    try {
+      const res = await apiRequest('/users/profile', { method: 'PUT', body: data });
+      return { success: true, ...res.data };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  updateProfileWithPhoto: async (formData) => {
+    // formData: FormData including a 'profilePhoto' file field
+    try {
+      const res = await apiRequest('/users/profile', { method: 'PUT', body: formData, isFormData: true });
+      return { success: true, ...res.data };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // ── Funerals ──
+  getFunerals: async () => {
+    const res = await apiRequest('/funerals');
+    return res.data.funerals;
+  },
+
+  getActiveFunerals: async () => {
+    const res = await apiRequest('/funerals/public/active', { auth: false });
+    return res.data.funerals;
+  },
+
+  getFuneral: async (funeralId) => {
+    const res = await apiRequest(`/funerals/${funeralId}`);
+    return res.data.funeral;
+  },
+
+  saveFuneral: async (data) => {
+    // data: { deceasedName, dateOfBirth, dateOfDeath, biography, funeralDate, funeralTime,
+    //          venue, burialSite, officiant, mortuary, fundraisingGoal, privacy, notifyMsg,
+    //          committee: [{name,phone,role}], photoFile }
+    try {
+      const form = new FormData();
+      Object.entries(data).forEach(([key, val]) => {
+        if (key === 'photoFile' && val) form.append('photo', val);
+        else if (key === 'committee') form.append('committee', JSON.stringify(val || []));
+        else if (val !== undefined && val !== null) form.append(key, val);
+      });
+      const res = await apiRequest('/funerals', { method: 'POST', body: form, isFormData: true });
+      return { success: true, funeral: res.data.funeral };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  getDashboard: async (funeralId) => {
+    const res = await apiRequest(`/funerals/${funeralId}/dashboard`);
+    return res.data;
+  },
+
+  // ── Committee ──
+  getCommittee: async (funeralId) => {
+    const res = await apiRequest(`/funerals/${funeralId}/committee`);
+    return res.data.members;
+  },
+
+  addCommitteeMember: async (funeralId, data) => {
+    // data: { name, phone, email, location, role }
+    try {
+      const res = await apiRequest(`/funerals/${funeralId}/committee`, { method: 'POST', body: data });
+      return { success: true, member: res.data.member };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  updateCommitteeMember: async (funeralId, memberId, data) => {
+    try {
+      const res = await apiRequest(`/funerals/${funeralId}/committee/${memberId}`, { method: 'PUT', body: data });
+      return { success: true, ...res.data };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // ── Contributions / Donations ──
+  getContributions: async (funeralId) => {
+    const res = await apiRequest(`/donations/${funeralId}`);
+    return res.data.contributions;
+  },
+
+  saveContribution: async (data) => {
+    // data: { funeralId, amount, phone, donorName, paymentMethod, message, isAnonymous }
+    try {
+      const res = await apiRequest('/donations', { method: 'POST', body: data, auth: false });
+      return { success: true, message: res.message, ...res.data };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // ── Tasks ──
+  getTasks: async (funeralId) => {
+    const res = await apiRequest(`/funerals/${funeralId}/tasks`);
+    return res.data.tasks;
+  },
+
+  saveTask: async (funeralId, data) => {
+    // data: { title, description, assignedTo, priority, status, dueDate }
+    try {
+      const res = await apiRequest(`/funerals/${funeralId}/tasks`, { method: 'POST', body: data });
+      return { success: true, task: res.data.task };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  updateTask: async (taskId, data) => {
+    try {
+      const res = await apiRequest(`/tasks/${taskId}`, { method: 'PUT', body: data });
+      return { success: true, ...res.data };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  completeTask: async (taskId) => {
+    try {
+      const res = await apiRequest(`/tasks/${taskId}/complete`, { method: 'PATCH' });
+      return { success: true, ...res.data };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  deleteTask: async (taskId) => {
+    try {
+      await apiRequest(`/tasks/${taskId}`, { method: 'DELETE' });
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // ── Expenses ──
+  getExpenses: async (funeralId) => {
+    const res = await apiRequest(`/funerals/${funeralId}/expenses`);
+    return res.data; // { expenses, total, paid, pending }
+  },
+
+  saveExpense: async (funeralId, data) => {
+    // data: { description, category, amount, paidBy, expenseDate, status, notes }
+    try {
+      const res = await apiRequest(`/funerals/${funeralId}/expenses`, { method: 'POST', body: data });
+      return { success: true, expense: res.data.expense };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  updateExpense: async (expenseId, data) => {
+    try {
+      const res = await apiRequest(`/expenses/${expenseId}`, { method: 'PUT', body: data });
+      return { success: true, ...res.data };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  deleteExpense: async (expenseId) => {
+    try {
+      await apiRequest(`/expenses/${expenseId}`, { method: 'DELETE' });
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // ── M-PESA STK Push ──
+  // Routed through the same /donations endpoint the backend uses for
+  // every payment method; the backend's mpesa.js util triggers the
+  // real Safaricom Daraja STK push when paymentMethod is 'mpesa'.
+  mpesaSTKPush: async ({ phone, amount, funeralId }) => {
+    try {
+      const res = await apiRequest('/donations', {
+        method: 'POST',
+        body: { funeralId, amount, phone, paymentMethod: 'mpesa' },
+        auth: false,
+      });
+      return { success: true, checkoutRequestID: res.data.checkoutRequestID, message: res.data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+};
 
 // ─── Utility helpers ──────────────────────────────────────────
 const Utils = {
@@ -473,6 +771,7 @@ document.querySelectorAll('.animate-on-scroll.visible').forEach(el => {
 
 // ─── Expose globals ───────────────────────────────────────────
 window.FarajaAPI = FarajaAPI;
+window.ActiveFuneral = ActiveFuneral;
 window.Utils = Utils;
 window.showToast = showToast;
 window.openModal = openModal;

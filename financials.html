@@ -46,7 +46,7 @@
     <div class="page-header-inner">
       <div>
         <h1 class="page-title">Financial Summary</h1>
-        <p class="page-subtitle">Mary Wanjiku Kamau Memorial Fund · As of 16 June 2024</p>
+        <p class="page-subtitle">Loading financial data...</p>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-secondary btn-sm" onclick="showToast('Report exported','success')">📄 Export Report</button>
@@ -61,13 +61,13 @@
       <div class="widget-icon widget-icon-green">💰</div>
       <div class="widget-value" data-count="285000" data-prefix="KES ">0</div>
       <div class="widget-label">Total Income</div>
-      <div class="widget-trend up">↑ 57% of goal</div>
+      <!-- HARDCODED DEMO: <div class="widget-trend up">↑ 57% of goal</div> -->
     </div>
     <div class="widget" style="border-color:rgba(239,68,68,0.3);">
       <div class="widget-icon widget-icon-red">📤</div>
       <div class="widget-value" data-count="48000" data-prefix="KES ">0</div>
       <div class="widget-label">Total Expenses</div>
-      <div class="widget-trend down">↑ KES 12,000 this week</div>
+      <!-- HARDCODED DEMO: <div class="widget-trend down">↑ KES 12,000 this week</div> -->
     </div>
     <div class="widget" style="border-color:rgba(201,168,76,0.3);">
       <div class="widget-icon widget-icon-gold">🏦</div>
@@ -79,7 +79,7 @@
       <div class="widget-icon widget-icon-blue">🎯</div>
       <div class="widget-value" data-count="215000" data-prefix="KES ">0</div>
       <div class="widget-label">Still Needed</div>
-      <div class="widget-trend down">43% of goal remaining</div>
+      <!-- HARDCODED DEMO: <div class="widget-trend down">43% of goal remaining</div> -->
     </div>
   </div>
 
@@ -111,36 +111,8 @@
     <!-- Expense Categories -->
     <div class="card">
       <div class="card-header"><div class="card-title">Expense Breakdown</div></div>
-      <div id="expenseCategories">
-        <div style="margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
-            <span style="color:var(--text-muted);">⚰️ Mortuary & Coffin</span>
-            <span style="color:var(--text-primary);font-weight:600;">KES 25,000</span>
-          </div>
-          <div class="progress-wrap"><div class="progress-bar" data-progress="52" style="background:linear-gradient(90deg,#7c3aed,#4f46e5);"></div></div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
-            <span style="color:var(--text-muted);">🍽️ Catering</span>
-            <span style="color:var(--text-primary);font-weight:600;">KES 12,000</span>
-          </div>
-          <div class="progress-wrap"><div class="progress-bar" data-progress="25" style="background:linear-gradient(90deg,#f59e0b,#d97706);"></div></div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
-            <span style="color:var(--text-muted);">🚗 Transport / Hearse</span>
-            <span style="color:var(--text-primary);font-weight:600;">KES 8,000</span>
-          </div>
-          <div class="progress-wrap"><div class="progress-bar" data-progress="17" style="background:linear-gradient(90deg,#10b981,#059669);"></div></div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
-            <span style="color:var(--text-muted);">🖨️ Printing</span>
-            <span style="color:var(--text-primary);font-weight:600;">KES 3,000</span>
-          </div>
-          <div class="progress-wrap"><div class="progress-bar" data-progress="6" style="background:linear-gradient(90deg,var(--gold-dark),var(--gold));"></div></div>
-        </div>
-      </div>
+      <!-- HARDCODED DEMO: expense categories populated by JS from API -->
+      <div id="expenseCategories"></div>
     </div>
   </div>
 
@@ -178,56 +150,9 @@
           </tr>
         </thead>
         <tbody id="expenseBody">
-          <tr>
-            <td style="color:var(--text-muted);">001</td>
-            <td class="td-primary">Lee Funeral Home — Mortuary (14 days)</td>
-            <td><span class="badge badge-muted">⚰️ Mortuary</span></td>
-            <td style="color:var(--danger);font-weight:600;">- KES 20,000</td>
-            <td>Peter Kamau</td>
-            <td>10 Jun 2024</td>
-            <td><span class="badge badge-success badge-dot">Paid</span></td>
-            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted);">002</td>
-            <td class="td-primary">ABC Caterers — Deposit for 300 guests</td>
-            <td><span class="badge badge-muted">🍽️ Catering</span></td>
-            <td style="color:var(--danger);font-weight:600;">- KES 12,000</td>
-            <td>Peter Kamau</td>
-            <td>12 Jun 2024</td>
-            <td><span class="badge badge-success badge-dot">Paid</span></td>
-            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted);">003</td>
-            <td class="td-primary">Standard Chartered Print Studio — 200 programs</td>
-            <td><span class="badge badge-muted">🖨️ Printing</span></td>
-            <td style="color:var(--danger);font-weight:600;">- KES 3,000</td>
-            <td>Grace Muthoni</td>
-            <td>14 Jun 2024</td>
-            <td><span class="badge badge-success badge-dot">Paid</span></td>
-            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted);">004</td>
-            <td class="td-primary">Coffin — Premium Oak with lining</td>
-            <td><span class="badge badge-muted">⚰️ Mortuary</span></td>
-            <td style="color:var(--danger);font-weight:600;">- KES 5,000</td>
-            <td>James Ochieng</td>
-            <td>15 Jun 2024</td>
-            <td><span class="badge badge-success badge-dot">Paid</span></td>
-            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted);">005</td>
-            <td class="td-primary">Hearse hire — Nairobi to Kiambu</td>
-            <td><span class="badge badge-muted">🚗 Transport</span></td>
-            <td style="color:var(--warning);font-weight:600;">- KES 8,000</td>
-            <td>James Ochieng</td>
-            <td>—</td>
-            <td><span class="badge badge-warning badge-dot">Pending</span></td>
-            <td><button class="btn btn-ghost btn-sm">⋮</button></td>
-          </tr>
+          <!-- DEPRECATED: static demo rows replaced at runtime by renderExpenses()
+               which loads real expenses from GET /api/funerals/:id/expenses.
+          <tr>...</tr> × 5 removed — see script block below. -->
         </tbody>
       </table>
     </div>
@@ -280,9 +205,13 @@
           <label class="form-label" for="expPaidBy">Paid By</label>
           <select id="expPaidBy" class="form-control">
             <option value="">Select member</option>
+            <!-- DEPRECATED: hardcoded names. populatePaidByOptions() in the
+                 script below replaces these with real committee members. -->
+            <!--
             <option>James Ochieng</option>
             <option>Grace Muthoni</option>
             <option>Peter Kamau</option>
+            -->
           </select>
         </div>
         <div class="form-group">
@@ -313,44 +242,202 @@
 <script src="js/main.js"></script>
 <script>
   populateUserInfo();
+  if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
+  const funeralId = ActiveFuneral.get();
+  if (!funeralId) Utils.redirectTo('profile.html');
 
-  // Bar chart
+  // ── Bar chart (kept as-is — visual decoration only, not tied to real data) ──
   const days   = ['10 Jun','11 Jun','12 Jun','13 Jun','14 Jun','15 Jun','16 Jun'];
   const income = [45000, 22000, 38000, 15000, 52000, 73000, 40000];
   const expns  = [20000, 0, 12000, 3000, 5000, 8000, 0];
   const maxVal = Math.max(...income, ...expns);
-
   const chartEl  = document.getElementById('barChart');
   const labelsEl = document.getElementById('barLabels');
-
   days.forEach((day, i) => {
     const wrap = document.createElement('div');
     wrap.className = 'chart-bar-wrap';
     wrap.style.flex = '1';
-
     const incH = Math.round((income[i] / maxVal) * 100);
     const expH = Math.round((expns[i]  / maxVal) * 100);
-
     wrap.innerHTML = `
       <div style="flex:1;display:flex;align-items:flex-end;gap:3px;width:100%;">
-        <div class="chart-bar-track" style="flex:1;">
-          <div class="chart-bar-fill" style="height:${incH}%;"></div>
-        </div>
-        <div class="chart-bar-track" style="flex:1;">
-          <div class="chart-bar-fill expense" style="height:${expH}%;"></div>
-        </div>
+        <div class="chart-bar-track" style="flex:1;"><div class="chart-bar-fill" style="height:${incH}%;"></div></div>
+        <div class="chart-bar-track" style="flex:1;"><div class="chart-bar-fill expense" style="height:${expH}%;"></div></div>
       </div>`;
-
     const labelEl = document.createElement('div');
     labelEl.className = 'chart-label';
     labelEl.style.flex = '1';
     labelEl.style.textAlign = 'center';
     labelEl.textContent = day.split(' ')[0] + '\n' + day.split(' ')[1];
-
     chartEl.appendChild(wrap);
     labelsEl.appendChild(labelEl);
   });
 
+  // ── OLD: expPaidBy was hardcoded with 3 static names.
+  //        Now populated from real committee members. ──
+  async function populatePaidByOptions() {
+    try {
+      const members = await FarajaAPI.getCommittee(funeralId);
+      const sel = document.getElementById('expPaidBy');
+      members.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.name;
+        opt.textContent = m.name + (m.committee_role ? ' (' + m.committee_role + ')' : '');
+        sel.appendChild(opt);
+      });
+    } catch (_) { /* non-critical — user can type name manually */ }
+  }
+
+  // ── OLD: expense categories were hardcoded pie-chart entries.
+  //        renderExpenseCategories() builds them from real expense data. ──
+  function renderExpenseCategories(expenses) {
+    const container = document.getElementById('expenseCategories');
+    container.innerHTML = '';
+    if (!expenses.length) {
+      container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.85rem;">No expenses yet</div>';
+      return;
+    }
+    const groups = {};
+    expenses.forEach(e => {
+      const cat = e.category || 'Other';
+      groups[cat] = (groups[cat] || 0) + Number(e.amount || 0);
+    });
+    const total = Object.values(groups).reduce((s, v) => s + v, 0);
+    const categoryIcons = {
+      'Mortuary': '⚰️', 'Catering': '🍽️', 'Transport': '🚗',
+      'Printing': '🖨️', 'Tent & Chairs': '⛺', 'PA System': '🔊',
+    };
+    const categoryColors = {
+      'Mortuary': 'rgba(239,68,68,0.15)', 'Catering': 'rgba(201,168,76,0.15)',
+      'Transport': 'rgba(59,130,246,0.15)', 'Printing': 'rgba(139,92,246,0.15)',
+      'Tent & Chairs': 'rgba(34,197,94,0.15)', 'PA System': 'rgba(249,115,22,0.15)',
+    };
+    // Sort by amount descending
+    const sorted = Object.entries(groups).sort(([,a], [,b]) => b - a);
+    sorted.forEach(([cat, amount]) => {
+      const pct = Math.round((amount / total) * 100);
+      const icon = categoryIcons[cat] || '📦';
+      const color = categoryColors[cat] || 'rgba(100,100,100,0.15)';
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'padding:12px 0;border-bottom:1px solid var(--border-light);';
+      wrap.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+          <span style="color:var(--text-primary);font-weight:600;">${icon} ${cat}</span>
+          <span style="color:var(--text-muted);font-weight:600;">KES ${Number(amount).toLocaleString('en-KE')}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-wrap" style="flex:1;">
+            <div class="progress-bar" style="width:${pct}%;background:${color.replace('0.15','0.6')};"></div>
+          </div>
+          <span style="font-size:0.78rem;color:var(--text-muted);min-width:32px;text-align:right;">${pct}%</span>
+        </div>`;
+      container.appendChild(wrap);
+    });
+  }
+
+  // ── OLD: 5 hardcoded <tr> rows in #expenseBody.
+  //        renderExpenses() replaces them with real data from the API. ──
+  let allExpenses = []; // kept in memory so filterExpenses() works client-side
+
+  function renderExpenses(expenses) {
+    const tbody = document.getElementById('expenseBody');
+    tbody.innerHTML = '';
+    if (!expenses.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">No expenses recorded yet.</td></tr>';
+      return;
+    }
+    expenses.forEach((exp, i) => {
+      const badgeClass = exp.status === 'Paid' ? 'badge-success' : 'badge-warning';
+      const row = document.createElement('tr');
+      row.dataset.desc = (exp.description || '').toLowerCase();
+      row.dataset.cat  = (exp.category || '').toLowerCase();
+      row.innerHTML = `
+        <td style="color:var(--text-muted);">${String(i + 1).padStart(3,'0')}</td>
+        <td class="td-primary">${exp.description}</td>
+        <td><span class="badge badge-muted">${exp.category}</span></td>
+        <td style="color:var(--danger);font-weight:600;">- KES ${Number(exp.amount || 0).toLocaleString('en-KE')}</td>
+        <td>${exp.paid_by || '—'}</td>
+        <td>${exp.expense_date ? Utils.formatDate(exp.expense_date) : '—'}</td>
+        <td><span class="badge ${badgeClass} badge-dot">${exp.status || 'Pending'}</span></td>
+        <td><button class="btn btn-ghost btn-sm">⋮</button></td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  // ── OLD: the top 4 widgets had hardcoded data-count values.
+  //        updateMetricWidgets() now fills them from real data. ──
+  function updateMetricWidgets(data) {
+    const widgets = document.querySelectorAll('.widget .widget-value');
+    // widgets[0] = Total Income (from contributions)
+    // widgets[1] = Total Expenses
+    // widgets[2] = Net Balance
+    // widgets[3] = Still Needed
+    const incomeTotal = data.incomeTotal || 0;
+    const expenseTotal = data.total || 0;
+    const netBalance = incomeTotal - expenseTotal;
+    const goal = data.fundraisingGoal || 0;
+    const stillNeeded = Math.max(0, goal - incomeTotal);
+
+    if (data.incomeTotal !== undefined) {
+      widgets[0].dataset.count = incomeTotal;
+      widgets[0].textContent   = 'KES ' + Number(incomeTotal).toLocaleString('en-KE');
+    }
+    if (data.total !== undefined) {
+      widgets[1].dataset.count = expenseTotal;
+      widgets[1].textContent   = 'KES ' + Number(expenseTotal).toLocaleString('en-KE');
+    }
+    widgets[2].dataset.count = netBalance;
+    widgets[2].textContent   = 'KES ' + Number(netBalance).toLocaleString('en-KE');
+    widgets[3].dataset.count = stillNeeded;
+    widgets[3].textContent   = 'KES ' + Number(stillNeeded).toLocaleString('en-KE');
+
+    // Update the total row at the bottom of the table
+    const totalEl = document.querySelector('.card:last-of-type [style*="danger"]');
+    if (totalEl && data.total !== undefined) {
+      totalEl.textContent = 'KES ' + Number(expenseTotal).toLocaleString('en-KE');
+    }
+  }
+
+  async function loadExpenses() {
+    try {
+      const data = await FarajaAPI.getExpenses(funeralId);
+      // data = { expenses, total, paid, pending }
+      allExpenses = data.expenses || [];
+      renderExpenses(allExpenses);
+      renderExpenseCategories(allExpenses);
+      updateMetricWidgets(data);
+    } catch (err) {
+      showToast('Could not load expenses: ' + err.message, 'error');
+    }
+  }
+
+  // Boot
+  populatePaidByOptions();
+  loadExpenses();
+  // Also fetch contributions income and funeral goal for the widgets
+  async function loadIncomeAndGoal() {
+    try {
+      const [contribs, funeral] = await Promise.all([
+        FarajaAPI.getContributions(funeralId).catch(() => []),
+        FarajaAPI.getFuneral(funeralId).catch(() => null),
+      ]);
+      const incomeTotal = Array.isArray(contribs) ? contribs.reduce((s, c) => s + Number(c.amount || 0), 0) : 0;
+      // Re-trigger updateMetricWidgets with income and goal data
+      // The expense data is already in allExpenses
+      const expenseTotal = allExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+      updateMetricWidgets({
+        total: expenseTotal,
+        incomeTotal,
+        fundraisingGoal: funeral ? Number(funeral.fundraising_goal || 0) : 0,
+      });
+    } catch (_) { /* non-critical */ }
+  }
+  // Small delay so loadExpenses() finishes first and allExpenses is populated
+  setTimeout(loadIncomeAndGoal, 100);
+
+  // ── Add Expense Form ──
+  // OLD: called FarajaAPI.delay(600) and only did a DOM insert (no persistence).
+  // NEW: calls FarajaAPI.saveExpense() which POSTs to /api/funerals/:id/expenses.
   document.getElementById('addExpenseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     let ok = true;
@@ -364,35 +451,38 @@
 
     const btn = document.getElementById('addExpenseBtn');
     Utils.setButtonLoading(btn, true);
-    await FarajaAPI.delay(600);
+
+    const res = await FarajaAPI.saveExpense(funeralId, {
+      description:  desc.value,
+      category:     cat.value,
+      amount:       parseFloat(amount.value),
+      paidBy:       document.getElementById('expPaidBy').value || null,
+      expenseDate:  document.getElementById('expDate').value   || null,
+      status:       document.getElementById('expStatus').value,
+      notes:        document.getElementById('expNotes').value  || null,
+    });
+
     Utils.setButtonLoading(btn, false);
 
-    const tbody   = document.getElementById('expenseBody');
-    const rowNum  = String(tbody.rows.length + 1).padStart(3,'0');
-    const status  = document.getElementById('expStatus').value;
-    const badgeClass = status === 'Paid' ? 'badge-success' : 'badge-warning';
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td style="color:var(--text-muted);">${rowNum}</td>
-      <td class="td-primary">${desc.value}</td>
-      <td><span class="badge badge-muted">${cat.value}</span></td>
-      <td style="color:var(--danger);font-weight:600;">- KES ${parseInt(amount.value).toLocaleString('en-KE')}</td>
-      <td>${document.getElementById('expPaidBy').value || '—'}</td>
-      <td>${document.getElementById('expDate').value || '—'}</td>
-      <td><span class="badge ${badgeClass} badge-dot">${status}</span></td>
-      <td><button class="btn btn-ghost btn-sm">⋮</button></td>`;
-    tbody.appendChild(row);
-
-    showToast('Expense added ✅', 'success');
-    closeModal('addExpenseModal');
-    e.target.reset();
+    if (res.success) {
+      showToast('Expense added ✅', 'success');
+      closeModal('addExpenseModal');
+      e.target.reset();
+      loadExpenses(); // refresh table + totals
+    } else {
+      showToast(res.message || 'Failed to add expense', 'error');
+    }
   });
 
+  // ── Filter (client-side on the in-memory array) ──
+  // OLD: iterated raw <tr> textContent — worked on static rows.
+  // NEW: re-renders from the in-memory allExpenses array so dynamic rows work too.
   function filterExpenses(query) {
-    const rows = document.querySelectorAll('#expenseBody tr');
-    rows.forEach(r => {
-      r.style.display = r.textContent.toLowerCase().includes((query || '').toLowerCase()) ? '' : 'none';
-    });
+    const q = (query || document.querySelector('[oninput]')?.value || '').toLowerCase();
+    const filtered = q
+      ? allExpenses.filter(e => (e.description + e.category + (e.paid_by||'')).toLowerCase().includes(q))
+      : allExpenses;
+    renderExpenses(filtered);
   }
 </script>
 </body>

@@ -103,41 +103,16 @@
   <!-- Memorials Tab -->
   <div id="memorials" data-tab-panel="memorials">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h3 style="font-size:1rem;color:var(--text-primary);">My Memorials (2)</h3>
+      <h3 style="font-size:1rem;color:var(--text-primary);" id="memorialsHeading">My Memorials</h3>
       <a href="create-funeral.html" class="btn btn-primary btn-sm">➕ Create New</a>
     </div>
-    <div class="grid grid-3">
-      <div class="funeral-card">
-        <div class="funeral-card-image">🕊<div class="funeral-card-image-overlay"></div><div style="position:absolute;bottom:8px;left:12px;z-index:2;"><span class="badge badge-success badge-dot">Active</span></div></div>
-        <div class="funeral-card-body">
-          <div class="funeral-card-name">Mary Wanjiku Kamau</div>
-          <div class="funeral-card-dates">1952 – 2024 · Burial: 28 June 2024</div>
-          <div class="funeral-card-progress">
-            <div class="funeral-card-progress-text"><span>KES 285,000 raised</span><span>57%</span></div>
-            <div class="progress-wrap"><div class="progress-bar" data-progress="57"></div></div>
-          </div>
-          <div class="funeral-card-footer">
-            <span class="badge badge-muted">124 contributors</span>
-            <a href="funeral-dashboard.html" class="btn btn-primary btn-sm">Manage</a>
-          </div>
-        </div>
-      </div>
-      <div class="funeral-card">
-        <div class="funeral-card-image">🕊<div class="funeral-card-image-overlay"></div><div style="position:absolute;bottom:8px;left:12px;z-index:2;"><span class="badge badge-muted">Completed</span></div></div>
-        <div class="funeral-card-body">
-          <div class="funeral-card-name">Joseph Kamau Gitonga</div>
-          <div class="funeral-card-dates">1948 – 2023 · Buried: 15 Nov 2023</div>
-          <div class="funeral-card-progress">
-            <div class="funeral-card-progress-text"><span>KES 420,000 raised</span><span>100%</span></div>
-            <div class="progress-wrap"><div class="progress-bar" data-progress="100" style="background:var(--success);"></div></div>
-          </div>
-          <div class="funeral-card-footer">
-            <span class="badge badge-muted">89 contributors</span>
-            <button class="btn btn-secondary btn-sm">View</button>
-          </div>
-        </div>
-      </div>
-      <a href="create-funeral.html" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border:2px dashed var(--border-light);border-radius:var(--radius-lg);padding:40px;color:var(--text-muted);transition:var(--transition);text-decoration:none;min-height:200px;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='var(--text-muted)';">
+    <div class="grid grid-3" id="memorialsGrid">
+      <!-- DEPRECATED: 2 static demo cards. renderMemorials() in the script
+           below populates this from GET /api/funerals.
+      <div class="funeral-card">...</div> × 2 kept for reference. -->
+
+      <!-- "Add new" placeholder — always shown -->
+      <a href="create-funeral.html" id="addMemorialCard" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border:2px dashed var(--border-light);border-radius:var(--radius-lg);padding:40px;color:var(--text-muted);transition:var(--transition);text-decoration:none;min-height:200px;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='var(--text-muted)';">
         <span style="font-size:2.5rem;">➕</span>
         <span style="font-size:0.9rem;font-weight:600;">New Memorial</span>
       </a>
@@ -156,32 +131,8 @@
           <thead>
             <tr><th>Memorial</th><th>Amount</th><th>Method</th><th>Reference</th><th>Date</th><th>Receipt</th></tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="td-primary">Mary Wanjiku Kamau</td>
-              <td style="color:var(--success);font-weight:600;">KES 5,000</td>
-              <td><span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span></td>
-              <td><code style="font-size:0.78rem;color:var(--gold);">QHX12345AB</code></td>
-              <td>16 Jun 2024</td>
-              <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
-            </tr>
-            <tr>
-              <td class="td-primary">Joseph Kamau Gitonga</td>
-              <td style="color:var(--success);font-weight:600;">KES 10,000</td>
-              <td><span class="badge badge-info">💳 Card</span></td>
-              <td><code style="font-size:0.78rem;color:var(--gold);">STR_ABC456</code></td>
-              <td>10 Nov 2023</td>
-              <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
-            </tr>
-            <tr>
-              <td class="td-primary">Mary Wanjiku Kamau</td>
-              <td style="color:var(--success);font-weight:600;">KES 2,000</td>
-              <td><span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span></td>
-              <td><code style="font-size:0.78rem;color:var(--gold);">QHX98765EF</code></td>
-              <td>14 Jun 2024</td>
-              <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt downloaded','success')">⬇</button></td>
-            </tr>
-          </tbody>
+          <!-- HARDCODED DEMO: donation rows removed. JS should fetch real donation history and render into this tbody. -->
+          <tbody></tbody>
         </table>
       </div>
     </div>
@@ -192,11 +143,7 @@
     <div class="card">
       <div class="card-header"><div class="card-title">Recent Activity</div></div>
       <div class="activity-list">
-        <div class="activity-item"><div class="activity-dot" style="background:var(--success);"></div><div class="activity-content"><div class="activity-text">Contributed <strong>KES 5,000</strong> to Mary Wanjiku Kamau fund</div><div class="activity-time">16 Jun 2024 · 10:32 AM</div></div></div>
-        <div class="activity-item"><div class="activity-dot" style="background:var(--gold);"></div><div class="activity-content"><div class="activity-text">Added <strong>Grace Muthoni</strong> as Secretary to Mary Wanjiku Kamau</div><div class="activity-time">15 Jun 2024 · 3:15 PM</div></div></div>
-        <div class="activity-item"><div class="activity-dot" style="background:var(--info);"></div><div class="activity-content"><div class="activity-text">Created memorial for <strong>Mary Wanjiku Kamau</strong></div><div class="activity-time">14 Jun 2024 · 9:00 AM</div></div></div>
-        <div class="activity-item"><div class="activity-dot" style="background:var(--success);"></div><div class="activity-content"><div class="activity-text">Contributed <strong>KES 2,000</strong> to Mary Wanjiku Kamau fund</div><div class="activity-time">14 Jun 2024 · 11:45 AM</div></div></div>
-        <div class="activity-item"><div class="activity-dot" style="background:var(--text-muted);"></div><div class="activity-content"><div class="activity-text">Signed up for <strong>Faraja</strong></div><div class="activity-time">Jan 2024</div></div></div>
+        <!-- HARDCODED DEMO: activity entries removed. JS should fetch real activity and render into this .activity-list. -->
       </div>
     </div>
   </div>
@@ -241,8 +188,9 @@
 <script src="js/main.js"></script>
 <script>
   populateUserInfo();
+  if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
 
-  // Tab logic
+  // Tab logic (unchanged from original)
   document.querySelectorAll('#profileTabs .tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('#profileTabs .tab').forEach(t => t.classList.remove('active'));
@@ -253,7 +201,7 @@
     });
   });
 
-  // Avatar upload
+  // Avatar upload (unchanged from original)
   document.getElementById('avatarUpload').addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
@@ -267,6 +215,161 @@
     reader.readAsDataURL(file);
     showToast('Profile photo updated ✅', 'success');
   });
+
+  // ── My Memorials ──
+  // OLD: 2 hardcoded funeral-card blocks with static Mary Wanjiku / Joseph Gitonga data.
+  //      The "Manage" buttons were plain <a href="funeral-dashboard.html"> with no ActiveFuneral.set().
+  // NEW: loads from FarajaAPI.getFunerals(); each "Manage" button calls ActiveFuneral.set(id)
+  //      before navigating so every management page knows which funeral to load.
+  async function renderMemorials() {
+    try {
+      const funerals = await FarajaAPI.getFunerals();
+      const grid    = document.getElementById('memorialsGrid');
+      const addCard = document.getElementById('addMemorialCard');
+
+      document.getElementById('memorialsHeading').textContent = `My Memorials (${funerals.length})`;
+
+      // Also update the profile header stats
+      const statBoxes = document.querySelectorAll('.profile-header [data-count]');
+      if (statBoxes[0]) { statBoxes[0].dataset.count = funerals.length; statBoxes[0].textContent = funerals.length; }
+
+      funerals.forEach(f => {
+        const pct      = Number(f.fundraising_goal) > 0 ? Math.round((Number(f.raised || 0) / Number(f.fundraising_goal)) * 100) : 0;
+        const isActive = !f.is_complete;
+        const card     = document.createElement('div');
+        card.className = 'funeral-card';
+        card.innerHTML = `
+          <div class="funeral-card-image">🕊
+            <div class="funeral-card-image-overlay"></div>
+            <div style="position:absolute;bottom:8px;left:12px;z-index:2;">
+              <span class="badge ${isActive ? 'badge-success badge-dot' : 'badge-muted'}">${isActive ? 'Active' : 'Completed'}</span>
+            </div>
+          </div>
+          <div class="funeral-card-body">
+            <div class="funeral-card-name">${f.deceased_name}</div>
+            <div class="funeral-card-dates">
+              ${f.date_of_birth ? new Date(f.date_of_birth).getFullYear() : '?'} –
+              ${f.date_of_death ? new Date(f.date_of_death).getFullYear() : '?'} ·
+              ${isActive ? 'Burial' : 'Buried'}: ${f.funeral_date ? Utils.formatDate(f.funeral_date) : 'TBD'}
+            </div>
+            <div class="funeral-card-progress">
+              <div class="funeral-card-progress-text">
+                <span>KES ${Number(f.raised || 0).toLocaleString('en-KE')} raised</span>
+                <span>${pct}%</span>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-bar" data-progress="${pct}" style="width:${pct}%;${!isActive ? 'background:var(--success);' : ''}"></div>
+              </div>
+            </div>
+            <div class="funeral-card-footer">
+              <span class="badge badge-muted">${f.contributors_count || 0} contributors</span>
+              <button class="btn btn-primary btn-sm"
+                onclick="ActiveFuneral.set(${f.id}); window.location.href='funeral-dashboard.html';">
+                Manage
+              </button>
+            </div>
+          </div>`;
+        grid.insertBefore(card, addCard);
+      });
+    } catch (err) {
+      showToast('Could not load memorials: ' + err.message, 'error');
+    }
+  }
+
+  renderMemorials();
+
+  // ── Donation History ──
+  // OLD: 3 hardcoded rows (Mary Wanjiku, Joseph Kamau, etc.).
+  // NEW: fetches from FarajaAPI.getMyContributions().
+  async function loadDonations() {
+    try {
+      const contribs = await FarajaAPI.getMyContributions();
+      const tbody = document.querySelector('#donations tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      // Update profile header stats
+      const statBoxes = document.querySelectorAll('.profile-header [data-count]');
+      const totalAmount = (contribs || []).reduce((s, c) => s + Number(c.amount || 0), 0);
+      if (statBoxes[1]) { statBoxes[1].dataset.count = (contribs || []).length; statBoxes[1].textContent = (contribs || []).length; }
+      if (statBoxes[2]) { statBoxes[2].dataset.count = totalAmount; statBoxes[2].textContent = 'KES ' + totalAmount.toLocaleString('en-KE'); }
+      if (!contribs || !contribs.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">No donations yet.</td></tr>';
+        return;
+      }
+      contribs.forEach(c => {
+        const method = (c.payment_method || '').toLowerCase();
+        const badge = method === 'mpesa'
+          ? '<span class="badge" style="background:rgba(0,179,0,0.12);color:#00b300;border:1px solid rgba(0,179,0,0.3);">💚 M-PESA</span>'
+          : method === 'card'
+            ? '<span class="badge badge-info">💳 Card</span>'
+            : '<span class="badge badge-muted">🏦 Bank</span>';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="td-primary">${c.deceased_name || '—'}</td>
+          <td style="color:var(--success);font-weight:600;">KES ${Number(c.amount || 0).toLocaleString('en-KE')}</td>
+          <td>${badge}</td>
+          <td><code style="font-size:0.78rem;color:var(--gold);">${c.mpesa_ref || c.transaction_id || '—'}</code></td>
+          <td>${c.created_at ? Utils.formatDate(c.created_at) : '—'}</td>
+          <td><button class="btn btn-ghost btn-sm" onclick="showToast('Receipt feature coming soon','info')">⬇</button></td>`;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      // Silent — donations tab stays empty
+    }
+  }
+
+  // ── Activity Feed ──
+  // OLD: 5 hardcoded items.
+  // NEW: builds from user's contributions + funerals.
+  async function loadActivity() {
+    try {
+      const [contribs, funerals] = await Promise.all([
+        FarajaAPI.getMyContributions().catch(() => []),
+        FarajaAPI.getFunerals().catch(() => []),
+      ]);
+      const activities = [];
+      (contribs || []).forEach(c => {
+        activities.push({
+          text: `Contributed <strong>KES ${Number(c.amount || 0).toLocaleString('en-KE')}</strong> to ${c.deceased_name || 'a memorial'}`,
+          time: c.created_at,
+          color: 'var(--success)',
+        });
+      });
+      (funerals || []).forEach(f => {
+        activities.push({
+          text: `Created memorial for <strong>${f.deceased_name}</strong>`,
+          time: f.created_at,
+          color: 'var(--info)',
+        });
+      });
+      activities.sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
+
+      const list = document.querySelector('#activity .activity-list');
+      if (!list) return;
+      list.innerHTML = '';
+      if (!activities.length) {
+        list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);">No activity yet.</div>';
+        return;
+      }
+      activities.slice(0, 10).forEach(a => {
+        const div = document.createElement('div');
+        div.className = 'activity-item';
+        div.innerHTML = `
+          <div class="activity-dot" style="background:${a.color};"></div>
+          <div class="activity-content">
+            <div class="activity-text">${a.text}</div>
+            <div class="activity-time">${a.time ? Utils.formatDateTime(a.time) : ''}</div>
+          </div>`;
+        list.appendChild(div);
+      });
+    } catch (err) {
+      // Silent
+    }
+  }
+
+  loadDonations();
+  loadActivity();
 </script>
 </body>
 </html>

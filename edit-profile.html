@@ -84,11 +84,13 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="pfirst">First Name *</label>
-            <input type="text" id="pfirst" name="firstName" class="form-control" value="John" />
+            <!-- HARDCODED DEMO: value="John" removed. JS populates from API on load. -->
+            <input type="text" id="pfirst" name="firstName" class="form-control" value="" />
           </div>
           <div class="form-group">
             <label class="form-label" for="plast">Last Name *</label>
-            <input type="text" id="plast" name="lastName" class="form-control" value="Kamau" />
+            <!-- HARDCODED DEMO: value="Kamau" removed. JS populates from API on load. -->
+            <input type="text" id="plast" name="lastName" class="form-control" value="" />
           </div>
         </div>
 
@@ -96,7 +98,8 @@
           <label class="form-label" for="pemail">Email Address *</label>
           <div class="input-group">
             <span class="input-icon">✉</span>
-            <input type="email" id="pemail" name="email" class="form-control" value="john.kamau@email.com" />
+            <!-- HARDCODED DEMO: value="john.kamau@email.com" removed. JS populates from API on load. -->
+            <input type="email" id="pemail" name="email" class="form-control" value="" />
           </div>
           <div class="form-hint">This email is used for sign-in and receipts</div>
         </div>
@@ -105,7 +108,8 @@
           <label class="form-label" for="pphone">Phone Number (M-PESA) *</label>
           <div class="input-group">
             <span class="input-icon">📱</span>
-            <input type="tel" id="pphone" name="phone" class="form-control" value="0712345678" />
+            <!-- HARDCODED DEMO: value="0712345678" removed. JS populates from API on load. -->
+            <input type="tel" id="pphone" name="phone" class="form-control" value="" />
           </div>
           <div class="form-hint">Used for M-PESA payments and SMS alerts</div>
         </div>
@@ -113,8 +117,9 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="pcounty">County</label>
+            <!-- HARDCODED DEMO: "selected" on Nairobi removed. JS selects from API data. -->
             <select id="pcounty" name="county" class="form-control">
-              <option value="nairobi" selected>Nairobi</option>
+              <option value="nairobi">Nairobi</option>
               <option value="mombasa">Mombasa</option>
               <option value="kisumu">Kisumu</option>
               <option value="nakuru">Nakuru</option>
@@ -128,8 +133,9 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="pcountry">Country</label>
+            <!-- HARDCODED DEMO: "selected" on Kenya removed. JS selects from API data. -->
             <select id="pcountry" name="country" class="form-control">
-              <option value="KE" selected>🇰🇪 Kenya</option>
+              <option value="KE">🇰🇪 Kenya</option>
               <option value="GB">🇬🇧 United Kingdom</option>
               <option value="US">🇺🇸 United States</option>
               <option value="CA">🇨🇦 Canada</option>
@@ -142,7 +148,8 @@
 
         <div class="form-group">
           <label class="form-label" for="pbio">Short Bio (optional)</label>
-          <textarea id="pbio" name="bio" class="form-control" placeholder="Tell us a bit about yourself..." style="min-height:90px;">Nairobi-based professional and family organiser. Passionate about community and heritage.</textarea>
+            <!-- HARDCODED DEMO: bio text removed. JS populates from API on load. -->
+            <textarea id="pbio" name="bio" class="form-control" placeholder="Tell us a bit about yourself..." style="min-height:90px;"></textarea>
           <div class="form-hint"><span id="bioCount">88</span> / 250 characters</div>
         </div>
 
@@ -248,6 +255,30 @@
     document.getElementById('newPwdStrength')
   );
 
+  // ── Load profile from API ──
+  // OLD: form had hardcoded John Kamau / 0712345678 values in HTML.
+  // NEW: loads from FarajaAPI.getProfile() and populates fields.
+  async function loadProfile() {
+    try {
+      const user = await FarajaAPI.getProfile();
+      if (user) {
+        const nameParts = (user.name || '').split(' ');
+        document.getElementById('pfirst').value = nameParts[0] || '';
+        document.getElementById('plast').value  = nameParts.slice(1).join(' ') || '';
+        document.getElementById('pemail').value = user.email || '';
+        document.getElementById('pphone').value = user.phone || '';
+        if (user.bio) {
+          document.getElementById('pbio').value = user.bio;
+          const bc = document.getElementById('bioCount');
+          if (bc) bc.textContent = user.bio.length;
+        }
+      }
+    } catch (err) {
+      // Silent — form stays empty, user can fill manually
+    }
+  }
+  loadProfile();
+
   // Profile form
   document.getElementById('profileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -264,18 +295,29 @@
 
     const btn = document.getElementById('saveProfileBtn');
     Utils.setButtonLoading(btn, true);
-    await FarajaAPI.delay(800);
 
-    // Update stored user
-    const user = FarajaAPI.currentUser() || {};
-    user.name  = first.value.trim() + ' ' + last.value.trim();
-    user.email = email.value.trim();
-    user.phone = phone.value.trim();
-    localStorage.setItem('faraja_user', JSON.stringify(user));
+    // OLD: fake delay + localStorage only
+    // await FarajaAPI.delay(800);
+    const res = await FarajaAPI.updateProfile({
+      name:  first.value.trim() + ' ' + last.value.trim(),
+      phone: phone.value.trim(),
+    });
 
     Utils.setButtonLoading(btn, false);
-    showToast('Profile updated successfully ✅', 'success');
-    populateUserInfo();
+
+    if (res.success) {
+      // Update stored user
+      const user = FarajaAPI.currentUser() || {};
+      user.name  = first.value.trim() + ' ' + last.value.trim();
+      user.email = email.value.trim();
+      user.phone = phone.value.trim();
+      localStorage.setItem('faraja_user', JSON.stringify(user));
+
+      showToast('Profile updated successfully ✅', 'success');
+      populateUserInfo();
+    } else {
+      showToast(res.message || 'Failed to update profile', 'error');
+    }
   });
 
   // Password form
@@ -297,11 +339,22 @@
 
     const btn = document.getElementById('changePwdBtn');
     Utils.setButtonLoading(btn, true);
-    await FarajaAPI.delay(900);
+
+    // OLD: fake delay only
+    // await FarajaAPI.delay(900);
+    const res = await FarajaAPI.updateProfile({
+      currentPassword: document.getElementById('currentPwd').value,
+      newPassword:     document.getElementById('newPwd').value,
+    });
+
     Utils.setButtonLoading(btn, false);
 
-    showToast('Password updated successfully 🔒', 'success');
-    e.target.reset();
+    if (res.success) {
+      showToast('Password updated successfully 🔒', 'success');
+      e.target.reset();
+    } else {
+      showToast(res.message || 'Failed to update password', 'error');
+    }
   });
 
   // Clear on input

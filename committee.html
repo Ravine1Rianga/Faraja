@@ -47,7 +47,8 @@
     <div class="page-header-inner">
       <div>
         <h1 class="page-title">Committee Members</h1>
-        <p class="page-subtitle">Mary Wanjiku Kamau Memorial — 7 members</p>
+        <!-- HARDCODED DEMO: "Mary Wanjiku Kamau Memorial — 7 members" removed. JS updates subtitle dynamically. -->
+        <p class="page-subtitle">Select a memorial to view its committee</p>
       </div>
       <button class="btn btn-primary" onclick="openModal('addMemberModal')">➕ Add Member</button>
     </div>
@@ -80,7 +81,12 @@
   <!-- Committee cards grid -->
   <div class="grid grid-3" style="margin-bottom:32px;" id="committeeGrid">
 
-    <!-- Chairperson -->
+    <!-- DEPRECATED: static demo cards (James Ochieng, Grace Muthoni, Peter
+         Kamau, Samuel Njoroge). Real members are now rendered into this
+         same #committeeGrid container by renderCommitteeCards() in the
+         script below, inserted right before the "Add member" card.
+         Left commented out instead of deleted for reference. -->
+    <!--
     <div class="card" style="border-color:rgba(201,168,76,0.3);">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
         <div class="badge badge-gold">👑 Chairperson</div>
@@ -117,7 +123,6 @@
       </div>
     </div>
 
-    <!-- Secretary -->
     <div class="card">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
         <div class="badge badge-info">📝 Secretary</div>
@@ -148,7 +153,6 @@
       </div>
     </div>
 
-    <!-- Treasurer -->
     <div class="card">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
         <div class="badge badge-success">💰 Treasurer</div>
@@ -179,7 +183,6 @@
       </div>
     </div>
 
-    <!-- Member 4 — Diaspora -->
     <div class="card">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
         <div class="badge badge-muted">🌍 Member</div>
@@ -207,6 +210,7 @@
         <button class="btn btn-secondary btn-sm" onclick="showToast('Emailing Samuel...','info')">✉ Email</button>
       </div>
     </div>
+    -->
 
     <!-- Add member card -->
     <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border:2px dashed var(--border-light);border-radius:var(--radius-lg);padding:40px;cursor:pointer;transition:var(--transition);" onclick="openModal('addMemberModal')" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='';">
@@ -241,6 +245,9 @@
           </tr>
         </thead>
         <tbody id="membersBody">
+          <!-- DEPRECATED: static demo rows. Real rows are rendered into
+               this same #membersBody by renderCommitteeTable() below. -->
+          <!--
           <tr>
             <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm">JO</div><span class="td-primary">James Ochieng</span></div></td>
             <td><span class="badge badge-gold">Chairperson</span></td>
@@ -277,6 +284,7 @@
             <td><span class="badge badge-info badge-dot">Diaspora</span></td>
             <td><button class="btn btn-ghost btn-sm" onclick="showToast('Options for Samuel','info')">⋮</button></td>
           </tr>
+          -->
         </tbody>
       </table>
     </div>
@@ -346,6 +354,105 @@
 <script>
   populateUserInfo();
 
+  // Auth + active-funeral guard — committee.html only makes sense once
+  // a memorial has been selected (see ActiveFuneral in main.js).
+  if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
+  const funeralId = ActiveFuneral.get();
+  if (!funeralId) Utils.redirectTo('profile.html');
+
+  const ROLE_BADGES = {
+    Chairperson: { icon: '👑', class: 'badge-gold' },
+    Secretary:   { icon: '📝', class: 'badge-info' },
+    Treasurer:   { icon: '💰', class: 'badge-success' },
+  };
+  function roleBadge(role) {
+    const b = ROLE_BADGES[role] || { icon: '🙋', class: 'badge-muted' };
+    return `<span class="badge ${b.class}">${b.icon} ${role || 'Member'}</span>`;
+  }
+  function gradientFor(seed) {
+    const palettes = ['linear-gradient(135deg,#7c3aed,#4f46e5)','linear-gradient(135deg,#059669,#10b981)','linear-gradient(135deg,#f59e0b,#d97706)'];
+    return palettes[seed % palettes.length];
+  }
+
+  let members = [];
+
+  // OLD: cards/table were hand-typed demo HTML (see commented-out blocks
+  // above). renderCommitteeCards()/renderCommitteeTable() now build the
+  // same markup dynamically from real backend data.
+  function renderCommitteeCards() {
+    const grid = document.getElementById('committeeGrid');
+    const addCard = grid.querySelector('div[onclick*="addMemberModal"]');
+    grid.querySelectorAll('.card').forEach(c => c.remove()); // clear previously rendered cards
+    members.forEach((m, i) => {
+      const initials = Utils.initials(m.name);
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+          ${roleBadge(m.committee_role)}
+          <button class="btn btn-ghost btn-icon" style="font-size:1.2rem;" onclick="confirmRemove(${m.id}, '${m.name}')">🗑</button>
+        </div>
+        <div style="text-align:center;margin-bottom:16px;">
+          <div class="avatar avatar-xl" style="margin:0 auto 12px;${m.committee_role==='Chairperson'?'':`background:${gradientFor(i)};`}">${initials}</div>
+          <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);">${m.name}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);">${m.location || '—'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>📱</span><span>${m.phone || '—'}</span></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);"><span>✉</span><span>${m.email || '—'}</span></div>
+        </div>
+        <div class="divider" style="margin:16px 0;"></div>
+        <div class="flex-between">
+          <span class="badge badge-success badge-dot">Active</span>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Calling ${m.name}...','info')">📞 Call</button>
+        </div>`;
+      grid.insertBefore(card, addCard);
+    });
+  }
+
+  function renderCommitteeTable() {
+    const tbody = document.getElementById('membersBody');
+    tbody.querySelectorAll('tr').forEach(r => r.remove());
+    members.forEach(m => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm">${Utils.initials(m.name)}</div><span class="td-primary">${m.name}</span></div></td>
+        <td>${roleBadge(m.committee_role)}</td>
+        <td>${m.phone || '—'}</td>
+        <td>${m.location || '—'}</td>
+        <td>—</td>
+        <td><span class="badge badge-success badge-dot">Active</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="confirmRemove(${m.id}, '${m.name}')">⋮</button></td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  function updateStatsAndHeader(funeral) {
+    document.querySelector('.page-subtitle').textContent =
+      `${funeral.deceased_name} Memorial — ${members.length} member${members.length === 1 ? '' : 's'}`;
+    document.querySelectorAll('.widget-value')[0].textContent = members.length;
+    document.querySelectorAll('.widget-value')[1].textContent = members.filter(m => m.phone).length;
+    // "Tasks Assigned" / "Overdue Tasks" widgets need the tasks endpoint —
+    // left at their placeholder values until tasks.html's data model is
+    // cross-referenced here too.
+  }
+
+  async function loadCommittee() {
+    try {
+      const [funeral, committee] = await Promise.all([
+        FarajaAPI.getFuneral(funeralId),
+        FarajaAPI.getCommittee(funeralId),
+      ]);
+      members = committee;
+      renderCommitteeCards();
+      renderCommitteeTable();
+      updateStatsAndHeader(funeral);
+    } catch (err) {
+      showToast('Could not load committee: ' + err.message, 'error');
+    }
+  }
+  loadCommittee();
+
   document.getElementById('addMemberForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     let ok = true;
@@ -357,34 +464,35 @@
 
     const btn = document.getElementById('addMemberBtn');
     Utils.setButtonLoading(btn, true);
-    await FarajaAPI.delay(700);
-    Utils.setButtonLoading(btn, false);
 
+    // OLD (fake delay + manual single-row DOM insert):
+    // await FarajaAPI.delay(700);
+    // ...manually built one <tr> and appended it...
     const first = document.getElementById('mFirst').value;
     const last  = document.getElementById('mLast').value;
-    const role  = document.getElementById('mRole').value;
-    const phone = document.getElementById('mPhone').value;
+    const res = await FarajaAPI.addCommitteeMember(funeralId, {
+      name:     `${first} ${last}`,
+      role:     document.getElementById('mRole').value,
+      phone:    document.getElementById('mPhone').value,
+      email:    document.getElementById('mEmail').value,
+      location: document.getElementById('mLocation').value,
+    });
+    Utils.setButtonLoading(btn, false);
 
-    // Add to table
-    const tbody = document.getElementById('membersBody');
-    const initials = (first[0] + last[0]).toUpperCase();
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar avatar-sm">${initials}</div><span class="td-primary">${first} ${last}</span></div></td>
-      <td><span class="badge badge-muted">${role}</span></td>
-      <td>${phone}</td>
-      <td>${document.getElementById('mLocation').value || '—'}</td>
-      <td>0 assigned</td>
-      <td><span class="badge badge-success badge-dot">Active</span></td>
-      <td><button class="btn btn-ghost btn-sm">⋮</button></td>`;
-    tbody.appendChild(row);
-
-    showToast(`${first} ${last} added to committee ✅`, 'success');
-    closeModal('addMemberModal');
-    e.target.reset();
+    if (res.success) {
+      showToast(`${first} ${last} added to committee ✅`, 'success');
+      closeModal('addMemberModal');
+      e.target.reset();
+      loadCommittee(); // re-fetch so cards + table + stats stay in sync
+    } else {
+      showToast(res.message || 'Failed to add member', 'error');
+    }
   });
 
-  function confirmRemove(name) {
+  function confirmRemove(memberId, name) {
+    // NOTE: backend doesn't yet expose a DELETE /committee/:id endpoint —
+    // only add/update exist (committeeController.js). This stays a
+    // visual-only confirmation until that route is added.
     if (confirm(`Remove ${name} from the committee?`)) {
       showToast(name + ' removed from committee', 'info');
     }
