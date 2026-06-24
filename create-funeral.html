@@ -429,26 +429,63 @@
     const btn = document.getElementById('submitFuneralBtn');
     Utils.setButtonLoading(btn, true);
 
+    // OLD (fake API — only sent 6 of ~13 backend fields, used `goal`
+    // instead of `fundraisingGoal`, never sent committee or photo):
+    // const data = {
+    //   deceasedName: document.getElementById('deceasedFirst').value + ' ' + document.getElementById('deceasedLast').value,
+    //   dateOfBirth:  document.getElementById('dateOfBirth').value,
+    //   dateOfDeath:  document.getElementById('dateOfDeath').value,
+    //   funeralDate:  document.getElementById('funeralDate').value,
+    //   venue:        document.getElementById('venue').value,
+    //   goal:         parseFloat(document.getElementById('fundraisingGoal').value),
+    //   privacy:      document.querySelector('input[name="privacy"]:checked')?.value || 'public',
+    // };
+
+    // Step 3 committee rows -> backend's committee array.
+    // Only Chairperson is required; drop Secretary/Treasurer if left blank.
+    const committee = [
+      { name: document.getElementById('chairName').value, phone: document.getElementById('chairPhone').value, role: 'Chairperson' },
+      { name: document.getElementById('secName').value,   phone: document.getElementById('secPhone').value,   role: 'Secretary' },
+      { name: document.getElementById('treasName').value, phone: document.getElementById('treasPhone').value, role: 'Treasurer' },
+    ].filter(m => m.name);
+
     const data = {
-      deceasedName: document.getElementById('deceasedFirst').value + ' ' + document.getElementById('deceasedLast').value,
-      dateOfBirth:  document.getElementById('dateOfBirth').value,
-      dateOfDeath:  document.getElementById('dateOfDeath').value,
-      funeralDate:  document.getElementById('funeralDate').value,
-      venue:        document.getElementById('venue').value,
-      goal:         parseFloat(document.getElementById('fundraisingGoal').value),
-      privacy:      document.querySelector('input[name="privacy"]:checked')?.value || 'public',
+      deceasedName:     document.getElementById('deceasedFirst').value + ' ' + document.getElementById('deceasedLast').value,
+      dateOfBirth:      document.getElementById('dateOfBirth').value,
+      dateOfDeath:      document.getElementById('dateOfDeath').value,
+      biography:        document.getElementById('biography').value,
+      funeralDate:      document.getElementById('funeralDate').value,
+      funeralTime:      document.getElementById('funeralTime').value,
+      venue:            document.getElementById('venue').value,
+      burialSite:       document.getElementById('burialSite').value,
+      officiant:        document.getElementById('officiant').value,
+      mortuary:         document.getElementById('mortuary').value,
+      fundraisingGoal:  parseFloat(document.getElementById('fundraisingGoal').value),
+      privacy:          document.querySelector('input[name="privacy"]:checked')?.value || 'public',
+      notifyMsg:        document.getElementById('notifyMsg').value,
+      committee,
+      photoFile:        document.getElementById('photoUpload').files[0] || null,
     };
 
     const res = await FarajaAPI.saveFuneral(data);
     Utils.setButtonLoading(btn, false);
 
     if (res.success) {
-      const link = `https://faraja.co.ke/memorial/${res.funeral.id}`;
+      // Remember which funeral the user is now managing, so
+      // funeral-dashboard.html / committee.html / tasks.html / etc.
+      // know which record to load (see ActiveFuneral in main.js).
+      ActiveFuneral.set(res.funeral.id);
+
+      // OLD: shared a fake faraja.co.ke domain link.
+      // const link = `https://faraja.co.ke/memorial/${res.funeral.id}`;
+      // Share the real public donation page instead.
+      const link = `${window.location.origin}/donate.html?id=${res.funeral.id}`;
       document.getElementById('shareLink').textContent = link;
       document.querySelector('[data-copy]').dataset.copy = link;
       openModal('successModal');
     } else {
-      showToast('Failed to create memorial. Please try again.', 'error');
+      // OLD: showToast('Failed to create memorial. Please try again.', 'error');
+      showToast(res.message || 'Failed to create memorial. Please try again.', 'error');
     }
   });
 

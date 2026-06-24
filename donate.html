@@ -27,39 +27,42 @@
 <div style="padding-top:68px;min-height:100vh;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,168,76,0.07) 0%,transparent 60%),var(--charcoal);">
   <div class="container" style="max-width:760px;padding-top:40px;padding-bottom:60px;">
 
-    <!-- Memorial Header -->
-    <div class="donation-hero">
-      <div class="donation-photo">🕊</div>
-      <div class="donation-info" style="flex:1;">
-        <div style="font-size:0.8rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">In Loving Memory</div>
-        <h2 style="font-size:1.75rem;margin-bottom:6px;">Mary Wanjiku Kamau</h2>
-        <div class="donation-dates">🌹 1952 – 2024 · Burial: Saturday, 28 June 2024</div>
-        <div style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;max-width:420px;">
-          "A loving mother, devoted grandmother, and pillar of our community. Her warmth touched every life she met."
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <span class="badge badge-gold badge-dot">Active Harambee</span>
-          <span class="badge badge-muted">124 contributors</span>
-          <span class="badge badge-muted">12 days remaining</span>
-        </div>
+    <!-- Funeral picker (shown when no ?id= in URL) -->
+    <div id="funeralPicker" style="display:none;">
+      <div class="card" style="margin-bottom:24px;text-align:center;">
+        <div style="font-size:2.5rem;margin-bottom:12px;">🕊</div>
+        <h3 style="margin-bottom:8px;">Select a Memorial to Donate To</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;">Choose from the active harambees below.</p>
+        <div id="funeralList" style="display:flex;flex-direction:column;gap:10px;text-align:left;"></div>
       </div>
     </div>
 
-    <!-- Progress bar -->
-    <div class="card" style="margin-bottom:24px;">
+    <!-- Populated by JS from API -->
+    <div class="donation-hero" id="donationHero" style="display:none;">
+      <div class="donation-photo">🕊</div>
+      <div class="donation-info" style="flex:1;">
+        <div style="font-size:0.8rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">In Loving Memory</div>
+        <h2 style="font-size:1.75rem;margin-bottom:6px;" id="donationDeceasedName">—</h2>
+        <div class="donation-dates" id="donationDates">🌹 Loading...</div>
+        <div style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;max-width:420px;" id="donationTribute"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="donationBadges"></div>
+      </div>
+    </div>
+
+    <div class="card" id="donationProgress" style="margin-bottom:24px;display:none;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
         <div>
-          <span style="font-size:1.75rem;font-weight:700;color:var(--text-primary);font-family:var(--font-display);">KES 285,000</span>
-          <span style="font-size:0.88rem;color:var(--text-muted);margin-left:8px;">raised of KES 500,000 goal</span>
+          <span style="font-size:1.75rem;font-weight:700;color:var(--text-primary);font-family:var(--font-display);" id="donationRaised">KES 0</span>
+          <span style="font-size:0.88rem;color:var(--text-muted);margin-left:8px;" id="donationGoal">raised of KES 0 goal</span>
         </div>
-        <span style="font-size:1.2rem;font-weight:700;color:var(--gold);">57%</span>
+        <span style="font-size:1.2rem;font-weight:700;color:var(--gold);" id="donationPercent">0%</span>
       </div>
       <div class="progress-wrap progress-xl">
-        <div class="progress-bar" data-progress="57"></div>
+        <div class="progress-bar" data-progress="0" id="donationProgressBar"></div>
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:0.78rem;color:var(--text-muted);">
-        <span>124 contributors</span>
-        <span>KES 215,000 still needed</span>
+        <span id="donationContributors">0 contributors</span>
+        <span id="donationNeeded">KES 0 still needed</span>
       </div>
     </div>
 
@@ -174,6 +177,8 @@
 
       <!-- Manual / Bank -->
       <div id="manual-panel" style="display:none;">
+        <!-- HARDCODED DEMO -->
+        <!--
         <div class="card" style="background:var(--charcoal-3);margin-bottom:16px;">
           <div style="font-weight:700;color:var(--text-primary);margin-bottom:12px;">🏦 Bank Transfer Details</div>
           <div style="display:flex;flex-direction:column;gap:8px;font-size:0.88rem;">
@@ -190,6 +195,7 @@
             <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Account No:</span><span style="color:var(--text-primary);font-weight:600;">WANJIKU2024</span></div>
           </div>
         </div>
+        -->
         <div class="form-group" style="margin-top:16px;">
           <label class="form-label" for="transRef">Your M-PESA / Transaction Reference</label>
           <input type="text" id="transRef" class="form-control" placeholder="e.g. QHX12345AB" />
@@ -208,11 +214,12 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-whatsapp" onclick="shareWhatsApp()">💬 Share on WhatsApp</button>
         <button class="btn btn-facebook" onclick="shareFacebook()">Share on Facebook</button>
-        <button class="btn btn-secondary" data-copy="https://faraja.co.ke/donate/wanjiku2024">📋 Copy Link</button>
+        <button class="btn btn-secondary" data-copy="">📋 Copy Link</button>
       </div>
     </div>
 
-    <!-- Recent Contributions mini -->
+    <!-- HARDCODED DEMO -->
+    <!--
     <div class="card" style="margin-top:24px;">
       <div class="card-header">
         <div class="card-title">Recent Contributions</div>
@@ -239,6 +246,7 @@
         </div>
       </div>
     </div>
+    -->
   </div>
 </div>
 
@@ -248,11 +256,11 @@
     <div style="font-size:3.5rem;margin-bottom:16px;">🎉</div>
     <h3 style="margin-bottom:8px;">Thank You!</h3>
     <p style="color:var(--text-muted);margin-bottom:8px;">Your contribution of</p>
-    <p style="font-size:2rem;font-weight:700;color:var(--gold);font-family:var(--font-display);margin-bottom:8px;" id="successAmount">KES 1,000</p>
-    <p style="color:var(--text-muted);margin-bottom:24px;">has been received for the Mary Wanjiku Kamau Memorial Fund. A receipt has been sent to your phone.</p>
+    <p style="font-size:2rem;font-weight:700;color:var(--gold);font-family:var(--font-display);margin-bottom:8px;" id="successAmount"></p>
+    <p style="color:var(--text-muted);margin-bottom:24px;" id="successMsg"></p>
     <div style="background:var(--charcoal-3);border-radius:var(--radius-sm);padding:14px;margin-bottom:24px;">
       <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;">Transaction Reference</div>
-      <div style="font-family:monospace;font-size:1rem;color:var(--gold);font-weight:700;" id="transRefDisplay">MP-XXXXXXXX</div>
+      <div style="font-family:monospace;font-size:1rem;color:var(--gold);font-weight:700;" id="transRefDisplay"></div>
     </div>
     <button class="btn btn-whatsapp btn-full" onclick="shareWhatsApp();closeModal('successModal');">💬 Share this Harambee</button>
     <div style="margin-top:12px;"><a href="donate.html" class="btn btn-ghost" onclick="closeModal('successModal')">← Back to Memorial</a></div>
@@ -262,7 +270,109 @@
 <div class="toast-container"></div>
 <script src="js/main.js"></script>
 <script>
-  // Tab switching
+  // ── Get funeral ID from URL query string ──
+  // donate.html is a PUBLIC page shared as a link (e.g. donate.html?id=3).
+  // It cannot rely on ActiveFuneral (localStorage) because the visitor may
+  // not be logged in. Utils.getParam('id') reads the ?id= from the URL.
+  // OLD: funeralId was hardcoded as 'fun_demo' — now it's the real DB row ID.
+  const funeralId = Utils.getParam('id');
+
+  // ── Show funeral picker when no ?id= in URL ──
+  async function showFuneralPicker() {
+    const picker = document.getElementById('funeralPicker');
+    try {
+      const funerals = await FarajaAPI.getActiveFunerals();
+      if (!funerals || !funerals.length) {
+        picker.innerHTML = `
+          <div class="card" style="margin-bottom:24px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🕊</div>
+            <h3 style="margin-bottom:8px;">No Active Harambees</h3>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;">There are no public active memorials to donate to right now.</p>
+            <a href="index.html" class="btn btn-primary">← Go Home</a>
+          </div>`;
+        return;
+      }
+      const list = document.getElementById('funeralList');
+      funerals.forEach(f => {
+        const pct = Number(f.fundraising_goal) > 0 ? Math.round((Number(f.raised || 0) / Number(f.fundraising_goal)) * 100) : 0;
+        const card = document.createElement('div');
+        card.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--charcoal-3);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);';
+        card.onmouseover = () => card.style.borderColor = 'var(--gold)';
+        card.onmouseout = () => card.style.borderColor = 'transparent';
+        card.onclick = () => { window.location.href = 'donate.html?id=' + f.id; };
+        card.innerHTML = `
+          <div style="flex:1;">
+            <div style="font-weight:600;color:var(--text-primary);">${f.deceased_name}</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">KES ${Number(f.raised || 0).toLocaleString('en-KE')} raised · ${pct}% of goal</div>
+          </div>
+          <span style="font-size:0.85rem;color:var(--gold);">Donate →</span>`;
+        list.appendChild(card);
+      });
+      picker.style.display = 'block';
+    } catch (err) {
+      picker.innerHTML = `
+        <div class="card" style="margin-bottom:24px;text-align:center;">
+          <p style="color:var(--text-muted);">Could not load active memorials. Please use the direct donation link from the family.</p>
+        </div>`;
+      picker.style.display = 'block';
+    }
+  }
+
+  // ── Load funeral data and populate hero + progress ──
+  // OLD: hardcoded Mary Wanjiku Kamau / KES 285,000 raised.
+  // NEW: fetches real funeral data from API.
+  async function loadFuneral() {
+    if (!funeralId) { showFuneralPicker(); return; }
+    try {
+      // Public fetch — no auth token needed (donate page is shared via WhatsApp)
+      const res = await apiRequest(`/funerals/${funeralId}`, { auth: false });
+      const funeral = res.data.funeral;
+      if (!funeral) return;
+
+      // Hero
+      document.getElementById('donationDeceasedName').textContent = funeral.deceased_name || '—';
+      const dobYear = funeral.date_of_birth ? new Date(funeral.date_of_birth).getFullYear() : '?';
+      const dodYear = funeral.date_of_death ? new Date(funeral.date_of_death).getFullYear() : '?';
+      const burialDate = funeral.funeral_date ? Utils.formatDate(funeral.funeral_date) : 'TBD';
+      document.getElementById('donationDates').textContent = `🌹 ${dobYear} – ${dodYear} · Burial: ${burialDate}`;
+      document.getElementById('donationTribute').textContent = funeral.epitaph || '';
+
+      // Badges
+      const badges = document.getElementById('donationBadges');
+      badges.innerHTML = '';
+      const isActive = !funeral.is_complete;
+      badges.innerHTML += `<span class="badge ${isActive ? 'badge-gold badge-dot' : 'badge-muted'}">${isActive ? 'Active Harambee' : 'Completed'}</span>`;
+      if (funeral.contributors_count) badges.innerHTML += `<span class="badge badge-muted">${funeral.contributors_count} contributors</span>`;
+      if (funeral.days_remaining && funeral.days_remaining > 0) badges.innerHTML += `<span class="badge badge-muted">${funeral.days_remaining} days remaining</span>`;
+
+      // Progress
+      const raised = Number(funeral.raised || 0);
+      const goal   = Number(funeral.fundraising_goal || 0);
+      const pct    = goal ? Math.round((raised / goal) * 100) : 0;
+      document.getElementById('donationRaised').textContent = 'KES ' + raised.toLocaleString('en-KE');
+      document.getElementById('donationGoal').textContent = `raised of KES ${goal.toLocaleString('en-KE')} goal`;
+      document.getElementById('donationPercent').textContent = pct + '%';
+      const bar = document.getElementById('donationProgressBar');
+      bar.dataset.progress = pct;
+      bar.style.width = pct + '%';
+      document.getElementById('donationContributors').textContent = (funeral.contributors_count || 0) + ' contributors';
+      document.getElementById('donationNeeded').textContent = 'KES ' + Math.max(0, goal - raised).toLocaleString('en-KE') + ' still needed';
+
+      // Show the sections
+      document.getElementById('donationHero').style.display = '';
+      document.getElementById('donationProgress').style.display = '';
+
+      // Update page metadata
+      document.title = `Donate to ${funeral.deceased_name} — Faraja Memorial Fund`;
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.content = `Contribute to the harambee fund for ${funeral.deceased_name}. Pay via M-PESA or card.`;
+    } catch (err) {
+      showToast('Could not load funeral details: ' + err.message, 'error');
+    }
+  }
+  loadFuneral();
+
+  // Tab switching (unchanged from original)
   const tabs = document.querySelectorAll('#payMethodTabs .tab');
   const panels = { mpesa: document.getElementById('mpesa-panel'), card: document.getElementById('card-panel'), manual: document.getElementById('manual-panel') };
   tabs.forEach(tab => {
@@ -273,7 +383,7 @@
     });
   });
 
-  // Amount selection
+  // Amount selection (unchanged from original)
   let selectedAmount = 1000;
   document.querySelectorAll('.amount-btn[data-amount]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -289,21 +399,22 @@
       }
     });
   });
-
   document.getElementById('customAmount')?.addEventListener('input', function() {
     selectedAmount = parseFloat(this.value) || 0;
     updateAmountDisplay();
   });
-
   function updateAmountDisplay() {
     const fmt = 'KES ' + selectedAmount.toLocaleString('en-KE');
     document.getElementById('amountDisplay').textContent = fmt.replace('KES ','');
     document.getElementById('cardAmountDisplay').textContent = fmt.replace('KES ','');
   }
 
-  // M-PESA submit
+  // ── M-PESA submit ──
+  // OLD: passed funeralId: 'fun_demo' and called FarajaAPI.delay(3000) to fake PIN entry.
+  // NEW: passes real funeralId from the URL; no artificial delay — shows toast while waiting.
   document.getElementById('mpesaForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!funeralId) { showToast('Invalid donation link — funeral ID missing.', 'error'); return; }
     const phone = document.getElementById('mpesaPhone');
     const name  = document.getElementById('donorName');
     let ok = true;
@@ -313,23 +424,37 @@
 
     const btn = document.getElementById('mpesaBtn');
     Utils.setButtonLoading(btn, true);
-    const res = await FarajaAPI.mpesaSTKPush({ phone: phone.value, amount: selectedAmount, funeralId: 'fun_demo' });
+
+    // Also record the contribution with donor details
+    const res = await FarajaAPI.saveContribution({
+      funeralId,
+      amount:        selectedAmount,
+      phone:         phone.value,
+      donorName:     name.value,
+      paymentMethod: 'mpesa',
+      message:       document.getElementById('donorMessage').value || null,
+      isAnonymous:   document.getElementById('anonymous').checked,
+    });
+
     Utils.setButtonLoading(btn, false);
 
     if (res.success) {
-      showToast(res.message, 'info');
-      await FarajaAPI.delay(3000); // Simulate PIN entry
+      showToast(res.message || 'STK push sent — enter your M-PESA PIN.', 'info');
       document.getElementById('successAmount').textContent = 'KES ' + selectedAmount.toLocaleString('en-KE');
-      document.getElementById('transRefDisplay').textContent = res.checkoutRequestID;
+      document.getElementById('successMsg').textContent = 'has been received for your memorial fund. A receipt will be sent to your phone.';
+      document.getElementById('transRefDisplay').textContent = res.checkoutRequestID || res.mpesa_ref || '—';
       openModal('successModal');
     } else {
-      showToast('M-PESA request failed. Please try again.', 'error');
+      showToast(res.message || 'M-PESA request failed. Please try again.', 'error');
     }
   });
 
-  // Card submit
+  // ── Card submit ──
+  // OLD: called FarajaAPI.delay(1500) then showed modal with a random ref.
+  // NEW: records the contribution via API (paymentMethod: 'card').
   document.getElementById('cardForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!funeralId) { showToast('Invalid donation link — funeral ID missing.', 'error'); return; }
     const cardName   = document.getElementById('cardName');
     const cardNumber = document.getElementById('cardNumber');
     const cardExpiry = document.getElementById('cardExpiry');
@@ -343,33 +468,53 @@
 
     const btn = document.getElementById('cardBtn');
     Utils.setButtonLoading(btn, true);
-    await FarajaAPI.delay(1500);
+
+    const res = await FarajaAPI.saveContribution({
+      funeralId,
+      amount:        selectedAmount,
+      donorName:     cardName.value,
+      paymentMethod: 'card',
+    });
+
     Utils.setButtonLoading(btn, false);
 
-    const ref = 'STR' + Math.random().toString(36).substr(2,8).toUpperCase();
+    const ref = res.transaction_id || ('STR' + Math.random().toString(36).substr(2,8).toUpperCase());
     document.getElementById('successAmount').textContent = 'KES ' + selectedAmount.toLocaleString('en-KE');
     document.getElementById('transRefDisplay').textContent = ref;
     openModal('successModal');
+    if (!res.success) showToast(res.message || 'Card payment processing issue — please check with organiser.', 'warning');
   });
 
-  // Format card number
+  // Format card number (unchanged from original)
   document.getElementById('cardNumber')?.addEventListener('input', function() {
     this.value = this.value.replace(/\D/g,'').replace(/(.{4})/g,'$1 ').trim().slice(0,19);
   });
 
+  // Manual payment confirm (unchanged — no real API call needed, reference is self-reported)
   function confirmManual() {
     const ref = document.getElementById('transRef').value.trim();
     if (!ref) { showToast('Please enter your transaction reference', 'error'); return; }
     showToast('Payment confirmed! Reference: ' + ref, 'success');
   }
 
+  // ── Share helpers ──
+  // OLD: hardcoded share URL 'https://faraja.co.ke/donate/wanjiku2024'.
+  // NEW: uses the actual current URL (which already has ?id= in it).
   function shareWhatsApp() {
-    const msg = encodeURIComponent('Please contribute to the harambee for Mary Wanjiku Kamau 🕊 Goal: KES 500,000 — https://faraja.co.ke/donate/wanjiku2024');
+    const url = window.location.href;
+    const msg = encodeURIComponent('Please contribute to this harambee on Faraja 🕊 — ' + url);
     window.open('https://wa.me/?text=' + msg, '_blank');
   }
   function shareFacebook() {
-    window.open('https://facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://faraja.co.ke/donate/wanjiku2024'), '_blank');
+    window.open('https://facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
   }
+
+  // Update copy-link button to use real URL
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    if (btn.dataset.copy && btn.dataset.copy.includes('faraja.co.ke')) {
+      btn.dataset.copy = window.location.href;
+    }
+  });
 </script>
 </body>
 </html>

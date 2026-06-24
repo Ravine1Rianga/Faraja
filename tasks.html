@@ -47,14 +47,15 @@
     <div class="page-header-inner">
       <div>
         <h1 class="page-title">Task Management</h1>
-        <p class="page-subtitle">Mary Wanjiku Kamau Memorial · <span id="taskSummary">7 of 12 tasks complete</span></p>
+        <!-- HARDCODED DEMO: "Mary Wanjiku Kamau Memorial · 7 of 12 tasks complete" removed. JS updates taskSummary dynamically. -->
+        <p class="page-subtitle"><span id="taskSummary">0 of 0 tasks complete</span></p>
       </div>
       <div style="display:flex;gap:10px;">
+        <!-- DEPRECATED: hardcoded 3-name list. populateAssigneeOptions()
+             in the script below replaces these <option>s with the real
+             committee members once loaded. Left as fallback markup. -->
         <select class="form-control" id="filterAssignee" onchange="filterTasks()" style="width:160px;padding:8px 12px;font-size:0.85rem;">
           <option value="">All Assignees</option>
-          <option value="James">James Ochieng</option>
-          <option value="Grace">Grace Muthoni</option>
-          <option value="Peter">Peter Kamau</option>
         </select>
         <button class="btn btn-primary" onclick="openModal('addTaskModal')">➕ Add Task</button>
       </div>
@@ -86,6 +87,10 @@
         <button class="btn btn-ghost btn-sm" onclick="openAddTaskInCol('todo')">+</button>
       </div>
       <div id="tasks-todo">
+        <!-- DEPRECATED: static demo cards. renderTasks() in the script
+             below repopulates #tasks-todo / #tasks-progress / #tasks-done
+             from the real /funerals/:id/tasks endpoint. -->
+        <!--
         <div class="task-card" draggable="true" ondragstart="onDragStart(event,'todo')" data-assignee="James" data-priority="high">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
             <div class="task-priority priority-high"></div>
@@ -141,6 +146,7 @@
             <span class="badge badge-muted">Jun 27</span>
           </div>
         </div>
+        -->
       </div>
     </div>
 
@@ -155,6 +161,8 @@
         <button class="btn btn-ghost btn-sm" onclick="openAddTaskInCol('progress')">+</button>
       </div>
       <div id="tasks-progress">
+        <!-- DEPRECATED: static demo cards — see renderTasks() below. -->
+        <!--
         <div class="task-card" draggable="true" ondragstart="onDragStart(event,'progress')" data-assignee="Peter" data-priority="high">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
             <div class="task-priority priority-high"></div>
@@ -188,6 +196,7 @@
             <span class="badge badge-muted">Jun 26</span>
           </div>
         </div>
+        -->
       </div>
     </div>
 
@@ -202,6 +211,8 @@
         <span class="badge badge-success" style="font-size:0.7rem;">✓ 4 completed</span>
       </div>
       <div id="tasks-done" style="opacity:0.75;">
+        <!-- DEPRECATED: static demo cards — see renderTasks() below. -->
+        <!--
         <div class="task-card" style="border-color:rgba(34,197,94,0.2);" draggable="true" ondragstart="onDragStart(event,'done')">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
             <span style="font-size:0.85rem;">✅</span>
@@ -246,6 +257,7 @@
             <span class="badge badge-success">Completed</span>
           </div>
         </div>
+        -->
       </div>
     </div>
   </div>
@@ -270,12 +282,11 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="taskAssignee">Assign To *</label>
+          <!-- DEPRECATED: hardcoded names. populateAssigneeOptions()
+               replaces these with real committee members (value = their
+               committee_members.id, matching the backend's assigned_to FK). -->
           <select id="taskAssignee" class="form-control">
             <option value="">Select member</option>
-            <option value="James">James Ochieng (Chair)</option>
-            <option value="Grace">Grace Muthoni (Secretary)</option>
-            <option value="Peter">Peter Kamau (Treasurer)</option>
-            <option value="Samuel">Samuel Njoroge</option>
           </select>
         </div>
         <div class="form-group">
@@ -314,34 +325,147 @@
 <script>
   populateUserInfo();
 
-  let dragSrc = null;
+  if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
+  const funeralId = ActiveFuneral.get();
+  if (!funeralId) Utils.redirectTo('profile.html');
 
-  function onDragStart(e, col) {
-    dragSrc = { card: e.currentTarget, col };
+  let committee = [];
+  let tasks = [];
+  let dragSrc = null; // { taskId, fromCol }
+
+  // OLD: drag/drop only ever moved a card in the DOM (no persistence) —
+  // the new onDrop() below also calls FarajaAPI.updateTask()/completeTask()
+  // so a refresh doesn't lose the change.
+  function onDragStart(e, taskId, col) {
+    dragSrc = { taskId, fromCol: col };
     e.dataTransfer.effectAllowed = 'move';
   }
   function onDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   }
-  function onDrop(e, targetCol) {
+  async function onDrop(e, targetCol) {
     e.preventDefault();
-    if (!dragSrc || dragSrc.col === targetCol) return;
-    const targetContainer = document.getElementById('tasks-' + targetCol);
-    targetContainer.appendChild(dragSrc.card);
-    dragSrc.card.setAttribute('ondragstart', `onDragStart(event,'${targetCol}')`);
-    updateCounts();
-    showToast('Task moved to ' + (targetCol === 'todo' ? 'To Do' : targetCol === 'progress' ? 'In Progress' : 'Done'), 'success');
+    if (!dragSrc || dragSrc.fromCol === targetCol) { dragSrc = null; return; }
+    const { taskId } = dragSrc;
     dragSrc = null;
+
+    const res = targetCol === 'completed' || targetCol === 'done'
+      ? await FarajaAPI.completeTask(taskId)
+      : await FarajaAPI.updateTask(taskId, { status: targetCol });
+
+    if (res.success) {
+      showToast('Task moved to ' + columnLabel(targetCol), 'success');
+      loadTasks();
+    } else {
+      showToast(res.message || 'Could not move task', 'error');
+    }
+  }
+
+  function columnLabel(col) {
+    return col === 'todo' ? 'To Do' : col === 'progress' ? 'In Progress' : 'Done';
+  }
+
+  function priorityMeta(p) {
+    if (p === 'high')   return { color: 'var(--danger)',  label: 'High' };
+    if (p === 'low')    return { color: 'var(--success)', label: 'Low' };
+    return                     { color: 'var(--warning)', label: 'Medium' };
+  }
+
+  function memberName(id) {
+    const m = committee.find(c => c.id === id);
+    return m ? m.name : null;
+  }
+
+  // OLD: populateAssigneeOptions() didn't exist — assignee <select>s were
+  // hardcoded with 3 fake names. Now driven by the real committee list.
+  function populateAssigneeOptions() {
+    const filterSel  = document.getElementById('filterAssignee');
+    const taskSel    = document.getElementById('taskAssignee');
+    committee.forEach(m => {
+      filterSel.insertAdjacentHTML('beforeend', `<option value="${m.id}">${m.name}</option>`);
+      taskSel.insertAdjacentHTML('beforeend',   `<option value="${m.id}">${m.name}${m.committee_role ? ' (' + m.committee_role + ')' : ''}</option>`);
+    });
+  }
+
+  // OLD: 12 hand-written <div class="task-card"> blocks split across 3
+  // static columns. renderTasks() now builds the same cards from real data.
+  function renderTasks() {
+    ['todo', 'progress', 'completed'].forEach(status => {
+      const containerId = status === 'completed' ? 'tasks-done' : `tasks-${status}`;
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      tasks.filter(t => t.status === status).forEach(t => {
+        const { color, label } = priorityMeta(t.priority);
+        const name = memberName(t.assigned_to) || 'Unassigned';
+        const isDone = status === 'completed';
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        if (isDone) card.style.borderColor = 'rgba(34,197,94,0.2)';
+        card.draggable = true;
+        card.addEventListener('dragstart', (e) => onDragStart(e, t.id, status));
+        card.innerHTML = isDone
+          ? `<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+               <span style="font-size:0.85rem;">✅</span>
+               <span style="font-size:0.7rem;color:var(--success);font-weight:600;text-transform:uppercase;">Done</span>
+             </div>
+             <div class="task-card-title" style="text-decoration:line-through;color:var(--text-muted);">${t.title}</div>
+             <div class="task-card-meta">
+               <div class="avatar avatar-sm" style="font-size:0.65rem;">${Utils.initials(name)}</div>
+               <span class="badge badge-success">Completed</span>
+             </div>`
+          : `<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+               <div class="task-priority priority-${t.priority}"></div>
+               <span style="font-size:0.7rem;color:${color};font-weight:600;text-transform:uppercase;">${label}</span>
+             </div>
+             <div class="task-card-title">${t.title}</div>
+             <div class="task-card-meta">
+               <div class="avatar avatar-sm" style="font-size:0.65rem;">${Utils.initials(name)}</div>
+               <span class="badge badge-muted">${t.due_date ? Utils.formatDate(t.due_date) : 'No due date'}</span>
+             </div>`;
+        container.appendChild(card);
+      });
+    });
+    updateCounts();
+    updateSummary();
   }
 
   function updateCounts() {
-    ['todo','progress','done'].forEach(col => {
-      const c = document.getElementById('tasks-' + col)?.children.length || 0;
-      const el = document.getElementById('count-' + col);
-      if (el) el.textContent = c;
-    });
+    document.getElementById('count-todo').textContent     = tasks.filter(t => t.status === 'todo').length;
+    document.getElementById('count-progress').textContent = tasks.filter(t => t.status === 'progress').length;
+    document.getElementById('count-done').textContent     = tasks.filter(t => t.status === 'completed').length;
   }
+
+  function updateSummary() {
+    const done = tasks.filter(t => t.status === 'completed').length;
+    const total = tasks.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('taskSummary').textContent = `${done} of ${total} tasks complete`;
+    document.getElementById('progressText').textContent = `${done} / ${total} tasks`;
+    document.getElementById('mainProgressBar').dataset.progress = pct;
+    document.getElementById('mainProgressBar').style.width = pct + '%';
+  }
+
+  async function loadTasks() {
+    try {
+      tasks = await FarajaAPI.getTasks(funeralId);
+      renderTasks();
+    } catch (err) {
+      showToast('Could not load tasks: ' + err.message, 'error');
+    }
+  }
+
+  async function init() {
+    try {
+      committee = await FarajaAPI.getCommittee(funeralId);
+      populateAssigneeOptions();
+      await loadTasks();
+    } catch (err) {
+      showToast('Could not load committee: ' + err.message, 'error');
+    }
+  }
+  init();
 
   document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -358,37 +482,28 @@
 
     const btn = document.getElementById('addTaskBtn');
     Utils.setButtonLoading(btn, true);
-    await FarajaAPI.delay(500);
+
+    // OLD (fake delay + manual single-card DOM insert with no persistence):
+    // await FarajaAPI.delay(500);
+    // ...built one .task-card and appended it to the chosen column...
+    const res = await FarajaAPI.saveTask(funeralId, {
+      title:       title.value,
+      description: document.getElementById('taskDesc').value,
+      assignedTo:  assignee.value,
+      priority:    priority.value,
+      status:      document.getElementById('taskStatus').value,
+      dueDate:     due.value,
+    });
     Utils.setButtonLoading(btn, false);
 
-    const status = document.getElementById('taskStatus').value;
-    const pVal   = priority.value;
-    const pColor = pVal === 'high' ? 'var(--danger)' : pVal === 'medium' ? 'var(--warning)' : 'var(--success)';
-    const pLabel = pVal === 'high' ? 'High' : pVal === 'medium' ? 'Medium' : 'Low';
-    const initials = assignee.value.slice(0,2).toUpperCase();
-
-    const card = document.createElement('div');
-    card.className = 'task-card';
-    card.draggable = true;
-    card.setAttribute('ondragstart', `onDragStart(event,'${status}')`);
-    card.dataset.assignee = assignee.value;
-    card.dataset.priority = pVal;
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-        <div class="task-priority priority-${pVal}"></div>
-        <span style="font-size:0.7rem;color:${pColor};font-weight:600;text-transform:uppercase;">${pLabel}</span>
-      </div>
-      <div class="task-card-title">${title.value}</div>
-      <div class="task-card-meta">
-        <div class="avatar avatar-sm" style="font-size:0.65rem;">${initials}</div>
-        <span class="badge badge-muted">${Utils.formatDate(due.value)}</span>
-      </div>`;
-
-    document.getElementById('tasks-' + status).appendChild(card);
-    updateCounts();
-    showToast('Task added ✅', 'success');
-    closeModal('addTaskModal');
-    e.target.reset();
+    if (res.success) {
+      showToast('Task added ✅', 'success');
+      closeModal('addTaskModal');
+      e.target.reset();
+      loadTasks();
+    } else {
+      showToast(res.message || 'Failed to add task', 'error');
+    }
   });
 
   function openAddTaskInCol(col) {
@@ -397,12 +512,18 @@
   }
 
   function filterTasks() {
-    const filter = document.getElementById('filterAssignee').value.toLowerCase();
-    document.querySelectorAll('.task-card').forEach(card => {
-      const assignee = (card.dataset.assignee || '').toLowerCase();
-      card.style.display = (!filter || assignee.includes(filter)) ? '' : 'none';
+    const filterId = document.getElementById('filterAssignee').value;
+    document.querySelectorAll('.task-card').forEach((card, i) => {
+      // Re-derive assignee from the task list rather than a dataset attr,
+      // since cards are now rendered dynamically.
     });
-    updateCounts();
+    // Simplest correct approach with dynamic rendering: just re-render
+    // filtered from the in-memory `tasks` array.
+    const filtered = filterId ? tasks.filter(t => String(t.assigned_to) === filterId) : tasks;
+    const original = tasks;
+    tasks = filtered;
+    renderTasks();
+    tasks = original; // restore full list so counts/summary stay accurate next load
   }
 </script>
 </body>

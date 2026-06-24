@@ -47,10 +47,10 @@
     <div class="page-header-inner">
       <div>
         <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">In Memory of <strong style="color:var(--gold);">Mary Wanjiku Kamau</strong> · Burial: 28 June 2024</p>
+        <p class="page-subtitle"></p>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-secondary btn-sm" onclick="window.open('donate.html','_blank')">🔗 Share Donation Link</button>
+        <button class="btn btn-secondary btn-sm" onclick="window.open('donate.html?id=' + funeralId,'_blank')">🔗 Share Donation Link</button>
         <a href="create-funeral.html" class="btn btn-primary btn-sm">➕ New Memorial</a>
       </div>
     </div>
@@ -60,79 +60,78 @@
   <div class="grid grid-4" style="margin-bottom:28px;">
     <div class="widget">
       <div class="widget-icon widget-icon-gold">⏳</div>
-      <div class="widget-value" id="daysLeft" data-count="12" data-suffix="">0</div>
+      <div class="widget-value" id="daysLeft" data-count="0" data-suffix="">0</div>
       <div class="widget-label">Days Remaining</div>
-      <div class="widget-trend down">↓ 3 since yesterday</div>
+      <!-- HARDCODED DEMO: <div class="widget-trend down">↓ 3 since yesterday</div> -->
     </div>
     <div class="widget">
       <div class="widget-icon widget-icon-green">💰</div>
-      <div class="widget-value" data-count="285000" data-prefix="KES " data-suffix="">0</div>
+      <div class="widget-value" data-count="0" data-prefix="KES " data-suffix="">0</div>
       <div class="widget-label">Funds Raised</div>
-      <div class="widget-trend up">↑ KES 42,000 today</div>
+      <!-- HARDCODED DEMO: <div class="widget-trend up">↑ KES 42,000 today</div> -->
     </div>
     <div class="widget">
       <div class="widget-icon widget-icon-blue">👥</div>
-      <div class="widget-value" data-count="124" data-suffix="">0</div>
+      <div class="widget-value" data-count="0" data-suffix="">0</div>
       <div class="widget-label">Contributors</div>
-      <div class="widget-trend up">↑ 8 new today</div>
+      <!-- HARDCODED DEMO: <div class="widget-trend up">↑ 8 new today</div> -->
     </div>
     <div class="widget">
       <div class="widget-icon widget-icon-red">✅</div>
-      <div class="widget-value" data-count="7" data-suffix=" / 12">0</div>
+      <div class="widget-value" data-count="0" data-suffix="">0</div>
       <div class="widget-label">Tasks Done</div>
-      <div class="widget-trend up">↑ 2 completed</div>
+      <!-- HARDCODED DEMO: <div class="widget-trend up">↑ 2 completed</div> -->
     </div>
   </div>
 
-  <!-- Fundraising Progress + Ring -->
-  <div class="card" style="margin-bottom:28px;">
-    <div class="card-header">
-      <div class="card-title">Harambee Progress</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <span class="badge badge-success badge-dot">Active</span>
-        <a href="donate.html" class="btn btn-primary btn-sm">💚 Donate</a>
+    <!-- Fundraising Progress + Ring -->
+    <div class="card" style="margin-bottom:28px;">
+      <div class="card-header">
+        <div class="card-title">Harambee Progress</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <a href="donate.html" class="btn btn-primary btn-sm">💚 Donate</a>
+        </div>
+      </div>
+      <div class="fund-summary">
+        <div class="ring-chart" data-ring="0">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle class="ring-bg" cx="60" cy="60" r="50" transform="rotate(-90 60 60)"></circle>
+            <circle class="ring-fill" cx="60" cy="60" r="50" transform="rotate(-90 60 60)" stroke-dasharray="314" stroke-dashoffset="314"></circle>
+          </svg>
+          <div class="ring-label">
+            <div class="ring-value">0%</div>
+            <div class="ring-sub">of goal</div>
+          </div>
+        </div>
+        <div class="fund-details" style="flex:1;">
+          <div class="fund-stat">
+            <div class="fund-stat-label" style="color:var(--gold);">Total Raised</div>
+            <div class="fund-stat-value">KES 0</div>
+          </div>
+          <div class="fund-stat">
+            <div class="fund-stat-label" style="color:var(--text-muted);">Fundraising Goal</div>
+            <div class="fund-stat-value">KES 0</div>
+          </div>
+          <div class="fund-stat">
+            <div class="fund-stat-label" style="color:var(--danger);">Total Expenses</div>
+            <div class="fund-stat-value">KES 0</div>
+          </div>
+          <div class="fund-stat">
+            <div class="fund-stat-label" style="color:var(--success);">Net Balance</div>
+            <div class="fund-stat-value">KES 0</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:24px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">
+          <span>KES 0 raised</span>
+          <span>Goal: KES 0</span>
+        </div>
+        <div class="progress-wrap progress-xl">
+          <div class="progress-bar" data-progress="0"></div>
+        </div>
       </div>
     </div>
-    <div class="fund-summary">
-      <div class="ring-chart" data-ring="57">
-        <svg viewBox="0 0 120 120" width="120" height="120">
-          <circle class="ring-bg" cx="60" cy="60" r="50" transform="rotate(-90 60 60)"></circle>
-          <circle class="ring-fill" cx="60" cy="60" r="50" transform="rotate(-90 60 60)" stroke-dasharray="314" stroke-dashoffset="314"></circle>
-        </svg>
-        <div class="ring-label">
-          <div class="ring-value">57%</div>
-          <div class="ring-sub">of goal</div>
-        </div>
-      </div>
-      <div class="fund-details" style="flex:1;">
-        <div class="fund-stat">
-          <div class="fund-stat-label" style="color:var(--gold);">Total Raised</div>
-          <div class="fund-stat-value">KES 285,000</div>
-        </div>
-        <div class="fund-stat">
-          <div class="fund-stat-label" style="color:var(--text-muted);">Fundraising Goal</div>
-          <div class="fund-stat-value">KES 500,000</div>
-        </div>
-        <div class="fund-stat">
-          <div class="fund-stat-label" style="color:var(--danger);">Total Expenses</div>
-          <div class="fund-stat-value">KES 48,000</div>
-        </div>
-        <div class="fund-stat">
-          <div class="fund-stat-label" style="color:var(--success);">Net Balance</div>
-          <div class="fund-stat-value">KES 237,000</div>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:24px;">
-      <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">
-        <span>KES 285,000 raised</span>
-        <span>Goal: KES 500,000</span>
-      </div>
-      <div class="progress-wrap progress-xl">
-        <div class="progress-bar" data-progress="57"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- 3-col grid -->
   <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;">
@@ -157,31 +156,7 @@
         <a href="tasks.html" class="btn btn-ghost btn-sm">View all →</a>
       </div>
       <div id="upcomingTasks">
-        <div class="task-mini">
-          <div class="task-mini-check" id="chk1" onclick="toggleTask(this)"></div>
-          <div class="task-mini-title">Book hearse from Lee Funeral Home</div>
-          <div class="task-mini-due badge badge-danger">Overdue</div>
-        </div>
-        <div class="task-mini">
-          <div class="task-mini-check" id="chk2" onclick="toggleTask(this)"></div>
-          <div class="task-mini-title">Confirm PA system hire — Nairobi Sound</div>
-          <div class="task-mini-due badge badge-warning">Tomorrow</div>
-        </div>
-        <div class="task-mini">
-          <div class="task-mini-check done" id="chk3" onclick="toggleTask(this)"></div>
-          <div class="task-mini-title" style="text-decoration:line-through;color:var(--text-muted);">Print order of service (200 copies)</div>
-          <div class="task-mini-due badge badge-success">Done</div>
-        </div>
-        <div class="task-mini">
-          <div class="task-mini-check" id="chk4" onclick="toggleTask(this)"></div>
-          <div class="task-mini-title">Coordinate catering for 300 guests</div>
-          <div class="task-mini-due badge badge-muted">Jun 26</div>
-        </div>
-        <div class="task-mini">
-          <div class="task-mini-check" id="chk5" onclick="toggleTask(this)"></div>
-          <div class="task-mini-title">Send order of service to diaspora family</div>
-          <div class="task-mini-due badge badge-muted">Jun 27</div>
-        </div>
+        <!-- HARDCODED DEMO: tasks populated by JS from GET /api/funerals/:id/dashboard -->
       </div>
     </div>
   </div>
@@ -196,41 +171,7 @@
         <span class="badge badge-success badge-dot">Live</span>
       </div>
       <div class="activity-list" id="activityFeed">
-        <div class="activity-item">
-          <div class="activity-dot" style="background:var(--success);"></div>
-          <div class="activity-content">
-            <div class="activity-text"><strong>James Kiprono</strong> contributed <strong>KES 10,000</strong> via M-PESA</div>
-            <div class="activity-time">2 minutes ago</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background:var(--info);"></div>
-          <div class="activity-content">
-            <div class="activity-text"><strong>Grace Muthoni</strong> was added as <strong>Secretary</strong></div>
-            <div class="activity-time">1 hour ago</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background:var(--gold);"></div>
-          <div class="activity-content">
-            <div class="activity-text"><strong>Alice Njeri</strong> contributed <strong>KES 5,000</strong> via Card</div>
-            <div class="activity-time">3 hours ago</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background:var(--warning);"></div>
-          <div class="activity-content">
-            <div class="activity-text">Task <strong>"Book hearse"</strong> is <strong>overdue</strong></div>
-            <div class="activity-time">6 hours ago</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background:var(--success);"></div>
-          <div class="activity-content">
-            <div class="activity-text"><strong>David Omondi</strong> contributed <strong>KES 3,000</strong> via M-PESA</div>
-            <div class="activity-time">Yesterday</div>
-          </div>
-        </div>
+        <!-- HARDCODED DEMO: activity populated by JS from GET /api/funerals/:id/dashboard -->
       </div>
     </div>
 
@@ -241,51 +182,7 @@
         <a href="contributions.html" class="btn btn-ghost btn-sm">All →</a>
       </div>
       <div>
-        <div class="leaderboard-item">
-          <div class="leaderboard-rank gold">🥇</div>
-          <div class="avatar avatar-sm">JK</div>
-          <div class="leaderboard-info">
-            <div class="leaderboard-name">James Kiprono</div>
-            <div class="leaderboard-method">M-PESA · 2 contributions</div>
-          </div>
-          <div class="leaderboard-amount">KES 25,000</div>
-        </div>
-        <div class="leaderboard-item">
-          <div class="leaderboard-rank silver">🥈</div>
-          <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">AN</div>
-          <div class="leaderboard-info">
-            <div class="leaderboard-name">Alice Njeri</div>
-            <div class="leaderboard-method">Card · 1 contribution</div>
-          </div>
-          <div class="leaderboard-amount">KES 15,000</div>
-        </div>
-        <div class="leaderboard-item">
-          <div class="leaderboard-rank bronze">🥉</div>
-          <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#f59e0b,#d97706);">DO</div>
-          <div class="leaderboard-info">
-            <div class="leaderboard-name">David Omondi</div>
-            <div class="leaderboard-method">M-PESA · 3 contributions</div>
-          </div>
-          <div class="leaderboard-amount">KES 9,000</div>
-        </div>
-        <div class="leaderboard-item">
-          <div class="leaderboard-rank">4</div>
-          <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#10b981,#059669);">MW</div>
-          <div class="leaderboard-info">
-            <div class="leaderboard-name">Mary Waweru</div>
-            <div class="leaderboard-method">M-PESA · 1 contribution</div>
-          </div>
-          <div class="leaderboard-amount">KES 7,500</div>
-        </div>
-        <div class="leaderboard-item">
-          <div class="leaderboard-rank">5</div>
-          <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#ec4899,#be185d);">SM</div>
-          <div class="leaderboard-info">
-            <div class="leaderboard-name">Samuel Mutua</div>
-            <div class="leaderboard-method">Card · 2 contributions</div>
-          </div>
-          <div class="leaderboard-amount">KES 6,000</div>
-        </div>
+        <!-- HARDCODED DEMO: top contributors populated by JS from GET /api/funerals/:id/dashboard -->
       </div>
     </div>
   </div>
@@ -297,32 +194,11 @@
       <a href="create-funeral.html" class="btn btn-primary btn-sm">➕ Create New</a>
     </div>
     <div class="grid grid-3" id="funeralCards">
-      <!-- Demo card -->
-      <div class="funeral-card">
-        <div class="funeral-card-image">
-          🕊
-          <div class="funeral-card-image-overlay"></div>
-          <div style="position:absolute;bottom:8px;left:12px;z-index:2;">
-            <span class="badge badge-success badge-dot">Active</span>
-          </div>
-        </div>
-        <div class="funeral-card-body">
-          <div class="funeral-card-name">Mary Wanjiku Kamau</div>
-          <div class="funeral-card-dates">1952 – 2024 · Burial: 28 June 2024</div>
-          <div class="funeral-card-progress">
-            <div class="funeral-card-progress-text">
-              <span>KES 285,000 raised</span><span>57%</span>
-            </div>
-            <div class="progress-wrap"><div class="progress-bar" data-progress="57"></div></div>
-          </div>
-          <div class="funeral-card-footer">
-            <span class="badge badge-muted">124 contributors</span>
-            <a href="funeral-dashboard.html" class="btn btn-primary btn-sm">Manage</a>
-          </div>
-        </div>
-      </div>
-      <!-- Add new card -->
-      <a href="create-funeral.html" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border:2px dashed var(--border-light);border-radius:var(--radius-lg);padding:40px;color:var(--text-muted);transition:var(--transition);text-decoration:none;min-height:200px;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='var(--text-muted)';">
+      <!-- DEPRECATED: static demo card replaced at runtime by renderFuneralCards() below.
+      <div class="funeral-card">...</div>
+      -->
+      <!-- Add new card — always visible -->
+      <a href="create-funeral.html" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border:2px dashed var(--border-light);border-radius:var(--radius-lg);padding:40px;color:var(--text-muted);transition:var(--transition);text-decoration:none;min-height:200px;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)';" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='var(--text-muted)';" id="addFuneralCard">
         <span style="font-size:2.5rem;line-height:1;">➕</span>
         <span style="font-size:0.9rem;font-weight:600;">Create New Memorial</span>
       </a>
@@ -334,8 +210,19 @@
 <script src="js/main.js"></script>
 <script>
   populateUserInfo();
+  if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
 
-  function toggleTask(el) {
+  // ── Dashboard data ──
+  // The funeralId for the ACTIVE memorial (set when user clicks "Manage").
+  // If none is set yet, the page still shows the My Memorials section so the
+  // user can pick one; stat widgets remain at their placeholder values.
+  const funeralId = ActiveFuneral.get();
+
+  // ── OLD: toggleTask() only toggled CSS — no persistence, no real API call.
+  //        Replaced by a real PATCH to /tasks/:id/complete via FarajaAPI.completeTask().
+  async function toggleTask(el, taskId) {
+    const wasDone = el.classList.contains('done');
+    // Optimistic UI update
     el.classList.toggle('done');
     const title = el.nextElementSibling;
     const badge = title.nextElementSibling;
@@ -344,7 +231,20 @@
       title.style.color = 'var(--text-muted)';
       badge.className = 'task-mini-due badge badge-success';
       badge.textContent = 'Done';
-      showToast('Task marked as complete ✅', 'success');
+      if (taskId) {
+        const res = await FarajaAPI.completeTask(taskId);
+        if (!res.success) {
+          // Roll back on failure
+          el.classList.remove('done');
+          title.style.textDecoration = '';
+          title.style.color = '';
+          badge.className = 'task-mini-due badge badge-muted';
+          badge.textContent = 'Todo';
+          showToast(res.message || 'Could not complete task', 'error');
+        } else {
+          showToast('Task marked as complete ✅', 'success');
+        }
+      }
     } else {
       title.style.textDecoration = '';
       title.style.color = '';
@@ -353,38 +253,169 @@
     }
   }
 
-  // Animate ring on load
+  // ── OLD: ring drawn at static 57%.
+  //        Same animation — just kept from original.
   setTimeout(() => {
     document.querySelectorAll('.ring-chart[data-ring]').forEach(el => {
-      const pct   = parseFloat(el.dataset.ring) || 0;
-      const fill  = el.querySelector('.ring-fill');
-      const r     = 50;
-      const circ  = 2 * Math.PI * r;
+      const pct  = parseFloat(el.dataset.ring) || 0;
+      const fill = el.querySelector('.ring-fill');
+      const r    = 50;
+      const circ = 2 * Math.PI * r;
       if (fill) {
-        fill.style.strokeDasharray = circ;
+        fill.style.strokeDasharray  = circ;
         fill.style.strokeDashoffset = circ * (1 - pct / 100);
       }
     });
   }, 300);
 
-  // Live feed simulation
-  const feedItems = [
-    { color: 'var(--success)', text: '<strong>Peter Mwangi</strong> contributed <strong>KES 2,000</strong> via M-PESA', time: 'Just now' },
-    { color: 'var(--gold)',    text: '<strong>Diaspora member</strong> contributed <strong>KES 20,000</strong> via Card', time: '30s ago' },
-  ];
-  let feedIdx = 0;
-  setInterval(() => {
-    const item = feedItems[feedIdx % feedItems.length];
-    const feed = document.getElementById('activityFeed');
-    if (!feed) return;
-    const div = document.createElement('div');
-    div.className = 'activity-item';
-    div.style.animation = 'slideUp 0.4s ease';
-    div.innerHTML = `<div class="activity-dot" style="background:${item.color};"></div><div class="activity-content"><div class="activity-text">${item.text}</div><div class="activity-time">${item.time}</div></div>`;
-    feed.insertBefore(div, feed.firstChild);
-    if (feed.children.length > 6) feed.lastChild.remove();
-    feedIdx++;
-  }, 12000);
+  // ── Load real dashboard data ──
+  // OLD: all numbers (285K raised, 124 contributors, 7/12 tasks, 12 days) were hardcoded.
+  // NEW: fetches from GET /api/funerals/:id/dashboard.
+  async function loadDashboard() {
+    if (!funeralId) return; // no memorial selected yet — keep placeholder layout
+    try {
+      const { funeral, stats, topContributors, recentActivity } = await FarajaAPI.getDashboard(funeralId);
+
+      // Update page subtitle
+      document.querySelector('.page-subtitle').innerHTML =
+        `In Memory of <strong style="color:var(--gold);">${funeral.deceased_name}</strong> · Burial: ${Utils.formatDate(funeral.funeral_date)}`;
+
+      // Update stat widgets
+      const daysEl = document.getElementById('daysLeft');
+      if (daysEl) { daysEl.dataset.count = stats.daysLeft ?? 0; daysEl.textContent = stats.daysLeft ?? 0; }
+
+      const allWidgetVals = document.querySelectorAll('.widget .widget-value');
+      // [0]=daysLeft already done, [1]=raised, [2]=contributors, [3]=tasks
+      if (allWidgetVals[1]) { const r = Number(stats.raised || 0); allWidgetVals[1].dataset.count = r; allWidgetVals[1].textContent = 'KES ' + r.toLocaleString('en-KE'); }
+      if (allWidgetVals[2]) { const c = stats.contributorsCount ?? 0; allWidgetVals[2].dataset.count = c; allWidgetVals[2].textContent = c; }
+      if (allWidgetVals[3]) { const d = stats.tasksDone ?? 0; const t = stats.tasksTotal ?? 0; allWidgetVals[3].dataset.count = d; allWidgetVals[3].textContent = d + ' / ' + t; }
+
+      // Update ring chart
+      const ring = document.querySelector('.ring-chart');
+      const ringVal = document.querySelector('.ring-value');
+      if (ring && stats.progressPct !== undefined) {
+        ring.dataset.ring = stats.progressPct;
+        if (ringVal) ringVal.textContent = stats.progressPct + '%';
+        const fill = ring.querySelector('.ring-fill');
+        if (fill) { const c = 2 * Math.PI * 50; fill.style.strokeDasharray = c; fill.style.strokeDashoffset = c * (1 - stats.progressPct / 100); }
+      }
+
+      // Fund details
+      const fundStats = document.querySelectorAll('.fund-stat-value');
+      if (fundStats[0]) fundStats[0].textContent = 'KES ' + Number(stats.raised || 0).toLocaleString('en-KE');
+      if (fundStats[1]) fundStats[1].textContent = 'KES ' + Number(funeral.fundraising_goal || 0).toLocaleString('en-KE');
+      if (fundStats[2]) fundStats[2].textContent = 'KES ' + Number(stats.totalExpenses || 0).toLocaleString('en-KE');
+      if (fundStats[3]) fundStats[3].textContent = 'KES ' + Number(stats.netBalance    || 0).toLocaleString('en-KE');
+
+      // Upcoming tasks (mini list)
+      if (stats.upcomingTasks && stats.upcomingTasks.length) {
+        const taskContainer = document.getElementById('upcomingTasks');
+        taskContainer.innerHTML = '';
+        stats.upcomingTasks.forEach(t => {
+          const isDone = t.status === 'completed';
+          const div = document.createElement('div');
+          div.className = 'task-mini';
+          div.innerHTML = `
+            <div class="task-mini-check${isDone ? ' done' : ''}" onclick="toggleTask(this, ${t.id})"></div>
+            <div class="task-mini-title"${isDone ? ' style="text-decoration:line-through;color:var(--text-muted);"' : ''}>${t.title}</div>
+            <div class="task-mini-due badge ${isDone ? 'badge-success' : 'badge-muted'}">${isDone ? 'Done' : (t.due_date ? Utils.formatDate(t.due_date) : 'No date')}</div>`;
+          taskContainer.appendChild(div);
+        });
+      }
+
+      // Top contributors
+      if (topContributors && topContributors.length) {
+        const lcEl = document.querySelector('.card:last-of-type .leaderboard-item')?.parentElement;
+        if (lcEl) {
+          lcEl.innerHTML = '';
+          const medals = ['🥇','🥈','🥉'];
+          topContributors.slice(0,5).forEach((c, i) => {
+            const name = c.is_anonymous ? 'Anonymous' : (c.donor_name || 'Unknown');
+            const div = document.createElement('div');
+            div.className = 'leaderboard-item';
+            div.innerHTML = `
+              <div class="leaderboard-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i] || (i+1)}</div>
+              <div class="avatar avatar-sm">${Utils.initials(name)}</div>
+              <div class="leaderboard-info">
+                <div class="leaderboard-name">${name}</div>
+                <div class="leaderboard-method">${c.payment_method || '—'} · ${c.contribution_count || 1} contribution${c.contribution_count > 1 ? 's' : ''}</div>
+              </div>
+              <div class="leaderboard-amount">KES ${Number(c.total_amount || 0).toLocaleString('en-KE')}</div>`;
+            lcEl.appendChild(div);
+          });
+        }
+      }
+
+      // Activity feed with real data (recent activity prepended before the live simulation)
+      if (recentActivity && recentActivity.length) {
+        const feed = document.getElementById('activityFeed');
+        if (feed) {
+          feed.innerHTML = '';
+          recentActivity.slice(0,5).forEach(a => {
+            const div = document.createElement('div');
+            div.className = 'activity-item';
+            div.innerHTML = `
+              <div class="activity-dot" style="background:var(--success);"></div>
+              <div class="activity-content">
+                <div class="activity-text">${a.text || a.description || ''}</div>
+                <div class="activity-time">${a.created_at ? Utils.formatDateTime(a.created_at) : ''}</div>
+              </div>`;
+            feed.appendChild(div);
+          });
+        }
+      }
+
+    } catch (err) {
+      showToast('Could not load dashboard: ' + err.message, 'error');
+    }
+  }
+
+  // ── My Memorials cards ──
+  // OLD: 1 hardcoded static card.
+  // NEW: rendered from FarajaAPI.getFunerals(); "Manage" sets ActiveFuneral before navigating.
+  async function renderFuneralCards() {
+    try {
+      const funerals = await FarajaAPI.getFunerals();
+      const container = document.getElementById('funeralCards');
+      const addCard   = document.getElementById('addFuneralCard');
+      funerals.forEach(f => {
+        const pct = Number(f.fundraising_goal) > 0 ? Math.round((Number(f.raised || 0) / Number(f.fundraising_goal)) * 100) : 0;
+        const isActive = !f.is_complete;
+        const card = document.createElement('div');
+        card.className = 'funeral-card';
+        card.innerHTML = `
+          <div class="funeral-card-image">🕊
+            <div class="funeral-card-image-overlay"></div>
+            <div style="position:absolute;bottom:8px;left:12px;z-index:2;">
+              <span class="badge ${isActive ? 'badge-success badge-dot' : 'badge-muted'}">${isActive ? 'Active' : 'Completed'}</span>
+            </div>
+          </div>
+          <div class="funeral-card-body">
+            <div class="funeral-card-name">${f.deceased_name}</div>
+            <div class="funeral-card-dates">${f.date_of_birth ? new Date(f.date_of_birth).getFullYear() : '?'} – ${f.date_of_death ? new Date(f.date_of_death).getFullYear() : '?'} · Burial: ${f.funeral_date ? Utils.formatDate(f.funeral_date) : 'TBD'}</div>
+            <div class="funeral-card-progress">
+              <div class="funeral-card-progress-text">
+                <span>KES ${Number(f.raised||0).toLocaleString('en-KE')} raised</span><span>${pct}%</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-bar" data-progress="${pct}" style="width:${pct}%;"></div></div>
+            </div>
+            <div class="funeral-card-footer">
+              <span class="badge badge-muted">${f.contributors_count || 0} contributors</span>
+              <button class="btn btn-primary btn-sm" onclick="ActiveFuneral.set(${f.id}); window.location.href='funeral-dashboard.html';">Manage</button>
+            </div>
+          </div>`;
+        container.insertBefore(card, addCard);
+      });
+    } catch (err) {
+      showToast('Could not load memorials: ' + err.message, 'error');
+    }
+  }
+
+  // HARDCODED DEMO: live feed simulation removed in favor of real activity data
+
+  // Boot
+  loadDashboard();
+  renderFuneralCards();
 </script>
 </body>
 </html>
