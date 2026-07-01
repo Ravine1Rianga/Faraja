@@ -545,7 +545,8 @@ const FarajaAPI = {
   },
 
   getActiveFunerals: async () => {
-    const res = await apiRequest('/funerals/public/active', { auth: false });
+    const hasToken = !!FarajaAPI.currentUser();
+    const res = await apiRequest('/funerals/public/active', { auth: hasToken });
     return res.data.funerals;
   },
 
@@ -713,6 +714,36 @@ const FarajaAPI = {
   },
 };
 
+// ─── Test Mode ──────────────────────────────────────────────
+const TestMode = {
+  key: 'faraja_test_mode',
+  isOn: () => localStorage.getItem(TestMode.key) !== 'off',
+  setOn: () => { localStorage.setItem(TestMode.key, 'on'); TestMode.render(); },
+  setOff: () => { localStorage.setItem(TestMode.key, 'off'); TestMode.render(); },
+  toggle: () => { TestMode.isOn() ? TestMode.setOff() : TestMode.setOn(); },
+  render: () => {
+    let btn = document.getElementById('testModeBtn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'testModeBtn';
+      btn.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:9999;border:none;border-radius:20px;padding:8px 16px;font-size:0.75rem;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.25);transition:all 0.2s ease;display:flex;align-items:center;gap:6px;';
+      btn.onclick = TestMode.toggle;
+      document.body.appendChild(btn);
+    }
+    const on = TestMode.isOn();
+    if (on) {
+      btn.style.background = 'var(--info)';
+      btn.style.color = '#fff';
+      btn.innerHTML = '<span>🔬</span> Test Mode';
+    } else {
+      btn.style.background = 'var(--surface)';
+      btn.style.color = 'var(--text-secondary)';
+      btn.style.border = '1px solid var(--border-light)';
+      btn.innerHTML = '<span>💳</span> Live';
+    }
+  },
+};
+
 // ─── Utility helpers ──────────────────────────────────────────
 const Utils = {
   formatCurrency: (n, currency = 'KES') => `${currency} ${Number(n).toLocaleString('en-KE')}`,
@@ -772,6 +803,7 @@ document.querySelectorAll('.animate-on-scroll.visible').forEach(el => {
 // ─── Expose globals ───────────────────────────────────────────
 window.FarajaAPI = FarajaAPI;
 window.ActiveFuneral = ActiveFuneral;
+window.TestMode = TestMode;
 window.Utils = Utils;
 window.showToast = showToast;
 window.openModal = openModal;
@@ -780,3 +812,6 @@ window.validators = validators;
 window.validateField = validateField;
 window.setupPasswordStrength = setupPasswordStrength;
 window.setupFileUpload = setupFileUpload;
+
+// ─── Render test mode bar on every page ──────────────────────
+TestMode.render();
