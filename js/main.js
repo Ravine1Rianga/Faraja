@@ -711,6 +711,102 @@ const FarajaAPI = {
       return { success: false, message: err.message };
     }
   },
+
+  // ── Role-aware redirect ──────────────────────────────────────
+  redirectByRole: (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    switch (user.role) {
+      case 'admin':  window.location.href = 'admin-dashboard.html';  break;
+      case 'vendor': window.location.href = 'vendor-dashboard.html'; break;
+      default:       window.location.href = 'funeral-dashboard.html';
+    }
+  },
+
+  // ── Vendors (localStorage) ───────────────────────────────────
+  getVendors: async () => {
+    return JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+  },
+  getVendorByUserId: (userId) => {
+    const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+    return vendors.find(v => v.userId === userId) || null;
+  },
+  updateVendor: async (id, updates) => {
+    const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+    const idx = vendors.findIndex(v => v.id === id);
+    if (idx === -1) return { success: false, message: 'Vendor not found' };
+    vendors[idx] = { ...vendors[idx], ...updates, updatedAt: new Date().toISOString() };
+    localStorage.setItem('faraja_vendors', JSON.stringify(vendors));
+    return { success: true, vendor: vendors[idx] };
+  },
+  deleteVendor: async (id) => {
+    let vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+    vendors = vendors.filter(v => v.id !== id);
+    localStorage.setItem('faraja_vendors', JSON.stringify(vendors));
+    let products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+    products = products.filter(p => p.vendorId !== id);
+    localStorage.setItem('faraja_products', JSON.stringify(products));
+    return { success: true };
+  },
+
+  // ── Products / Merchandise (localStorage) ───────────────────
+  getProducts: async (vendorId) => {
+    const all = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+    return vendorId ? all.filter(p => p.vendorId === vendorId) : all;
+  },
+  saveProduct: async (data) => {
+    const products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+    const product = { id: 'prod_' + Date.now(), ...data, createdAt: new Date().toISOString() };
+    products.push(product);
+    localStorage.setItem('faraja_products', JSON.stringify(products));
+    return { success: true, product };
+  },
+  updateProduct: async (id, updates) => {
+    const products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+    const idx = products.findIndex(p => p.id === id);
+    if (idx === -1) return { success: false, message: 'Product not found' };
+    products[idx] = { ...products[idx], ...updates, updatedAt: new Date().toISOString() };
+    localStorage.setItem('faraja_products', JSON.stringify(products));
+    return { success: true, product: products[idx] };
+  },
+  deleteProduct: async (id) => {
+    let products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+    products = products.filter(p => p.id !== id);
+    localStorage.setItem('faraja_products', JSON.stringify(products));
+    return { success: true };
+  },
+
+  // ── Users CRUD (admin, localStorage) ────────────────────────
+  getUsers: async () => {
+    return JSON.parse(localStorage.getItem('faraja_users') || '[]');
+  },
+  updateUser: async (id, updates) => {
+    const users = JSON.parse(localStorage.getItem('faraja_users') || '[]');
+    const idx = users.findIndex(u => u.id === id);
+    if (idx === -1) return { success: false };
+    users[idx] = { ...users[idx], ...updates };
+    localStorage.setItem('faraja_users', JSON.stringify(users));
+    return { success: true, user: users[idx] };
+  },
+  deleteUser: async (id) => {
+    let users = JSON.parse(localStorage.getItem('faraja_users') || '[]');
+    users = users.filter(u => u.id !== id);
+    localStorage.setItem('faraja_users', JSON.stringify(users));
+    return { success: true };
+  },
+
+  // ── Funerals CRUD (localStorage, supplements real API) ──────
+  deleteFuneral: async (id) => {
+    let funerals = JSON.parse(localStorage.getItem('faraja_funerals') || '[]');
+    funerals = funerals.filter(f => f.id !== id);
+    localStorage.setItem('faraja_funerals', JSON.stringify(funerals));
+    return { success: true };
+  },
+
+  // ── Contributions (localStorage) ────────────────────────────
+  getContributions: async (funeralId) => {
+    const all = JSON.parse(localStorage.getItem('faraja_contributions') || '[]');
+    return funeralId ? all.filter(c => c.funeralId === funeralId) : all;
+  },
 };
 
 // ─── Utility helpers ──────────────────────────────────────────
@@ -778,5 +874,10 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.validators = validators;
 window.validateField = validateField;
+window.setFieldError = setFieldError;
+window.setFieldSuccess = setFieldSuccess;
+window.clearFieldState = clearFieldState;
 window.setupPasswordStrength = setupPasswordStrength;
 window.setupFileUpload = setupFileUpload;
+window.requireAuth = requireAuth;
+window.populateUserInfo = populateUserInfo;
