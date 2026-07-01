@@ -59,27 +59,24 @@
   <div class="grid grid-4" style="margin-bottom:28px;">
     <div class="widget" style="border-color:rgba(34,197,94,0.3);">
       <div class="widget-icon widget-icon-green">💰</div>
-      <div class="widget-value" data-count="285000" data-prefix="KES ">0</div>
+      <div class="widget-value" data-count="0" data-prefix="KES ">0</div>
       <div class="widget-label">Total Income</div>
-      <!-- HARDCODED DEMO: <div class="widget-trend up">↑ 57% of goal</div> -->
     </div>
     <div class="widget" style="border-color:rgba(239,68,68,0.3);">
       <div class="widget-icon widget-icon-red">📤</div>
-      <div class="widget-value" data-count="48000" data-prefix="KES ">0</div>
+      <div class="widget-value" data-count="0" data-prefix="KES ">0</div>
       <div class="widget-label">Total Expenses</div>
-      <!-- HARDCODED DEMO: <div class="widget-trend down">↑ KES 12,000 this week</div> -->
     </div>
     <div class="widget" style="border-color:rgba(201,168,76,0.3);">
       <div class="widget-icon widget-icon-gold">🏦</div>
-      <div class="widget-value" data-count="237000" data-prefix="KES ">0</div>
+      <div class="widget-value" data-count="0" data-prefix="KES ">0</div>
       <div class="widget-label">Net Balance</div>
       <div class="widget-trend up">Available for use</div>
     </div>
     <div class="widget">
       <div class="widget-icon widget-icon-blue">🎯</div>
-      <div class="widget-value" data-count="215000" data-prefix="KES ">0</div>
+      <div class="widget-value" data-count="0" data-prefix="KES ">0</div>
       <div class="widget-label">Still Needed</div>
-      <!-- HARDCODED DEMO: <div class="widget-trend down">43% of goal remaining</div> -->
     </div>
   </div>
 
@@ -244,7 +241,7 @@
   populateUserInfo();
   if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
   const funeralId = ActiveFuneral.get();
-  if (!funeralId) Utils.redirectTo('profile.html');
+  if (!funeralId) Utils.redirectTo('funeral-dashboard.html');
 
   // ── Bar chart (kept as-is — visual decoration only, not tied to real data) ──
   const days   = ['10 Jun','11 Jun','12 Jun','13 Jun','14 Jun','15 Jun','16 Jun'];

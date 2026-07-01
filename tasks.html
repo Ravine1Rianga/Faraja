@@ -327,7 +327,7 @@
 
   if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
   const funeralId = ActiveFuneral.get();
-  if (!funeralId) Utils.redirectTo('profile.html');
+  if (!funeralId) Utils.redirectTo('funeral-dashboard.html');
 
   let committee = [];
   let tasks = [];

@@ -78,9 +78,7 @@ async function getFuneral(req, res) {
     const funeral = rows[0];
     if (!funeral) return R.notFound(res, 'Memorial not found');
 
-    if (funeral.privacy === 'private' && funeral.created_by !== req.user?.id) {
-      return R.forbidden(res, 'This memorial is private');
-    }
+    // Private = hidden from public listings, but anyone with the direct link can donate
 
     const [committee] = await db.query(
       'SELECT * FROM committee_members WHERE funeral_id = ?', [funeral.id]
@@ -229,12 +227,22 @@ async function getDashboard(req, res) {
 
 async function getActiveFunerals(req, res) {
   try {
-    const [rows] = await db.query(
-      `SELECT id, deceased_name, funeral_date, fundraising_goal, raised
+    const [publicRows] = await db.query(
+      `SELECT id, deceased_name, funeral_date, fundraising_goal, raised, privacy, created_by
        FROM funeral_projects WHERE status = 'active' AND privacy = 'public'
        ORDER BY created_at DESC`
     );
-    return R.ok(res, { funerals: rows });
+    let all = [...publicRows];
+    if (req.user?.id) {
+      const [privateRows] = await db.query(
+        `SELECT id, deceased_name, funeral_date, fundraising_goal, raised, privacy, created_by
+         FROM funeral_projects WHERE status = 'active' AND privacy = 'private' AND created_by = ?
+         ORDER BY created_at DESC`,
+        [req.user.id]
+      );
+      all = [...all, ...privateRows];
+    }
+    return R.ok(res, { funerals: all });
   } catch (err) {
     return R.serverError(res, err);
   }

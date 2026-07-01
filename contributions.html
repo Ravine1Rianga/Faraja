@@ -59,22 +59,22 @@
   <div class="grid grid-4" style="margin-bottom:28px;">
     <div class="widget">
       <div class="widget-icon widget-icon-green">💰</div>
-      <div class="widget-value" data-count="285000" data-prefix="KES ">0</div>
+      <div class="widget-value" data-count="0" data-prefix="KES ">0</div>
       <div class="widget-label">Total Raised</div>
     </div>
     <div class="widget">
       <div class="widget-icon widget-icon-blue">👥</div>
-      <div class="widget-value" data-count="124">0</div>
+      <div class="widget-value" data-count="0">0</div>
       <div class="widget-label">Contributors</div>
     </div>
     <div class="widget">
       <div class="widget-icon widget-icon-gold">📱</div>
-      <div class="widget-value" data-count="89">0</div>
+      <div class="widget-value" data-count="0">0</div>
       <div class="widget-label">Via M-PESA</div>
     </div>
     <div class="widget">
       <div class="widget-icon" style="background:rgba(59,130,246,0.1);color:var(--info);">💳</div>
-      <div class="widget-value" data-count="35">0</div>
+      <div class="widget-value" data-count="0">0</div>
       <div class="widget-label">Via Card</div>
     </div>
   </div>
@@ -165,7 +165,7 @@
   populateUserInfo();
   if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
   const funeralId = ActiveFuneral.get();
-  if (!funeralId) Utils.redirectTo('profile.html');
+  if (!funeralId) Utils.redirectTo('funeral-dashboard.html');
 
   let allContribs = []; // held in memory for client-side filter + CSV export
 
@@ -320,6 +320,7 @@
       return name.includes(searchQ) && (!methodQ || method === methodQ);
     });
     renderContributions(filtered);
+    updateWidgets(filtered);
   }
 
   // ── CSV Export ──
