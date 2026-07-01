@@ -3,14 +3,14 @@ const F        = require('../controllers/funeralController');
 const C        = require('../controllers/committeeController');
 const T        = require('../controllers/taskController');
 const E        = require('../controllers/expenseController');
-const { protect } = require('../middleware/auth');
+const { protect, optionalAuth } = require('../middleware/auth');
 const upload   = require('../middleware/upload');
 
 // Funeral CRUD
 router.post('/',              protect, upload.single('photo'), F.createFuneral);
 router.get('/',               protect, F.getMyFunerals);
-router.get('/public/active',  F.getActiveFunerals); // public — for donate page selector
-router.get('/:id',            F.getFuneral); // public — controller handles privacy check
+router.get('/public/active',  optionalAuth, F.getActiveFunerals); // public + includes user's private
+router.get('/:id',            optionalAuth, F.getFuneral); // public + optionally auth for private
 router.put('/:id',  protect, upload.single('photo'), F.updateFuneral);
 router.delete('/:id', protect, F.deleteFuneral);
 

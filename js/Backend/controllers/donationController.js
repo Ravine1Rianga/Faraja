@@ -8,12 +8,28 @@ async function createDonation(req, res) {
       funeralId, amount, phone,
       donorName, paymentMethod = 'mpesa',
       message, isAnonymous = false,
+      testMode = false,
     } = req.body;
 
     if (!funeralId || !amount) return R.fail(res, 'Funeral ID and amount are required');
     if (amount < 1) return R.fail(res, 'Amount must be at least KES 1');
 
     const name = isAnonymous ? 'Anonymous' : (donorName || req.user?.name || 'Guest');
+
+    // Test mode — skip all real payment processing, auto-confirm
+    if (testMode) {
+      const [cResult] = await db.query(
+        `INSERT INTO contributions
+           (funeral_id, user_id, contributor_name, amount, payment_method, message, is_anonymous, status)
+         VALUES (?,?,?,?,?,?,?,'confirmed')`,
+        [funeralId, req.user?.id || null, name, amount, paymentMethod, message || null, isAnonymous]
+      );
+      const contributionId = cResult.insertId;
+      await db.query('INSERT INTO transactions (contribution_id, phone, amount, status) VALUES (?,?,?,?)',
+        [contributionId, phone || null, amount, 'confirmed']);
+      await db.query('UPDATE funeral_projects SET raised = raised + ? WHERE id = ?', [amount, funeralId]);
+      return R.created(res, { contributionId, ref: 'TEST-' + contributionId }, 'Test contribution recorded');
+    }
 
     // M-PESA with STK push — pending until callback confirms
     if (paymentMethod === 'mpesa' && phone) {
