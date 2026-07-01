@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faraja - Service Marketplace</title>
+    <!-- Standalone Offline Styles -->
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .navbar {
+            border-bottom: 1px solid #1e293b;
+            background-color: #020617;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #f59e0b;
+        }
+        .brand span {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: normal;
+        }
+        .back-link {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        .header-section {
+            margin-bottom: 2rem;
+        }
+        .header-section h1 {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+        }
+        .header-section p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.75rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #1e293b;
+        }
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        /* Style for the active/selected tab button */
+        .tab-btn.active {
+            background-color: #f59e0b !important;
+            color: #020617 !important;
+        }
+        /* Style for the rest of the tab buttons */
+        .tab-btn.inactive {
+            background-color: #1e293b;
+            color: #cbd5e1;
+        }
+        .tab-btn.inactive:hover {
+            background-color: #334155;
+        }
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .vendor-card {
+            background-color: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out;
+        }
+        .img-placeholder {
+            width: 100%;
+            height: 11rem;
+            background-color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 0.875rem;
+            border-bottom: 1px solid #1e293b;
+        }
+        .card-content {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .badge {
+            font-size: 0.625rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #f59e0b;
+            background-color: rgba(245, 158, 11, 0.1);
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-top: 0.25rem;
+        }
+        .card-loc {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .card-footer {
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(30, 41, 59, 0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .price-label {
+            font-size: 0.625rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        .price-val {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .book-btn {
+            padding: 0.5rem 1rem;
+            background-color: #d97706;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .book-btn:hover {
+            background-color: #b45309;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar Component -->
+    <header class="navbar">
+        <div class="brand">Faraja <span>Marketplace</span></div>
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </header>
+
+    <main class="container">
+        <!-- Top Info Header -->
+        <div class="header-section">
+            <h1>Verified Services Directory</h1>
+            <p>Directly book trusted local providers, transparently tracked through our system.</p>
+        </div>
+
+        <!-- Filter Tabs Component with data attributes linked -->
+        <div class="filter-tabs">
+            <button class="tab-btn active" data-filter="all">All Providers</button>
+            <button class="tab-btn inactive" data-filter="transport">Hearses & Transport</button>
+            <button class="tab-btn inactive" data-filter="tents">Tents & Catering</button>
+            <button class="tab-btn inactive" data-filter="sound">Sound & PA Systems</button>
+        </div>
+
+        <!-- Marketplace Cards Grid Layout Container -->
+        <div class="grid-layout">
+            
+            <!-- Vendor Card 1 (Transport Category) -->
+            <div class="vendor-card" data-category="transport">
+                <div class="img-placeholder">📬 [ Nyati Hearse Asset Image ]</div>
+                <div class="card-content">
+                    <div>
+                        <span class="badge">Transport</span>
+                        <h3 class="card-title">Nyati Executive Hearse Services</h3>
+                        <p class="card-loc">📍 Nairobi, Central & Eastern Regions</p>
+                    </div>
+                    <div class="card-footer">
+                        <div>
+                            <p class="price-label">Estimated Pricing</p>
+                            <span class="price-val">KES 25,000</span>
+                        </div>
+                        <a href="booking.html" class="book-btn">Book Service</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vendor Card 2 (Tents Category) -->
+            <div class="vendor-card" data-category="tents">
+                <div class="img-placeholder">⛺ [ Shujaa Tents Asset Image ]</div>
+                <div class="card-content">
+                    <div>
+                        <span class="badge">Tents & Decor</span>
+                        <h3 class="card-title">Shujaa Premium Event Tents</h3>
+                        <p class="card-loc">📍 Kiambu County & Nairobi Environs</p>
+                    </div>
+                    <div class="card-footer">
+                        <div>
+                            <p class="price-label">Estimated Pricing</p>
+                            <span class="price-val">KES 40,000</span>
+                        </div>
+                        <a href="booking.html" class="book-btn">Book Service</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Vanilla Javascript Dynamic Filter Script -->
+    <script>
+        const tabs = document.querySelectorAll('.tab-btn');
+        const cards = document.querySelectorAll('.vendor-card');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 1. Reset all tabs styling back to inactive
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.classList.add('inactive');
+                });
+
+                // 2. Set the current clicked tab to active style
+                tab.classList.remove('inactive');
+                tab.classList.add('active');
+
+                // 3. Get the filter category criteria label value
+                const filterCriteria = tab.getAttribute('data-filter');
+
+                // 4. Toggle visibility across existing vendor cards
+                cards.forEach(card => {
+                    const cardCategory = card.getAttribute('data-category');
+                    
+                    if (filterCriteria === 'all' || filterCriteria === cardCategory) {
+                        card.style.display = 'flex'; // Display the item layout box
+                    } else {
+                        card.style.display = 'none'; // Hide item layout block elements
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

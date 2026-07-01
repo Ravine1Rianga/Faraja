@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faraja - Print & Announcement Studio</title>
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Input Form Builder Column -->
+        <div class="bg-slate-950 border border-slate-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-xl font-bold text-white mb-1">Matanga Poster & Document Studio</h2>
+            <p class="text-slate-400 text-xs mb-6">Input biographical records to instantly render your printable custom booklets or obituaries.</p>
+
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Departed Name (Mzee/Mama)</label>
+                    <input type="text" id="inputName" value="Mzee Joseph Odhiambo" oninput="updatePreview()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-amber-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Year of Birth</label>
+                        <input type="number" id="inputBirth" value="1952" oninput="updatePreview()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Year of Demise</label>
+                        <input type="number" id="inputDeath" value="2026" oninput="updatePreview()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-amber-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Funeral Location / Church Venue</label>
+                    <input type="text" id="inputLocation" value="St. Austin's Catholic Church, Nairobi" oninput="updatePreview()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-amber-500">
+                </div>
+                <button type="button" onclick="window.print()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition">📥 Download Printable Document PDF</button>
+            </form>
+        </div>
+
+        <!-- Output Visual Document Render Preview Column -->
+        <div class="bg-white text-slate-950 p-8 rounded-2xl shadow-xl flex flex-col justify-between border-4 border-slate-400 font-serif min-h-[450px]">
+            <div class="text-center border-b-2 border-slate-300 pb-4">
+                <span class="text-xs uppercase tracking-widest font-sans font-bold text-slate-500">Appreciation of Life Journey</span>
+                <h3 id="prevName" class="text-2xl font-bold mt-2 text-slate-900">Mzee Joseph Odhiambo</h3>
+                <p class="text-sm italic font-sans text-slate-600 mt-1">Sunrise: <span id="prevBirth">1952</span> — Sunset: <span id="prevDeath">2026</span></p>
+            </div>
+
+            <div class="my-6 text-center text-sm space-y-4 px-4">
+                <p>“I have fought the good fight, I have finished the race, I have kept the faith.”</p>
+                <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded font-sans text-xs text-slate-600">
+                    <p class="font-bold text-slate-800 uppercase tracking-wider">Service Venue Itinerary</p>
+                    <p id="prevLocation" class="mt-1">St. Austin's Catholic Church, Nairobi</p>
+                </div>
+            </div>
+
+            <div class="text-center text-[10px] font-sans text-slate-400 border-top pt-4">
+                Generated via Faraja Digital Memorial Platform
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updatePreview() {
+            document.getElementById('prevName').innerText = document.getElementById('inputName').value;
+            document.getElementById('prevBirth').innerText = document.getElementById('inputBirth').value;
+            document.getElementById('prevDeath').innerText = document.getElementById('inputDeath').value;
+            document.getElementById('prevLocation').innerText = document.getElementById('inputLocation').value;
+        }
+    </script>
+</body>
+</html>
