@@ -77,12 +77,11 @@
          any email + 6-char password. Now wired to the real backend,
          which enforces actual registered credentials, so this banner
          would be misleading. Commented out instead of deleted. -->
-    <!--
+    <!-- Admin credentials hint -->
     <div class="alert alert-info" style="margin-top:20px;font-size:0.8rem;">
-      <span>ℹ</span>
-      <div><strong>Demo:</strong> Use any email + password (min 6 chars) to sign in.</div>
+      <span>ℹ️</span>
+      <div><strong>Admin access:</strong> <code>admin@faraja.co.ke</code> / <code>Admin@Faraja2025</code></div>
     </div>
-    -->
   </div>
 </div>
 
@@ -91,7 +90,7 @@
 <script>
   // Page guard — already logged in? redirect
   if (FarajaAPI.currentUser()) {
-    Utils.redirectTo('funeral-dashboard.html');
+    FarajaAPI.redirectByRole(FarajaAPI.currentUser());
   }
 
   const loginForm = document.getElementById('loginForm');
@@ -114,8 +113,7 @@
     if (res.success) {
       showToast('Welcome back, ' + res.user.name.split(' ')[0] + '! 👋', 'success');
       setTimeout(() => {
-        const redirect = Utils.getParam('redirect') || 'funeral-dashboard.html';
-        Utils.redirectTo(redirect);
+        FarajaAPI.redirectByRole(res.user);
       }, 800);
     } else {
       const alert = document.getElementById('authAlert');

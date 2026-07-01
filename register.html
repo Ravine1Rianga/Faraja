@@ -70,6 +70,43 @@
         </select>
       </div>
 
+      <!-- Vendor-only fields (shown when role = vendor) -->
+      <div id="vendorFields" style="display:none;">
+        <div class="alert alert-info" style="margin-bottom:16px;font-size:0.82rem;">
+          <span>🏪</span>
+          <div>As a vendor you'll get a personal dashboard to list your merchandise and services.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="businessName">Business Name</label>
+          <div class="input-group">
+            <span class="input-icon">🏪</span>
+            <input type="text" id="businessName" name="businessName" class="form-control" placeholder="e.g. Kamau Caskets &amp; Tents" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="businessCategory">Primary Category</label>
+          <select id="businessCategory" name="businessCategory" class="form-control">
+            <option value="">Select category</option>
+            <option value="Caskets">Caskets &amp; Coffins</option>
+            <option value="Tents">Tents &amp; Canopies</option>
+            <option value="Chairs">Chairs &amp; Tables</option>
+            <option value="PA Systems">PA Systems &amp; Sound</option>
+            <option value="Catering">Catering Services</option>
+            <option value="Flowers">Flowers &amp; Wreaths</option>
+            <option value="Transport">Hearses &amp; Transport</option>
+            <option value="Embalming">Embalming Services</option>
+            <option value="Other">Other Services</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="businessLocation">Business Location</label>
+          <div class="input-group">
+            <span class="input-icon">📍</span>
+            <input type="text" id="businessLocation" name="businessLocation" class="form-control" placeholder="e.g. Nairobi, Westlands" />
+          </div>
+        </div>
+      </div>
+
       <div class="form-group">
         <label class="form-label" for="regPassword">Password</label>
         <div class="input-group">
@@ -121,7 +158,17 @@
 <div class="toast-container"></div>
 <script src="js/main.js"></script>
 <script>
-  if (FarajaAPI.currentUser()) Utils.redirectTo('funeral-dashboard.html');
+  if (FarajaAPI.currentUser()) {
+    const _cu = FarajaAPI.currentUser();
+    FarajaAPI.redirectByRole(_cu);
+  }
+
+  // Show/hide vendor fields
+  const roleSelect = document.getElementById('role');
+  const vendorFields = document.getElementById('vendorFields');
+  roleSelect.addEventListener('change', () => {
+    vendorFields.style.display = roleSelect.value === 'vendor' ? 'block' : 'none';
+  });
 
   // Setup password strength meter
   setupPasswordStrength(
@@ -171,27 +218,59 @@
     if (!valid) return;
 
     Utils.setButtonLoading(btn, true);
-    // OLD (fake API call — missing password, no real error message):
-    // const res = await FarajaAPI.register({
-    //   name:  firstName.value.trim() + ' ' + lastName.value.trim(),
-    //   email: email.value.trim(),
-    //   phone: phone.value.trim(),
-    //   role:  role.value,
-    // });
-    const res = await FarajaAPI.register({
+    const payload = {
       name:     firstName.value.trim() + ' ' + lastName.value.trim(),
       email:    email.value.trim(),
       phone:    phone.value.trim(),
       password: password.value,
       role:     role.value,
-    });
+    };
+    // Vendor extra fields — also create a local vendor profile
+    if (role.value === 'vendor') {
+      const bName = document.getElementById('businessName').value.trim();
+      const bCat  = document.getElementById('businessCategory').value;
+      const bLoc  = document.getElementById('businessLocation').value.trim();
+      if (!validateField(document.getElementById('businessName'), [validators.required, validators.minLen(2)], form)) { Utils.setButtonLoading(btn, false); return; }
+      if (!validateField(document.getElementById('businessCategory'), [validators.required], form)) { Utils.setButtonLoading(btn, false); return; }
+      if (!validateField(document.getElementById('businessLocation'), [validators.required, validators.minLen(2)], form)) { Utils.setButtonLoading(btn, false); return; }
+      payload.businessName     = bName;
+      payload.businessCategory = bCat;
+      payload.businessLocation = bLoc;
+    }
+    const res = await FarajaAPI.register(payload);
     Utils.setButtonLoading(btn, false);
 
     if (res.success) {
+      // Also create local vendor record for vendor dashboard
+      if (payload.role === 'vendor' && res.user) {
+        const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+        if (!vendors.find(v => v.userId === res.user.id)) {
+          vendors.push({
+            id: 'vnd_' + Date.now(),
+            userId: res.user.id,
+            businessName: payload.businessName || payload.name + "'s Services",
+            category: payload.businessCategory || 'Other',
+            location: payload.businessLocation || 'Nairobi',
+            phone: payload.phone,
+            email: payload.email,
+            description: '',
+            rating: 4.5,
+            verified: false,
+            status: 'active',
+            createdAt: new Date().toISOString()
+          });
+          localStorage.setItem('faraja_vendors', JSON.stringify(vendors));
+        }
+      }
+      // Also save user locally for admin panel
+      const localUsers = JSON.parse(localStorage.getItem('faraja_users') || '[]');
+      if (res.user && !localUsers.find(u => u.email === res.user.email)) {
+        localUsers.push({ ...res.user, createdAt: new Date().toISOString(), status: 'active' });
+        localStorage.setItem('faraja_users', JSON.stringify(localUsers));
+      }
       showToast('Account created! Welcome to Faraja 🕊', 'success');
-      setTimeout(() => Utils.redirectTo('funeral-dashboard.html'), 1000);
+      setTimeout(() => FarajaAPI.redirectByRole(res.user), 1000);
     } else {
-      // OLD: showToast('Registration failed. Please try again.', 'error');
       showToast(res.message || 'Registration failed. Please try again.', 'error');
     }
   });
