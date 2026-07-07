@@ -38,9 +38,13 @@ if (sidebarToggle && sidebar) {
 }
 
 // ─── Active nav link (sidebar) ───────────────────────────────
-document.querySelectorAll('.sidebar-link').forEach(link => {
-  if (link.href === window.location.href) link.classList.add('active');
-});
+(function setActiveNav() {
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.sidebar-link').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === currentPath) link.classList.add('active');
+  });
+})();
 
 // ─── Modal helpers ────────────────────────────────────────────
 function openModal(id) {
@@ -49,7 +53,12 @@ function openModal(id) {
 }
 function closeModal(id) {
   const modal = document.getElementById(id);
-  if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
+  if (!modal || modal.classList.contains('closing')) return;
+  modal.classList.add('closing');
+  setTimeout(() => {
+    modal.classList.remove('open', 'closing');
+    document.body.style.overflow = '';
+  }, 200);
 }
 // Close modal on overlay click or X button
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -368,10 +377,6 @@ const FarajaAPI = {
   },
 
   // Funerals
-  getFunerals: async () => {
-    await FarajaAPI.delay(400);
-    return JSON.parse(localStorage.getItem('faraja_funerals') || '[]');
-  },
   saveFuneral: async (data) => {
     await FarajaAPI.delay(700);
     const funerals = JSON.parse(localStorage.getItem('faraja_funerals') || '[]');
@@ -462,6 +467,77 @@ async function apiRequest(path, { method = 'GET', body, isFormData = false, auth
   return data; // { success, message, data }
 }
 
+// ── Field mapping helpers (snake_case → camelCase) ──────────
+function mapVendor(v) {
+  if (!v) return null;
+  return {
+    id: v.id, userId: v.user_id, businessName: v.business_name,
+    category: v.category, location: v.location, phone: v.phone, email: v.email,
+    description: v.description, rating: Number(v.rating), verified: !!v.verified,
+    views: v.views, status: v.status, createdAt: v.created_at, updatedAt: v.updated_at,
+  };
+}
+function mapProduct(p) {
+  if (!p) return null;
+  return {
+    id: p.id, vendorId: p.vendor_id, name: p.name, category: p.category,
+    price: Number(p.price), stock: p.stock != null ? Number(p.stock) : null, description: p.description,
+    imageUrl: p.image_url, status: p.status, createdAt: p.created_at, updatedAt: p.updated_at,
+  };
+}
+function mapAdminUser(u) {
+  if (!u) return null;
+  return {
+    id: u.id, name: u.name, email: u.email, phone: u.phone,
+    role: u.role, status: u.status || (u.is_active ? 'active' : 'suspended'),
+    createdAt: u.created_at || u.createdAt,
+  };
+}
+function mapBooking(b) {
+  if (!b) return null;
+  return {
+    id: b.id, funeralId: b.funeral_id, vendorId: b.vendor_id, productId: b.product_id,
+    requestedBy: b.requested_by, serviceDate: b.service_date, amount: Number(b.amount),
+    commissionPct: Number(b.commission_pct), commissionAmount: Number(b.commission_amount),
+    status: b.status, notes: b.notes, createdAt: b.created_at, updatedAt: b.updated_at,
+    vendorName: b.vendor_name, vendorCategory: b.vendor_category,
+    productName: b.product_name, requesterName: b.requester_name,
+    deceasedName: b.deceased_name, funeralDate: b.funeral_date, venue: b.venue,
+  };
+}
+
+function mapFuneral(f) {
+  if (!f) return null;
+  return {
+    id: f.id, createdBy: f.created_by, deceasedName: f.deceased_name,
+    dateOfBirth: f.date_of_birth, dateOfDeath: f.date_of_death,
+    biography: f.biography, photo: f.photo, galleryPhotos: f.gallery_photos,
+    funeralDate: f.funeral_date, funeralTime: f.funeral_time,
+    venue: f.venue, livestreamUrl: f.livestream_url,
+    burialSite: f.burial_site, officiant: f.officiant, mortuary: f.mortuary,
+    fundraisingGoal: Number(f.fundraising_goal), raised: Number(f.raised),
+    privacy: f.privacy, notifyMsg: f.notify_msg, status: f.status,
+    tier: f.tier, premiumExpiresAt: f.premium_expires_at,
+    orderOfService: f.order_of_service,
+    createdAt: f.created_at, updatedAt: f.updated_at,
+    contributorsCount: f.contributors_count,
+  };
+}
+
+// ── Migrate stale localStorage user (pre-role fix) ──────────
+(function migrateUser() {
+  try {
+    const raw = localStorage.getItem('faraja_user');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (!u.role && u.role_name) {
+        u.role = u.role_name;
+        localStorage.setItem('faraja_user', JSON.stringify(u));
+      }
+    }
+  } catch (_) { /* ignore */ }
+})();
+
 const FarajaAPI = {
   // ── Auth ──
   login: async (email, password) => {
@@ -540,8 +616,12 @@ const FarajaAPI = {
 
   // ── Funerals ──
   getFunerals: async () => {
-    const res = await apiRequest('/funerals');
-    return res.data.funerals;
+    try {
+      const res = await apiRequest('/funerals');
+      return (res.data.funerals || []).map(mapFuneral);
+    } catch {
+      return (JSON.parse(localStorage.getItem('faraja_funerals') || '[]')).map(mapFuneral);
+    }
   },
 
   getActiveFunerals: async () => {
@@ -567,6 +647,23 @@ const FarajaAPI = {
         else if (val !== undefined && val !== null) form.append(key, val);
       });
       const res = await apiRequest('/funerals', { method: 'POST', body: form, isFormData: true });
+      return { success: true, funeral: res.data.funeral };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  updateFuneral: async (funeralId, data) => {
+    // data: { deceasedName, dateOfBirth, dateOfDeath, biography, funeralDate,
+    //         funeralTime, venue, burialSite, officiant, mortuary,
+    //         fundraisingGoal, privacy, notifyMsg, orderOfService, status }
+    try {
+      const form = new FormData();
+      Object.entries(data).forEach(([key, val]) => {
+        if (key === 'photoFile' && val) form.append('photo', val);
+        else if (val !== undefined && val !== null) form.append(key, val);
+      });
+      const res = await apiRequest(`/funerals/${funeralId}`, { method: 'PUT', body: form, isFormData: true });
       return { success: true, funeral: res.data.funeral };
     } catch (err) {
       return { success: false, message: err.message };
@@ -605,7 +702,8 @@ const FarajaAPI = {
 
   // ── Contributions / Donations ──
   getContributions: async (funeralId) => {
-    const res = await apiRequest(`/donations/${funeralId}`);
+    const path = funeralId ? `/donations/${funeralId}` : '/donations';
+    const res = await apiRequest(path);
     return res.data.contributions;
   },
 
@@ -716,97 +814,329 @@ const FarajaAPI = {
   // ── Role-aware redirect ──────────────────────────────────────
   redirectByRole: (user) => {
     if (!user) { window.location.href = 'login.html'; return; }
-    switch (user.role) {
+    const role = user.role || user.role_name;
+    switch (role) {
       case 'admin':  window.location.href = 'admin-dashboard.html';  break;
       case 'vendor': window.location.href = 'vendor-dashboard.html'; break;
       default:       window.location.href = 'funeral-dashboard.html';
     }
   },
 
-  // ── Vendors (localStorage) ───────────────────────────────────
+  // ── Vendors (API + localStorage fallback for test mode) ─────
   getVendors: async () => {
-    return JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+    try {
+      const res = await apiRequest('/vendors');
+      return (res.data.vendors || []).map(mapVendor);
+    } catch {
+      return JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+    }
   },
-  getVendorByUserId: (userId) => {
-    const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
-    return vendors.find(v => v.userId === userId) || null;
+  getActiveVendors: async () => {
+    try {
+      const res = await apiRequest('/vendors/active', { auth: false });
+      return (res.data.vendors || []).map(mapVendor);
+    } catch {
+      const all = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+      return all.filter(v => v.status !== 'suspended');
+    }
+  },
+  getVendorByUserId: async (userId) => {
+    try {
+      const res = await apiRequest('/vendors/me');
+      return mapVendor(res.data.vendor);
+    } catch {
+      const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+      return vendors.find(v => v.userId === userId) || null;
+    }
+  },
+  getVendorById: async (id) => {
+    try {
+      const res = await apiRequest(`/vendors/${id}`);
+      return mapVendor(res.data.vendor);
+    } catch {
+      const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+      return vendors.find(v => v.id === id) || null;
+    }
   },
   updateVendor: async (id, updates) => {
-    const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
-    const idx = vendors.findIndex(v => v.id === id);
-    if (idx === -1) return { success: false, message: 'Vendor not found' };
-    vendors[idx] = { ...vendors[idx], ...updates, updatedAt: new Date().toISOString() };
-    localStorage.setItem('faraja_vendors', JSON.stringify(vendors));
-    return { success: true, vendor: vendors[idx] };
+    try {
+      const body = {};
+      if (updates.businessName !== undefined) body.businessName = updates.businessName;
+      if (updates.category !== undefined)     body.category = updates.category;
+      if (updates.location !== undefined)     body.location = updates.location;
+      if (updates.phone !== undefined)        body.phone = updates.phone;
+      if (updates.email !== undefined)        body.email = updates.email;
+      if (updates.description !== undefined)  body.description = updates.description;
+      if (updates.status !== undefined)       body.status = updates.status;
+      if (updates.verified !== undefined)     body.verified = updates.verified;
+      const res = await apiRequest(`/vendors/${id}`, { method: 'PUT', body });
+      return { success: true, vendor: mapVendor(res.data.vendor) };
+    } catch {
+      const vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+      const idx = vendors.findIndex(v => v.id === id);
+      if (idx === -1) return { success: false, message: 'Vendor not found' };
+      vendors[idx] = { ...vendors[idx], ...updates, updatedAt: new Date().toISOString() };
+      localStorage.setItem('faraja_vendors', JSON.stringify(vendors));
+      return { success: true, vendor: vendors[idx] };
+    }
   },
   deleteVendor: async (id) => {
-    let vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
-    vendors = vendors.filter(v => v.id !== id);
-    localStorage.setItem('faraja_vendors', JSON.stringify(vendors));
-    let products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
-    products = products.filter(p => p.vendorId !== id);
-    localStorage.setItem('faraja_products', JSON.stringify(products));
-    return { success: true };
+    try {
+      await apiRequest(`/vendors/${id}`, { method: 'DELETE' });
+      return { success: true };
+    } catch {
+      let vendors = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+      vendors = vendors.filter(v => v.id !== id);
+      localStorage.setItem('faraja_vendors', JSON.stringify(vendors));
+      let products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+      products = products.filter(p => p.vendorId !== id);
+      localStorage.setItem('faraja_products', JSON.stringify(products));
+      return { success: true };
+    }
+  },
+  approveVendor: async (id, status) => {
+    const verified = status === 'active' ? 1 : 0;
+    return FarajaAPI.updateVendor(id, { status, verified });
   },
 
-  // ── Products / Merchandise (localStorage) ───────────────────
+  // ── Products (API + localStorage fallback) ──────────────────
   getProducts: async (vendorId) => {
-    const all = JSON.parse(localStorage.getItem('faraja_products') || '[]');
-    return vendorId ? all.filter(p => p.vendorId === vendorId) : all;
+    try {
+      let path, opts;
+      if (vendorId) {
+        path = `/vendors/${vendorId}/products`;
+        opts = { auth: true };
+      } else if (localStorage.getItem('faraja_token')) {
+        path = '/products';
+        opts = { auth: true };
+      } else {
+        path = '/products/active';
+        opts = { auth: false };
+      }
+      const res = await apiRequest(path, opts);
+      return (res.data.products || []).map(mapProduct);
+    } catch {
+      const all = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+      return vendorId ? all.filter(p => p.vendorId === vendorId) : all;
+    }
   },
   saveProduct: async (data) => {
-    const products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
-    const product = { id: 'prod_' + Date.now(), ...data, createdAt: new Date().toISOString() };
-    products.push(product);
-    localStorage.setItem('faraja_products', JSON.stringify(products));
-    return { success: true, product };
+    try {
+      if (!data.vendorId) return { success: false, message: 'Vendor ID is required' };
+      const body = {
+        name: data.name, category: data.category, price: data.price,
+        stock: data.stock, description: data.description,
+        imageUrl: data.imageUrl, status: data.status,
+        vendorId: data.vendorId,
+      };
+      const res = await apiRequest(`/vendors/${data.vendorId}/products`, { method: 'POST', body });
+      return { success: true, product: mapProduct(res.data.product) };
+    } catch {
+      const products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+      const product = { id: 'prod_' + Date.now(), ...data, createdAt: new Date().toISOString() };
+      products.push(product);
+      localStorage.setItem('faraja_products', JSON.stringify(products));
+      return { success: true, product };
+    }
   },
   updateProduct: async (id, updates) => {
-    const products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
-    const idx = products.findIndex(p => p.id === id);
-    if (idx === -1) return { success: false, message: 'Product not found' };
-    products[idx] = { ...products[idx], ...updates, updatedAt: new Date().toISOString() };
-    localStorage.setItem('faraja_products', JSON.stringify(products));
-    return { success: true, product: products[idx] };
+    try {
+      const vendorId = updates.vendorId;
+      const body = {};
+      if (updates.name !== undefined)        body.name = updates.name;
+      if (updates.category !== undefined)    body.category = updates.category;
+      if (updates.price !== undefined)       body.price = updates.price;
+      if (updates.stock !== undefined)       body.stock = updates.stock;
+      if (updates.description !== undefined) body.description = updates.description;
+      if (updates.imageUrl !== undefined)    body.imageUrl = updates.imageUrl;
+      if (updates.status !== undefined)      body.status = updates.status;
+      const res = await apiRequest(`/vendors/${vendorId}/products/${id}`, { method: 'PUT', body });
+      return { success: true, product: mapProduct(res.data.product) };
+    } catch {
+      const products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+      const idx = products.findIndex(p => p.id === id);
+      if (idx === -1) return { success: false, message: 'Product not found' };
+      products[idx] = { ...products[idx], ...updates, updatedAt: new Date().toISOString() };
+      localStorage.setItem('faraja_products', JSON.stringify(products));
+      return { success: true, product: products[idx] };
+    }
   },
   deleteProduct: async (id) => {
-    let products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
-    products = products.filter(p => p.id !== id);
-    localStorage.setItem('faraja_products', JSON.stringify(products));
-    return { success: true };
+    try {
+      await apiRequest(`/products/${id}`, { method: 'DELETE' });
+      return { success: true };
+    } catch {
+      let products = JSON.parse(localStorage.getItem('faraja_products') || '[]');
+      products = products.filter(p => p.id !== id);
+      localStorage.setItem('faraja_products', JSON.stringify(products));
+      return { success: true };
+    }
   },
 
-  // ── Users CRUD (admin, localStorage) ────────────────────────
+  // ── Bookings (vendor service requests) ─────────────────────
+  createBooking: async (data) => {
+    try {
+      const res = await apiRequest('/bookings', { method: 'POST', body: data });
+      return { success: true, booking: mapBooking(res.data.booking) };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+  getFuneralBookings: async (funeralId) => {
+    try {
+      const res = await apiRequest(`/bookings/funeral/${funeralId}`);
+      return (res.data.bookings || []).map(mapBooking);
+    } catch {
+      return [];
+    }
+  },
+  getVendorBookings: async () => {
+    try {
+      const res = await apiRequest('/bookings/vendor');
+      return (res.data.bookings || []).map(mapBooking);
+    } catch {
+      return [];
+    }
+  },
+  getAllBookings: async () => {
+    try {
+      const res = await apiRequest('/bookings/admin');
+      return { bookings: (res.data.bookings || []).map(mapBooking), summary: res.data.summary };
+    } catch {
+      return { bookings: [], summary: null };
+    }
+  },
+  updateBookingStatus: async (id, status) => {
+    try {
+      const res = await apiRequest(`/bookings/${id}/status`, { method: 'PATCH', body: { status } });
+      return { success: true, booking: mapBooking(res.data.booking) };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // ── Reviews ───────────────────────────────────────────────
+  getVendorReviews: async (vendorId) => {
+    try {
+      const res = await apiRequest(`/reviews/${vendorId}`, { auth: false });
+      return { reviews: res.data.reviews || [], stats: res.data.stats };
+    } catch { return { reviews: [], stats: { count: 0, avgRating: 0 } }; }
+  },
+  createReview: async (data) => {
+    try {
+      const res = await apiRequest('/reviews', { method: 'POST', body: data });
+      return { success: true, review: res.data.review };
+    } catch (err) { return { success: false, message: err.message }; }
+  },
+  deleteReview: async (id) => {
+    try {
+      await apiRequest(`/reviews/${id}`, { method: 'DELETE' });
+      return { success: true };
+    } catch (err) { return { success: false, message: err.message }; }
+  },
+
+  // ── Condolences (guestbook) ──────────────────────────────
+  getCondolences: async (funeralId) => {
+    try {
+      const res = await apiRequest(`/condolences/${funeralId}`, { auth: false });
+      return { condolences: res.data.condolences, count: res.data.count };
+    } catch { return { condolences: [], count: 0 }; }
+  },
+  saveCondolence: async (data) => {
+    // data: { funeralId, name, email, message, relationship }
+    try {
+      const res = await apiRequest('/condolences', { method: 'POST', body: data, auth: false });
+      return { success: true, condolence: res.data.condolence };
+    } catch (err) { return { success: false, message: err.message }; }
+  },
+  deleteCondolence: async (id) => {
+    try {
+      await apiRequest(`/condolences/${id}`, { method: 'DELETE' });
+      return { success: true };
+    } catch (err) { return { success: false, message: err.message }; }
+  },
+
+  // ── Public Memorial / Tribute ─────────────────────────────
+  getPublicMemorial: async (id) => {
+    try {
+      const res = await apiRequest(`/funerals/${id}/public`, { auth: false });
+      return res.data.memorial;
+    } catch { return null; }
+  },
+  printMemorial: async (id) => {
+    try {
+      const res = await apiRequest(`/funerals/${id}/print`);
+      return res.data;
+    } catch { return null; }
+  },
+  upgradeTier: async (id, tier) => {
+    try {
+      const res = await apiRequest(`/funerals/${id}/upgrade`, { method: 'POST', body: { tier } });
+      return { success: true, memorial: res.data.memorial };
+    } catch (err) { return { success: false, message: err.message }; }
+  },
+  announceFuneral: async (id, message) => {
+    try {
+      const res = await apiRequest(`/funerals/${id}/announce`, { method: 'POST', body: { message } });
+      return { success: true, shareText: res.data.shareText, ...res.data };
+    } catch (err) { return { success: false, message: err.message }; }
+  },
+
+  // ── Admin Metrics ──────────────────────────────────────────
+  getAdminMetrics: async () => {
+    try {
+      const res = await apiRequest('/users/admin/metrics');
+      return res.data.metrics;
+    } catch {
+      return null;
+    }
+  },
+
+  // ── Users CRUD (API + localStorage fallback) ───────────────
   getUsers: async () => {
-    return JSON.parse(localStorage.getItem('faraja_users') || '[]');
+    try {
+      const res = await apiRequest('/users/all');
+      return (res.data.users || []).map(mapAdminUser);
+    } catch {
+      return JSON.parse(localStorage.getItem('faraja_users') || '[]');
+    }
   },
   updateUser: async (id, updates) => {
-    const users = JSON.parse(localStorage.getItem('faraja_users') || '[]');
-    const idx = users.findIndex(u => u.id === id);
-    if (idx === -1) return { success: false };
-    users[idx] = { ...users[idx], ...updates };
-    localStorage.setItem('faraja_users', JSON.stringify(users));
-    return { success: true, user: users[idx] };
+    try {
+      const res = await apiRequest(`/users/${id}`, { method: 'PUT', body: updates });
+      return { success: true, user: mapAdminUser(res.data.user) };
+    } catch {
+      const users = JSON.parse(localStorage.getItem('faraja_users') || '[]');
+      const idx = users.findIndex(u => u.id === id);
+      if (idx === -1) return { success: false };
+      users[idx] = { ...users[idx], ...updates };
+      localStorage.setItem('faraja_users', JSON.stringify(users));
+      return { success: true, user: users[idx] };
+    }
   },
   deleteUser: async (id) => {
-    let users = JSON.parse(localStorage.getItem('faraja_users') || '[]');
-    users = users.filter(u => u.id !== id);
-    localStorage.setItem('faraja_users', JSON.stringify(users));
-    return { success: true };
+    try {
+      await apiRequest(`/users/${id}`, { method: 'DELETE' });
+      return { success: true };
+    } catch {
+      let users = JSON.parse(localStorage.getItem('faraja_users') || '[]');
+      users = users.filter(u => u.id !== id);
+      localStorage.setItem('faraja_users', JSON.stringify(users));
+      return { success: true };
+    }
   },
 
-  // ── Funerals CRUD (localStorage, supplements real API) ──────
+  // ── Funerals CRUD (API + localStorage fallback) ────────────
   deleteFuneral: async (id) => {
-    let funerals = JSON.parse(localStorage.getItem('faraja_funerals') || '[]');
-    funerals = funerals.filter(f => f.id !== id);
-    localStorage.setItem('faraja_funerals', JSON.stringify(funerals));
-    return { success: true };
-  },
-
-  // ── Contributions (localStorage) ────────────────────────────
-  getContributions: async (funeralId) => {
-    const all = JSON.parse(localStorage.getItem('faraja_contributions') || '[]');
-    return funeralId ? all.filter(c => c.funeralId === funeralId) : all;
+    try {
+      await apiRequest(`/funerals/${id}`, { method: 'DELETE' });
+      return { success: true };
+    } catch {
+      let funerals = JSON.parse(localStorage.getItem('faraja_funerals') || '[]');
+      funerals = funerals.filter(f => f.id !== id);
+      localStorage.setItem('faraja_funerals', JSON.stringify(funerals));
+      return { success: true };
+    }
   },
 };
 
@@ -872,16 +1202,23 @@ function populateUserInfo() {
   const user = FarajaAPI.currentUser();
   if (!user) return;
   document.querySelectorAll('.user-name').forEach(el => el.textContent = user.name);
-  document.querySelectorAll('.user-role').forEach(el => el.textContent = user.role || 'Family Member');
+  const role = user.role || user.role_name;
+  document.querySelectorAll('.user-role').forEach(el => el.textContent = role || 'Family Member');
   document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
   document.querySelectorAll('.user-avatar-initials').forEach(el => el.textContent = Utils.initials(user.name));
+
 }
 populateUserInfo();
 
 // ─── Intersect animation ──────────────────────────────────────
 const io = new IntersectionObserver((entries) => {
   entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
   });
 }, { threshold: 0.1 });
 
@@ -890,10 +1227,6 @@ document.querySelectorAll('.animate-on-scroll').forEach(el => {
   el.style.transform = 'translateY(20px)';
   el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
   io.observe(el);
-});
-// When visible
-document.querySelectorAll('.animate-on-scroll.visible').forEach(el => {
-  el.style.opacity = '1'; el.style.transform = 'translateY(0)';
 });
 
 // ─── Expose globals ───────────────────────────────────────────

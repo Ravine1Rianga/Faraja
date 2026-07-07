@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order of Service — Faraja</title>
+  <meta name="description" content="Build a structured order of service for the funeral program." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+  <style>
+    .event-card { background:var(--charcoal-3);border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--border-light); }
+    .event-card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+    .event-card-header .event-num { font-weight:700;color:var(--gold);font-size:0.85rem; }
+    .event-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+    .event-grid .form-group { margin:0; }
+    .event-grid-full { grid-column:1/-1; }
+    .event-type-select { padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border-light);background:var(--charcoal-2);color:var(--text-primary);font-size:0.85rem;width:100%; }
+    .service-preview { background:var(--charcoal-2);border-radius:var(--radius-lg);padding:24px;margin-top:20px; }
+    .service-preview h3 { text-align:center;color:var(--gold);margin-bottom:20px;font-size:1.1rem; }
+    .preview-event { display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light); }
+    .preview-event:last-child { border:none; }
+    .preview-time { min-width:60px;font-weight:600;color:var(--gold);font-size:0.85rem; }
+    .preview-details { flex:1; }
+    .preview-title { font-weight:600;color:var(--text-primary);font-size:0.92rem; }
+    .preview-person { font-size:0.8rem;color:var(--text-muted); }
+    .preview-type { display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:600;background:var(--charcoal-3);color:var(--text-muted);text-transform:uppercase; }
+    .empty-events { text-align:center;padding:40px;color:var(--text-muted); }
+    .empty-events-icon { font-size:2.5rem;margin-bottom:8px; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <a href="order-of-service.html"  class="sidebar-link active"><span class="sidebar-link-icon">📄</span> Order of Service</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">JK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">John Kamau</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="funeral-dashboard.html">Dashboard</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Order of Service</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Order of Service</h1>
+        <p class="page-subtitle" id="pageSubtitle">Build the funeral program for <span id="memorialName" style="color:var(--gold);font-weight:600;">—</span></p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="saveOrder()">💾 Save Order of Service</button>
+        <button class="btn btn-secondary" onclick="previewOrder()">👁 Preview</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px;">
+    <!-- Editor -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Program Events</div>
+        <button class="btn btn-primary btn-sm" onclick="addEvent()">➕ Add Event</button>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Service Title</label>
+        <input type="text" id="serviceTitle" class="form-control" value="Order of Service" placeholder="e.g. Order of Service" />
+      </div>
+      <div id="eventsContainer">
+        <div class="empty-events" id="emptyState">
+          <div class="empty-events-icon">📄</div>
+          <div>No events yet. Click "Add Event" to start building the program.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👁 Preview</div>
+        <button class="btn btn-ghost btn-sm" onclick="previewOrder()">Refresh</button>
+      </div>
+      <div class="service-preview" id="previewArea">
+        <div class="empty-events">
+          <div class="empty-events-icon">📄</div>
+          <div>Add events to see a preview of the order of service.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+'use strict';
+
+const funeralId = ActiveFuneral.get();
+let events = [];
+let eventCounter = 0;
+let savedData = null;
+
+const EVENT_TYPES = [
+  { value: 'general', label: 'General', icon: '📋' },
+  { value: 'hymn', label: 'Hymn', icon: '🎵' },
+  { value: 'prayer', label: 'Prayer', icon: '🙏' },
+  { value: 'reading', label: 'Reading', icon: '📖' },
+  { value: 'eulogy', label: 'Eulogy', icon: '💬' },
+  { value: 'tribute', label: 'Tribute', icon: '🌟' },
+  { value: 'speech', label: 'Speech', icon: '🎤' },
+  { value: 'music', label: 'Music', icon: '🎶' },
+  { value: 'ritual', label: 'Ritual', icon: '🕯' },
+  { value: 'announcement', label: 'Announcement', icon: '📢' },
+  { value: 'closing', label: 'Closing', icon: '🔚' },
+];
+
+async function init() {
+  populateUserInfo();
+  if (!FarajaAPI.currentUser()) Utils.redirectTo('login.html');
+  if (!funeralId) {
+    document.getElementById('pageSubtitle').innerHTML = 'Select a memorial from the Dashboard to begin.';
+    return;
+  }
+  try {
+    const funeral = await FarajaAPI.getFuneral(funeralId);
+    document.getElementById('memorialName').textContent = funeral.deceased_name;
+    if (funeral.order_of_service) {
+      savedData = typeof funeral.order_of_service === 'string'
+        ? JSON.parse(funeral.order_of_service)
+        : funeral.order_of_service;
+      loadOrder(savedData);
+    }
+  } catch (err) {
+    showToast('Could not load memorial: ' + err.message, 'error');
+  }
+}
+
+function loadOrder(data) {
+  if (!data) return;
+  if (data.title) document.getElementById('serviceTitle').value = data.title;
+  if (data.events && data.events.length) {
+    events = data.events;
+    eventCounter = events.reduce((max, e) => Math.max(max, parseInt(e.id?.replace('evt_','') || 0)), 0) + 1;
+    renderEvents();
+  }
+}
+
+function addEvent() {
+  const time = document.getElementById('serviceTitle').value ? '' : '';
+  events.push({
+    id: 'evt_' + (eventCounter++),
+    time: '',
+    title: '',
+    person: '',
+    type: 'general',
+  });
+  renderEvents();
+}
+
+function removeEvent(id) {
+  events = events.filter(e => e.id !== id);
+  renderEvents();
+}
+
+function moveEvent(id, direction) {
+  const idx = events.findIndex(e => e.id === id);
+  if (idx === -1) return;
+  const target = idx + direction;
+  if (target < 0 || target >= events.length) return;
+  [events[idx], events[target]] = [events[target], events[idx]];
+  renderEvents();
+}
+
+function renderEvents() {
+  const container = document.getElementById('eventsContainer');
+  const empty = document.getElementById('emptyState');
+
+  if (!events.length) {
+    container.innerHTML = '';
+    container.appendChild(empty);
+    previewOrder();
+    return;
+  }
+
+  empty.remove();
+  container.innerHTML = '';
+
+  events.forEach((evt, i) => {
+    const card = document.createElement('div');
+    card.className = 'event-card';
+    card.innerHTML = `
+      <div class="event-card-header">
+        <span class="event-num">#${i + 1}</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="moveEvent('${evt.id}', -1)" ${i === 0 ? 'disabled' : ''} title="Move up">↑</button>
+          <button class="btn btn-ghost btn-sm" onclick="moveEvent('${evt.id}', 1)" ${i === events.length - 1 ? 'disabled' : ''} title="Move down">↓</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="removeEvent('${evt.id}')" title="Remove">✕</button>
+        </div>
+      </div>
+      <div class="event-grid">
+        <div class="form-group">
+          <label class="form-label">Time</label>
+          <input type="time" class="form-control evt-time" value="${evt.time || ''}" data-id="${evt.id}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="event-type-select evt-type" data-id="${evt.id}">
+            ${EVENT_TYPES.map(t => `<option value="${t.value}" ${evt.type === t.value ? 'selected' : ''}>${t.icon} ${t.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group event-grid-full">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-control evt-title" value="${escH(evt.title)}" placeholder="e.g. Opening Hymn" data-id="${evt.id}" />
+        </div>
+        <div class="form-group event-grid-full">
+          <label class="form-label">Person Responsible</label>
+          <input type="text" class="form-control evt-person" value="${escH(evt.person || '')}" placeholder="e.g. Church Choir" data-id="${evt.id}" />
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+
+  previewOrder();
+}
+
+function collectEvents() {
+  return events.map(evt => {
+    const timeEl = document.querySelector(`.evt-time[data-id="${evt.id}"]`);
+    const titleEl = document.querySelector(`.evt-title[data-id="${evt.id}"]`);
+    const personEl = document.querySelector(`.evt-person[data-id="${evt.id}"]`);
+    const typeEl = document.querySelector(`.evt-type[data-id="${evt.id}"]`);
+    return {
+      id: evt.id,
+      time: timeEl ? timeEl.value : evt.time,
+      title: titleEl ? titleEl.value : evt.title,
+      person: personEl ? personEl.value : evt.person,
+      type: typeEl ? typeEl.value : evt.type,
+    };
+  });
+}
+
+function previewOrder() {
+  const area = document.getElementById('previewArea');
+  const currentEvents = collectEvents();
+  const title = document.getElementById('serviceTitle').value || 'Order of Service';
+
+  if (!currentEvents.length) {
+    area.innerHTML = '<div class="empty-events"><div class="empty-events-icon">📄</div><div>Add events to see a preview.</div></div>';
+    return;
+  }
+
+  let html = `<h3>${escH(title)}</h3>`;
+  currentEvents.forEach((evt, i) => {
+    const typeInfo = EVENT_TYPES.find(t => t.value === evt.type) || EVENT_TYPES[0];
+    html += `<div class="preview-event">
+      <div class="preview-time">${evt.time || '—'}</div>
+      <div class="preview-details">
+        <div class="preview-title">${escH(evt.title || 'Untitled')}</div>
+        ${evt.person ? `<div class="preview-person">By: ${escH(evt.person)}</div>` : ''}
+        <span class="preview-type">${typeInfo.icon} ${typeInfo.label}</span>
+      </div>
+    </div>`;
+  });
+  area.innerHTML = html;
+}
+
+async function saveOrder() {
+  if (!funeralId) { showToast('No memorial selected', 'error'); return; }
+  const currentEvents = collectEvents();
+  const title = document.getElementById('serviceTitle').value || 'Order of Service';
+  const orderData = { title, events: currentEvents };
+
+  const btn = document.querySelector('.btn-primary');
+  Utils.setButtonLoading(btn, true);
+  const res = await FarajaAPI.updateFuneral(funeralId, { orderOfService: JSON.stringify(orderData) });
+  Utils.setButtonLoading(btn, false);
+  if (res.success) {
+    savedData = orderData;
+    showToast('Order of Service saved ✅', 'success');
+  } else {
+    showToast(res.message || 'Failed to save', 'error');
+  }
+}
+
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+init();
+</script>
+</body>
+</html>

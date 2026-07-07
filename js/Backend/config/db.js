@@ -10,6 +10,12 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  typeCast: function (field, next) {
+    if (field.type === 'DATE') {
+      return field.string();
+    }
+    return next();
+  },
 });
 
 async function query(sql, params = []) {

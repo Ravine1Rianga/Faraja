@@ -59,9 +59,11 @@ CREATE TABLE IF NOT EXISTS funeral_projects (
     date_of_death    DATE,
     biography        TEXT,
     photo            VARCHAR(255),
+    gallery_photos    TEXT,
     funeral_date     DATE,
     funeral_time     TIME,
     venue            VARCHAR(255),
+    livestream_url   VARCHAR(500),
     burial_site      VARCHAR(255),
     officiant        VARCHAR(150),
     mortuary         VARCHAR(150),
@@ -70,6 +72,9 @@ CREATE TABLE IF NOT EXISTS funeral_projects (
     privacy          VARCHAR(10) NOT NULL DEFAULT 'public',
     notify_msg       TEXT,
     status           VARCHAR(10) NOT NULL DEFAULT 'active',
+    tier             VARCHAR(20) NOT NULL DEFAULT 'free',
+    premium_expires_at DATETIME NULL,
+    order_of_service TEXT,
     created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
@@ -119,6 +124,7 @@ CREATE TABLE IF NOT EXISTS contributions (
     user_id          INT,
     contributor_name VARCHAR(150),
     amount           DECIMAL(10,2) NOT NULL,
+    platform_fee     DECIMAL(10,2) NOT NULL DEFAULT 0,
     payment_method   VARCHAR(10) NOT NULL DEFAULT 'mpesa',
     message          TEXT,
     is_anonymous     TINYINT(1) NOT NULL DEFAULT 0,
@@ -146,6 +152,45 @@ CREATE TABLE IF NOT EXISTS transactions (
 ) ENGINE=InnoDB;
 
 -- ----------------------------------------------------------------
+-- VENDORS / SERVICE PROVIDERS
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS vendors (
+    id               INT AUTO_INCREMENT PRIMARY KEY,
+    user_id          INT NOT NULL UNIQUE,
+    business_name    VARCHAR(200) NOT NULL,
+    category         VARCHAR(100) NOT NULL DEFAULT 'Other',
+    location         VARCHAR(200),
+    phone            VARCHAR(25),
+    email            VARCHAR(150),
+    description      TEXT,
+    rating           DECIMAL(2,1) NOT NULL DEFAULT 0.0,
+    verified         TINYINT(1) NOT NULL DEFAULT 0,
+    views            INT NOT NULL DEFAULT 0,
+    status           VARCHAR(10) NOT NULL DEFAULT 'active',
+    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------------
+-- VENDOR PRODUCTS / MERCHANDISE
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS products (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    vendor_id     INT NOT NULL,
+    name          VARCHAR(200) NOT NULL,
+    category      VARCHAR(100) NOT NULL DEFAULT 'Other',
+    price         DECIMAL(10,2) NOT NULL DEFAULT 0,
+    stock         INT NOT NULL DEFAULT 0,
+    description   TEXT,
+    image_url     VARCHAR(500),
+    status        VARCHAR(10) NOT NULL DEFAULT 'active',
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------------
 -- EXPENSES
 -- ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS expenses (
@@ -164,3 +209,59 @@ CREATE TABLE IF NOT EXISTS expenses (
     FOREIGN KEY (funeral_id) REFERENCES funeral_projects(id) ON DELETE CASCADE,
     FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------------
+-- BOOKINGS (vendor service requests)
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS bookings (
+    id                INT AUTO_INCREMENT PRIMARY KEY,
+    funeral_id        INT NOT NULL,
+    vendor_id         INT NOT NULL,
+    product_id        INT,
+    requested_by      INT NOT NULL,
+    service_date      DATE,
+    amount            DECIMAL(10,2) NOT NULL,
+    commission_pct    DECIMAL(4,2) NOT NULL DEFAULT 7.5,
+    commission_amount DECIMAL(10,2) GENERATED ALWAYS AS (amount * commission_pct / 100) STORED,
+    status            VARCHAR(15) NOT NULL DEFAULT 'requested',
+    notes             TEXT,
+    created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (funeral_id) REFERENCES funeral_projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id),
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL,
+    FOREIGN KEY (requested_by) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    vendor_id  INT NOT NULL,
+    user_id    INT NOT NULL,
+    rating     TINYINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment    TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------------
+-- CONDOLENCES (guestbook on memorial page)
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS condolences (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    funeral_id  INT NOT NULL,
+    name        VARCHAR(150) NOT NULL DEFAULT 'Anonymous',
+    email       VARCHAR(150),
+    message     TEXT NOT NULL,
+    relationship VARCHAR(100),
+    is_approved TINYINT(1) NOT NULL DEFAULT 1,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (funeral_id) REFERENCES funeral_projects(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------------
+-- SEED DATA
+-- ----------------------------------------------------------------
+INSERT IGNORE INTO users (role_id, name, email, password_hash)
+VALUES (1, 'Admin', 'admin@faraja.co.ke', '$2b$12$kzu5SpvRM4wJqJiZPZG08u1HzdQvzfih1ZeU94fStoJnF29.UFtoG');
+-- Admin credentials: admin@faraja.co.ke / admin123

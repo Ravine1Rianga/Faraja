@@ -76,7 +76,7 @@
   <!-- ─── OVERVIEW TAB ──────────────────────────────────────────── -->
   <div class="admin-tab active" id="tabOverview">
 
-    <div class="grid grid-4" style="margin-bottom:28px;">
+    <div class="grid grid-4 init-hidden" id="adminStatsGrid" style="margin-bottom:28px;">
       <div class="admin-stat-card animate-on-scroll">
         <div class="admin-stat-icon gold">👥</div>
         <div><div class="admin-stat-val" id="statUsers">0</div><div class="admin-stat-lbl">Total Users</div></div>
@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <div class="grid grid-2" style="margin-bottom:28px;">
+    <div class="grid grid-2 init-hidden" id="adminRecentGrid" style="margin-bottom:28px;">
       <!-- Recent Users -->
       <div class="section-card animate-on-scroll">
         <div class="section-card-header"><div class="section-card-title">👥 Recent Users</div><button class="btn btn-ghost btn-sm" onclick="showTab('users')">View All →</button></div>
@@ -109,7 +109,7 @@
     </div>
 
     <!-- Activity log area -->
-    <div class="section-card animate-on-scroll">
+    <div class="section-card animate-on-scroll init-hidden" id="adminActivitySection">
       <div class="section-card-header"><div class="section-card-title">📋 Platform Activity</div></div>
       <div class="section-card-body" style="padding:20px 24px;" id="activityLog"></div>
     </div>
@@ -337,7 +337,8 @@
 
 // ── Admin guard ───────────────────────────────────────────────
 const user = requireAuth();
-if (user && user.role !== 'admin') {
+const userRole = user ? (user.role || user.role_name) : null;
+if (user && userRole !== 'admin') {
   showToast('Admin access only', 'error');
   setTimeout(() => FarajaAPI.redirectByRole(user), 1200);
 }
@@ -374,6 +375,9 @@ function showTab(name) {
 async function init() {
   await refreshAll();
   renderOverview();
+  ['adminStatsGrid','adminRecentGrid','adminActivitySection'].forEach(id =>
+    document.getElementById(id).classList.replace('init-hidden', 'init-reveal')
+  );
 }
 
 async function refreshAll() {
@@ -524,6 +528,9 @@ function renderVendors() {
     '<td>' + statusDot(v.status||'active') + '</td>' +
     '<td>' + (v.verified ? '<span class="badge badge-verified">✔ Verified</span>' : '<span class="badge badge-inactive">○ Unverified</span>') + '</td>' +
     '<td><div class="actions">' +
+      (v.status === 'pending' || v.status === 'suspended'
+        ? '<button class="btn-icon success" title="Approve" onclick="adminApprove(\'' + v.id + '\',\'active\')">✅</button>'
+        : '<button class="btn-icon" title="Suspend" onclick="adminApprove(\'' + v.id + '\',\'suspended\')">⛔</button>') +
       '<button class="btn-icon" title="Edit" onclick="openEditVendor(\'' + v.id + '\')">✏️</button>' +
       (v.verified
         ? '<button class="btn-icon" title="Remove verification" onclick="toggleVerify(\'' + v.id + '\',false)">❌</button>'
@@ -650,6 +657,13 @@ function confirmDel(type, id, name) {
 function rolePill(role) {
   const map = { admin:'pill-admin', vendor:'pill-vendor', family:'pill-family', committee:'pill-committee', contributor:'pill-contributor' };
   return '<span class="pill-role ' + (map[role]||'pill-family') + '">' + (role||'family') + '</span>';
+}
+async function adminApprove(id, status) {
+  const res = await FarajaAPI.approveVendor(id, status);
+  if (res.success) {
+    showToast('Vendor ' + status + ' ✅', 'success');
+    await loadVendors();
+  } else { showToast(res.message || 'Failed', 'error'); }
 }
 function statusDot(s) {
   const cls = s === 'active' ? 'dot-active' : s === 'suspended' ? 'dot-suspended' : 'dot-pending';

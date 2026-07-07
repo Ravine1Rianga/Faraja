@@ -22,6 +22,8 @@
   <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
   <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
   <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <a href="vendor-directory.html"  class="sidebar-link"><span class="sidebar-link-icon">🏪</span> Vendors</a>
+  <a href="order-of-service.html" class="sidebar-link"><span class="sidebar-link-icon">📄</span> Order of Service</a>
   <div class="sidebar-section-label">Finance</div>
   <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
   <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
@@ -145,7 +147,9 @@
         <a href="committee.html" class="quick-action"><span class="quick-action-icon">👥</span>Committee</a>
         <a href="tasks.html" class="quick-action"><span class="quick-action-icon">✅</span>Tasks</a>
         <a href="financials.html" class="quick-action"><span class="quick-action-icon">📊</span>Finances</a>
-        <div class="quick-action" onclick="showToast('Print Studio coming soon!','info')"><span class="quick-action-icon">🖨</span>Print</div>
+        <a href="order-of-service.html" class="quick-action"><span class="quick-action-icon">📄</span>Order of Service</a>
+        <a href="memorial.html" class="quick-action" id="memorialLink"><span class="quick-action-icon">🕊</span>Public Page</a>
+        <div class="quick-action" onclick="openSharePanel()" id="shareAction"><span class="quick-action-icon">📢</span>Share</div>
       </div>
     </div>
 
@@ -157,6 +161,30 @@
       </div>
       <div id="upcomingTasks">
         <!-- HARDCODED DEMO: tasks populated by JS from GET /api/funerals/:id/dashboard -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Booked Vendors -->
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 Booked Vendors</div>
+        <a href="vendor-directory.html" class="btn btn-ghost btn-sm">Browse →</a>
+      </div>
+      <div id="bookedVendors">
+        <div class="empty-state" style="padding:24px;"><div class="empty-state-icon">🏪</div><div class="empty-state-desc">No vendors booked yet.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🕊 Tribute Page</div>
+        <span class="badge badge-info" id="tierBadge">Free</span>
+      </div>
+      <div class="quick-actions" style="padding:12px;">
+        <a class="quick-action" id="memorialLinkBtn" href="memorial.html"><span class="quick-action-icon">🕊</span>View Public Page</a>
+        <div class="quick-action" onclick="openTierUpgrade()"><span class="quick-action-icon">⭐</span>Upgrade Tier</div>
+        <div class="quick-action" onclick="window.open('memorial.html?id='+funeralId,'_blank');"><span class="quick-action-icon">🔗</span>Open Tribute</div>
       </div>
     </div>
   </div>
@@ -205,6 +233,52 @@
     </div>
   </div>
 </main>
+
+<!-- Tier Upgrade Modal -->
+<div class="modal-overlay" id="tierModal">
+  <div class="modal-box" style="max-width:460px;">
+    <button class="modal-close" onclick="closeModal('tierModal')">✕</button>
+    <h3 class="modal-title">⭐ Upgrade Memorial Tier</h3>
+    <p class="modal-subtitle">Premium features include gallery, livestream, and more.</p>
+    <div style="margin:16px 0;">
+      <label class="form-label" style="display:block;margin-bottom:8px;">Select Tier</label>
+      <div id="tierOptions">
+        <label style="display:block;padding:12px;border:2px solid var(--border-light);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .2s;" data-tier="free" onclick="selectTier(this)">
+          <input type="radio" name="tierRadio" value="free" style="margin-right:8px;" /> 🆓 <strong>Free</strong> — Basic memorial page
+        </label>
+        <label style="display:block;padding:12px;border:2px solid var(--border-light);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .2s;" data-tier="premium" onclick="selectTier(this)">
+          <input type="radio" name="tierRadio" value="premium" style="margin-right:8px;" /> ⭐ <strong>Premium</strong> — Gallery, livestream, order of service
+        </label>
+        <label style="display:block;padding:12px;border:2px solid var(--border-light);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .2s;" data-tier="premium_plus" onclick="selectTier(this)">
+          <input type="radio" name="tierRadio" value="premium_plus" style="margin-right:8px;" /> 👑 <strong>Premium+</strong> — Everything + priority support
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('tierModal')">Cancel</button>
+      <button class="btn btn-primary" id="upgradeBtn" onclick="submitTierUpgrade()" disabled>Upgrade</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share Panel Modal -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal-box" style="max-width:480px;">
+    <button class="modal-close" onclick="closeModal('shareModal')">✕</button>
+    <h3 class="modal-title">📢 Share Memorial</h3>
+    <p class="modal-subtitle">Share this memorial with family and the diaspora.</p>
+    <div style="margin:16px 0;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+        <button class="btn btn-success" onclick="shareWhatsApp()" style="flex:1;">💬 WhatsApp</button>
+        <button class="btn btn-secondary" onclick="copyMemorialLink()" style="flex:1;">🔗 Copy Link</button>
+      </div>
+      <label class="form-label" for="announceMsg">Announcement Message</label>
+      <textarea id="announceMsg" class="form-control" rows="4" placeholder="Optional custom message…"></textarea>
+      <button class="btn btn-primary btn-full" onclick="generateAnnouncement()" style="margin-top:8px;">📣 Generate Share Text</button>
+      <div id="announceResult" style="margin-top:12px;display:none;"></div>
+    </div>
+  </div>
+</div>
 
 <div class="toast-container"></div>
 <script src="js/main.js"></script>
@@ -279,6 +353,18 @@
       // Update page subtitle
       document.querySelector('.page-subtitle').innerHTML =
         `In Memory of <strong style="color:var(--gold);">${funeral.deceased_name}</strong> · Burial: ${Utils.formatDate(funeral.funeral_date)}`;
+
+      // Update memorial link + tier
+      document.getElementById('memorialLink').href = 'memorial.html?id=' + funeralId;
+      document.getElementById('memorialLinkBtn').href = 'memorial.html?id=' + funeralId;
+      const tierEl = document.getElementById('tierBadge');
+      if (funeral.tier && funeral.tier !== 'free') {
+        tierEl.textContent = (funeral.tier || 'free').replace('_', ' ').toUpperCase();
+        tierEl.className = 'badge badge-gold';
+      } else {
+        tierEl.textContent = 'FREE';
+        tierEl.className = 'badge badge-muted';
+      }
 
       // Update stat widgets
       const daysEl = document.getElementById('daysLeft');
@@ -370,6 +456,39 @@
     }
   }
 
+  // ── Booked Vendors ──
+  async function loadBookedVendors() {
+    const container = document.getElementById('bookedVendors');
+    if (!funeralId) {
+      container.innerHTML = '<div class="empty-state" style="padding:24px;"><div class="empty-state-icon">🏪</div><div class="empty-state-desc">Select a memorial above to see booked vendors.</div></div>';
+      return;
+    }
+    try {
+      const bookings = await FarajaAPI.getFuneralBookings(funeralId);
+      if (!bookings || !bookings.length) {
+        container.innerHTML = '<div class="empty-state" style="padding:24px;"><div class="empty-state-icon">🏪</div><div class="empty-state-desc">No vendors booked for this memorial yet.</div></div>';
+        return;
+      }
+      container.innerHTML = '';
+      bookings.forEach(b => {
+        const statusMap = { requested:'badge-info', confirmed:'badge-success', completed:'badge-active', cancelled:'badge-muted' };
+        const div = document.createElement('div');
+        div.className = 'leaderboard-item';
+        div.innerHTML = `
+          <div style="font-size:1.4rem;width:36px;text-align:center;">🏪</div>
+          <div class="leaderboard-info">
+            <div class="leaderboard-name">${escH(b.vendorName||'Vendor')}</div>
+            <div class="leaderboard-method">${b.serviceDate ? Utils.formatDate(b.serviceDate) : 'No date'} · ${Utils.formatCurrency(b.amount)}</div>
+          </div>
+          <span class="badge ${statusMap[b.status]||'badge-muted'}">${b.status}</span>`;
+        container.appendChild(div);
+      });
+    } catch (err) {
+      console.warn('Could not load booked vendors:', err.message);
+      container.innerHTML = '<div class="empty-state" style="padding:24px;"><div class="empty-state-icon">⚠️</div><div class="empty-state-desc">Could not load booked vendors.</div></div>';
+    }
+  }
+
   // ── My Memorials cards ──
   // OLD: 1 hardcoded static card.
   // NEW: rendered from FarajaAPI.getFunerals(); "Manage" sets ActiveFuneral before navigating.
@@ -414,8 +533,73 @@
 
   // HARDCODED DEMO: live feed simulation removed in favor of real activity data
 
+  function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ── Tier Upgrade ──
+  let selectedTier = '';
+
+  function selectTier(el) {
+    document.querySelectorAll('#tierOptions label').forEach(l => l.style.borderColor = 'var(--border-light)');
+    el.style.borderColor = 'var(--gold)';
+    selectedTier = el.dataset.tier;
+    document.querySelector('input[name="tierRadio"][value="' + selectedTier + '"]').checked = true;
+    document.getElementById('upgradeBtn').disabled = false;
+  }
+
+  async function submitTierUpgrade() {
+    if (!selectedTier || !funeralId) return;
+    const btn = document.getElementById('upgradeBtn');
+    Utils.setButtonLoading(btn, true);
+    const res = await FarajaAPI.upgradeTier(funeralId, selectedTier);
+    Utils.setButtonLoading(btn, false);
+    if (res.success) {
+      showToast('Upgraded to ' + selectedTier + ' ✅', 'success');
+      closeModal('tierModal');
+      document.getElementById('tierBadge').textContent = selectedTier.replace('_', ' ').toUpperCase();
+    } else {
+      showToast(res.message || 'Upgrade failed', 'error');
+    }
+  }
+
+  function openTierUpgrade() {
+    selectedTier = '';
+    document.getElementById('upgradeBtn').disabled = true;
+    document.querySelectorAll('#tierOptions label').forEach(l => l.style.borderColor = 'var(--border-light)');
+    openModal('tierModal');
+  }
+
+  // ── Share / Diaspora ──
+  function openSharePanel() {
+    document.getElementById('announceMsg').value = '';
+    document.getElementById('announceResult').style.display = 'none';
+    openModal('shareModal');
+  }
+
+  function shareWhatsApp() {
+    const url = window.location.origin + '/memorial.html?id=' + funeralId;
+    window.open('https://wa.me/?text=' + encodeURIComponent('🕊 ' + url), '_blank');
+  }
+
+  function copyMemorialLink() {
+    const url = window.location.origin + '/memorial.html?id=' + funeralId;
+    navigator.clipboard.writeText(url).then(() => showToast('Link copied ✅', 'success')).catch(() => showToast('Copy URL: ' + url, 'info'));
+  }
+
+  async function generateAnnouncement() {
+    const msg = document.getElementById('announceMsg').value.trim() || undefined;
+    const res = await FarajaAPI.announceFuneral(funeralId, msg);
+    const el = document.getElementById('announceResult');
+    el.style.display = '';
+    if (res.success) {
+      el.innerHTML = '<textarea readonly style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-light);background:var(--charcoal-3);color:var(--text-primary);font-size:0.85rem;resize:vertical;" rows="4">' + escH(res.shareText) + '</textarea><p style="margin-top:6px;font-size:0.8rem;color:var(--text-muted);">Copy and share via WhatsApp, SMS, or email.</p>';
+    } else {
+      el.textContent = 'Failed to generate announcement.';
+    }
+  }
+
   // Boot
   loadDashboard();
+  loadBookedVendors();
   renderFuneralCards();
 </script>
 </body>

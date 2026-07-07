@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendor Details — Faraja</title>
+  <meta name="description" content="View funeral service provider details on Faraja." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏪</text></svg>" />
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🕊</div>
+    <span class="sidebar-logo-text">Fa<span>raja</span></span>
+  </div>
+  <div class="sidebar-section-label">Navigation</div>
+  <a href="vendor-directory.html" class="sidebar-link"><span class="sidebar-link-icon">←</span> Vendor Directory</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">—</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">User</div>
+        <div class="sidebar-user-role user-role">Loading…</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <a href="vendor-directory.html" style="font-size:0.85rem;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;">← Vendor Directory</a>
+        <h1 class="page-title" id="vendorName">Loading…</h1>
+        <p class="page-subtitle" id="vendorMeta">—</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor Info Card -->
+  <div class="section-card init-hidden" id="vendorCard" style="margin-bottom:20px;">
+    <div style="padding:24px;display:flex;gap:20px;flex-wrap:wrap;">
+      <div style="font-size:2.8rem;width:72px;height:72px;border-radius:16px;background:var(--charcoal-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="detailAvatar">🏪</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+          <span style="font-size:1.2rem;font-weight:700;color:var(--text-primary);" id="detailName">—</span>
+          <span class="badge badge-verified" id="detailVerifiedBadge" style="display:none;">✔ Verified</span>
+        </div>
+        <div style="font-size:0.85rem;color:var(--text-muted);display:flex;gap:16px;flex-wrap:wrap;">
+          <span>📍 <span id="detailLocation">—</span></span>
+          <span>📁 <span id="detailCategory">—</span></span>
+          <span>📞 <span id="detailPhone">—</span></span>
+          <span>✉ <span id="detailEmail">—</span></span>
+        </div>
+        <p id="detailDesc" style="font-size:0.88rem;color:var(--text-secondary);margin-top:10px;"></p>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+          <div class="star-rating" id="detailStars">★★★★★</div>
+          <span style="font-size:0.85rem;color:var(--text-muted);" id="detailRating">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products -->
+  <div class="section-card init-hidden" id="productsSection">
+    <div class="section-card-header">
+      <div class="section-card-title">📦 Products &amp; Services</div>
+      <button class="btn btn-primary btn-sm" onclick="openBookingModal()">📅 Request Booking</button>
+    </div>
+    <div class="section-card-body">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Product</th><th>Category</th><th>Price (KES)</th><th>Stock</th></tr></thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="section-card init-hidden" id="reviewsSection">
+    <div class="section-card-header">
+      <div class="section-card-title">⭐ Reviews</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="reviewStatsBadge" style="font-size:0.9rem;color:var(--text-muted);"></span>
+        <button class="btn btn-primary btn-sm" onclick="openReviewModal()">✏️ Write Review</button>
+      </div>
+    </div>
+    <div class="section-card-body" id="reviewsBody">
+      <div class="empty-state"><div class="empty-state-icon">⭐</div><div class="empty-state-desc">No reviews yet.</div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Review Modal -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal-box" style="max-width:460px;">
+    <button class="modal-close" onclick="closeModal('reviewModal')">✕</button>
+    <h3 class="modal-title">⭐ Write a Review</h3>
+    <p class="modal-subtitle">Rate this vendor's products and service</p>
+    <div class="form-group" style="text-align:center;margin-bottom:16px;">
+      <label class="form-label">Rating</label>
+      <div style="font-size:2rem;display:flex;gap:4px;justify-content:center;margin-top:4px;" id="starPicker">
+        <span data-val="1" style="cursor:pointer;color:var(--text-muted);" onmouseenter="hoverStar(1)" onmouseleave="resetStarPicker()" onclick="pickStar(1)">☆</span>
+        <span data-val="2" style="cursor:pointer;color:var(--text-muted);" onmouseenter="hoverStar(2)" onmouseleave="resetStarPicker()" onclick="pickStar(2)">☆</span>
+        <span data-val="3" style="cursor:pointer;color:var(--text-muted);" onmouseenter="hoverStar(3)" onmouseleave="resetStarPicker()" onclick="pickStar(3)">☆</span>
+        <span data-val="4" style="cursor:pointer;color:var(--text-muted);" onmouseenter="hoverStar(4)" onmouseleave="resetStarPicker()" onclick="pickStar(4)">☆</span>
+        <span data-val="5" style="cursor:pointer;color:var(--text-muted);" onmouseenter="hoverStar(5)" onmouseleave="resetStarPicker()" onclick="pickStar(5)">☆</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="reviewComment">Comment (optional)</label>
+      <textarea id="reviewComment" class="form-control" rows="3" placeholder="Share your experience with this vendor…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('reviewModal')">Cancel</button>
+      <button class="btn btn-primary" id="submitReviewBtn" onclick="submitReview()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Request Modal -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal-box" style="max-width:520px;">
+    <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
+    <h3 class="modal-title">📅 Request Booking</h3>
+    <p class="modal-subtitle">Send a service request to this vendor</p>
+    <div class="form-group">
+      <label class="form-label" for="bookProduct">Product / Service</label>
+      <select id="bookProduct" class="form-control"><option value="">General request (no product)</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="bookFuneral">Memorial *</label>
+      <select id="bookFuneral" class="form-control"><option value="">Select a memorial…</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="bookDate">Service Date</label>
+        <input type="date" id="bookDate" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="bookAmount">Amount (KES) *</label>
+        <input type="number" id="bookAmount" class="form-control" placeholder="e.g. 25000" min="1" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="bookNotes">Notes</label>
+      <textarea id="bookNotes" class="form-control" rows="3" placeholder="Special instructions, requirements…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('bookingModal')">Cancel</button>
+      <button class="btn btn-primary" id="sendBookingBtn" onclick="submitBooking()">Send Request</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+'use strict';
+
+requireAuth();
+populateUserInfo();
+
+const params = new URLSearchParams(location.search);
+const vendorId = params.get('id');
+let allProducts = [];
+
+async function init() {
+  try {
+    if (!vendorId) {
+      document.getElementById('vendorName').textContent = 'No vendor specified';
+      return;
+    }
+
+    console.log('Loading vendor ID:', vendorId);
+    let allVendors = await FarajaAPI.getActiveVendors();
+    console.log('Vendors found:', allVendors.length, allVendors.map(v => v.id));
+    allProducts = await FarajaAPI.getProducts();
+    console.log('Products found:', allProducts.length);
+    if (!allVendors.length && TestMode.isOn()) {
+      seedDemo();
+      allVendors = demoVendors;
+      allProducts = demoProducts;
+      console.log('Seeded demo data');
+    }
+    const vendor = allVendors.find(v => String(v.id) === vendorId);
+    console.log('Found vendor:', vendor ? vendor.businessName : 'NO MATCH');
+    if (!vendor) {
+      document.getElementById('vendorName').textContent = 'Vendor not found (ID: ' + vendorId + ')';
+      return;
+    }
+
+    document.getElementById('vendorName').textContent   = vendor.businessName || 'Unknown Business';
+    document.getElementById('vendorMeta').textContent    = (vendor.category||'') + ' · ' + (vendor.location||'');
+    document.getElementById('detailAvatar').textContent  = catIcon(vendor.category);
+    document.getElementById('detailName').textContent    = vendor.businessName || '—';
+    document.getElementById('detailLocation').textContent = vendor.location  || '—';
+    document.getElementById('detailCategory').textContent = vendor.category  || '—';
+    document.getElementById('detailPhone').textContent    = vendor.phone     || '—';
+    document.getElementById('detailEmail').textContent    = vendor.email     || '—';
+    document.getElementById('detailDesc').textContent     = vendor.description || '';
+    document.getElementById('detailStars').innerHTML      = starsHtml(Number(vendor.rating) || 5);
+    document.getElementById('detailRating').textContent   = Number(vendor.rating || 5).toFixed(1) + ' / 5';
+    document.getElementById('detailVerifiedBadge').style.display = vendor.verified ? 'inline-flex' : 'none';
+
+    document.getElementById('vendorCard').classList.replace('init-hidden', 'init-reveal');
+
+    const products = allProducts.filter(p => String(p.vendorId) === vendorId);
+    console.log('Products for this vendor:', products.length);
+    renderProducts(products);
+    document.getElementById('productsSection').classList.replace('init-hidden', 'init-reveal');
+    loadReviews();
+  } catch (err) {
+    console.error('Init error:', err);
+    showToast('Could not load vendor details', 'error');
+  }
+}
+
+const demoVendors = [
+  { id:'vnd_demo1', userId:'demo_v1', businessName:'Kamau Premium Caskets', category:'Caskets', location:'Nairobi, Westlands', phone:'0712345678', email:'kamau@caskets.ke', description:'Kenya\'s finest caskets — oak, mahogany and steel options. Delivery nationwide.', rating:4.8, verified:true, status:'active', createdAt: new Date(Date.now()-86400000*10).toISOString() },
+  { id:'vnd_demo2', userId:'demo_v2', businessName:'Tent Masters Kenya', category:'Tents', location:'Nairobi, Industrial Area', phone:'0723456789', email:'info@tentmasters.ke', description:'Large capacity tents and canopies for graveside and home service use.', rating:4.6, verified:true, status:'active', createdAt: new Date(Date.now()-86400000*8).toISOString() },
+  { id:'vnd_demo3', userId:'demo_v3', businessName:'Melody Sound PA', category:'PA Systems', location:'Nairobi, Eastleigh', phone:'0734567890', email:'melody@pa.ke', description:'Professional PA systems, microphones and livestreaming.', rating:4.5, verified:false, status:'active', createdAt: new Date(Date.now()-86400000*6).toISOString() },
+  { id:'vnd_demo4', userId:'demo_v4', businessName:'Mama Grace Catering', category:'Catering', location:'Kiambu County', phone:'0745678901', email:'grace@catering.ke', description:'Traditional Kenyan cuisine for funeral receptions — serving up to 500 guests.', rating:4.9, verified:true, status:'active', createdAt: new Date(Date.now()-86400000*4).toISOString() },
+  { id:'vnd_demo5', userId:'demo_v5', businessName:'Rose Garden Florists', category:'Flowers', location:'Nairobi, CBD', phone:'0756789012', email:'roses@garden.ke', description:'Beautiful wreaths, floral arrangements and graveside bouquets.', rating:4.7, verified:false, status:'active', createdAt: new Date(Date.now()-86400000*2).toISOString() },
+  { id:'vnd_demo6', userId:'demo_v6', businessName:'Swift Hearse Services', category:'Transport', location:'Nairobi, South B', phone:'0767890123', email:'swift@hearse.ke', description:'Dignified hearse and funeral convoy services throughout Kenya.', rating:4.4, verified:true, status:'active', createdAt: new Date(Date.now()-86400000).toISOString() },
+];
+const demoProducts = [
+  { id:'prod_d1', vendorId:'vnd_demo1', name:'Mahogany Classic Casket', category:'Caskets', price:85000, stock:5, description:'Hand-crafted mahogany casket with velvet interior.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d2', vendorId:'vnd_demo1', name:'Steel Premium Casket', category:'Caskets', price:65000, stock:8, description:'18-gauge steel casket, white satin interior.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d3', vendorId:'vnd_demo1', name:'Oak Traditional Coffin', category:'Caskets', price:45000, stock:10, description:'Natural oak coffin, dignified and affordable.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d4', vendorId:'vnd_demo2', name:'Large Event Tent (200 pax)', category:'Tents', price:25000, stock:3, description:'Waterproof tent 20x40m, includes sides and floor.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d5', vendorId:'vnd_demo2', name:'Monobloc Chair Package (100)', category:'Chairs', price:8000, stock:15, description:'100 white monobloc chairs, delivery and collection included.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d6', vendorId:'vnd_demo3', name:'PA System — Full Day', category:'PA Systems', price:12000, stock:2, description:'2x speakers, mixer, 2 microphones, operator included.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d7', vendorId:'vnd_demo4', name:'Funeral Reception — 200 guests', category:'Catering', price:60000, stock:1, description:'Full buffet: ugali, nyama, rice, vegetables, chapati.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d8', vendorId:'vnd_demo5', name:'Premium Funeral Wreath', category:'Flowers', price:3500, stock:20, description:'Fresh roses and lilies. Size: 60cm diameter.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d9', vendorId:'vnd_demo6', name:'Hearse Hire — Nairobi CBD', category:'Transport', price:15000, stock:2, description:'Black Mercedes hearse with professional driver.', status:'active', createdAt: new Date().toISOString() },
+  { id:'prod_d10', vendorId:'vnd_demo5', name:'Bridal Lily Bouquet', category:'Flowers', price:2500, stock:0, description:'Elegant white lily bouquet — currently unavailable.', status:'active', createdAt: new Date().toISOString() },
+];
+function seedDemo() {
+  localStorage.setItem('faraja_vendors', JSON.stringify(demoVendors));
+  localStorage.setItem('faraja_products', JSON.stringify(demoProducts));
+}
+
+function renderProducts(products) {
+  const tbody = document.getElementById('productsBody');
+  if (!products.length) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:40px 0;"><div class="empty-state-icon" style="font-size:2rem;">📦</div><div class="empty-state-desc">No products or services listed yet.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = products.map(p =>
+    '<tr>' +
+      '<td><div class="product-info"><div class="product-thumb">' + catIcon(p.category) + '</div>' +
+        '<div><div class="td-name">' + escH(p.name) + '</div>' +
+        '<div style="font-size:0.72rem;color:var(--text-muted)">' + escH((p.description||'').slice(0,50)) + '</div></div></div></td>' +
+      '<td><span class="cat-chip ' + catClass(p.category) + '">' + escH(p.category) + '</span></td>' +
+      '<td class="td-price">' + Utils.formatCurrency(p.price) + '</td>' +
+      '<td>' + (p.stock != null && p.stock > 0 ? p.stock : '<span class="badge badge-danger">Out of Stock</span>') + '</td>' +
+    '</tr>'
+  ).join('');
+}
+
+const CAT_ICONS   = { Caskets:'⚰️', Tents:'⛺', Chairs:'🪑', 'PA Systems':'🔊', Catering:'🍽️', Flowers:'💐', Transport:'🚗', Embalming:'🏥', Other:'📦' };
+const CAT_CLASSES = { Caskets:'caskets', Tents:'tents', Chairs:'chairs', 'PA Systems':'pa', Catering:'catering', Flowers:'flowers', Transport:'transport' };
+function catIcon(c)  { return CAT_ICONS[c]   || '📦'; }
+function catClass(c) { return CAT_CLASSES[c] || ''; }
+function starsHtml(r) { const f = Math.round(r||0); return '★'.repeat(f) + '☆'.repeat(5-f); }
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Reviews ──
+let reviewPicked = 0;
+
+function renderStars(n) { return '★'.repeat(Math.min(5,Math.max(0,n||0))) + '☆'.repeat(Math.max(0,5-Math.min(5,Math.max(0,n||0)))); }
+
+async function loadReviews() {
+  const vendorIdNum = /^\d+$/.test(vendorId) ? vendorId : null;
+  if (!vendorIdNum) return;
+  try {
+    const { reviews, stats } = await FarajaAPI.getVendorReviews(vendorIdNum);
+    document.getElementById('reviewStatsBadge').textContent = stats.count > 0 ? renderStars(stats.avgRating) + ' ' + stats.avgRating + ' (' + stats.count + ')' : '';
+    const body = document.getElementById('reviewsBody');
+    if (!reviews.length) {
+      body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div><div class="empty-state-desc">No reviews yet. Be the first!</div></div>';
+    } else {
+      body.innerHTML = reviews.map(r =>
+        '<div style="padding:12px 0;border-bottom:1px solid var(--border-light);">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<strong>' + escH(r.user_name||'Anonymous') + '</strong>' +
+            '<span style="color:var(--gold);font-size:1.1rem;">' + renderStars(r.rating) + '</span>' +
+          '</div>' +
+          (r.comment ? '<p style="margin:4px 0 0;font-size:0.88rem;color:var(--text-secondary);">' + escH(r.comment) + '</p>' : '') +
+        '</div>'
+      ).join('');
+    }
+    document.getElementById('reviewsSection').classList.replace('init-hidden', 'init-reveal');
+  } catch(e) { console.warn('Reviews load failed:', e.message); }
+}
+
+function openReviewModal() {
+  reviewPicked = 0;
+  document.getElementById('reviewComment').value = '';
+  document.querySelectorAll('#starPicker span').forEach(s => { s.textContent = '☆'; s.style.color = 'var(--text-muted)'; });
+  openModal('reviewModal');
+}
+
+function hoverStar(val) {
+  document.querySelectorAll('#starPicker span').forEach(s => {
+    s.textContent = parseInt(s.dataset.val) <= val ? '★' : '☆';
+    s.style.color = parseInt(s.dataset.val) <= val ? 'var(--gold)' : 'var(--text-muted)';
+  });
+}
+function resetStarPicker() {
+  document.querySelectorAll('#starPicker span').forEach(s => {
+    s.textContent = parseInt(s.dataset.val) <= reviewPicked ? '★' : '☆';
+    s.style.color = parseInt(s.dataset.val) <= reviewPicked ? 'var(--gold)' : 'var(--text-muted)';
+  });
+}
+function pickStar(val) { reviewPicked = val; resetStarPicker(); }
+
+async function submitReview() {
+  if (!reviewPicked) { showToast('Please select a rating', 'error'); return; }
+  const vendorIdNum = /^\d+$/.test(vendorId) ? parseInt(vendorId) : null;
+  if (!vendorIdNum) { showToast('Cannot review this vendor', 'error'); return; }
+  const comment = document.getElementById('reviewComment').value.trim();
+  const btn = document.getElementById('submitReviewBtn');
+  Utils.setButtonLoading(btn, true);
+  const res = await FarajaAPI.createReview({ vendorId: vendorIdNum, rating: reviewPicked, comment: comment || null });
+  Utils.setButtonLoading(btn, false);
+  if (res.success) {
+    showToast('Review submitted ✅', 'success');
+    closeModal('reviewModal');
+    loadReviews();
+  } else {
+    showToast(res.message || 'Failed to submit review', 'error');
+  }
+}
+
+// ── Booking ──
+let userFunerals = [];
+
+async function openBookingModal() {
+  document.getElementById('bookAmount').value = '';
+  document.getElementById('bookDate').value = '';
+  document.getElementById('bookNotes').value = '';
+  document.getElementById('bookProduct').innerHTML = '<option value="">General request (no product)</option>';
+  (allProducts.filter(p => String(p.vendorId) === vendorId)).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.name + ' — ' + Utils.formatCurrency(p.price);
+    document.getElementById('bookProduct').appendChild(opt);
+  });
+  try {
+    userFunerals = await FarajaAPI.getFunerals();
+  } catch { userFunerals = []; }
+  const sel = document.getElementById('bookFuneral');
+  sel.innerHTML = '<option value="">Select a memorial…</option>';
+  userFunerals.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.id; opt.textContent = f.deceasedName + ' (' + (f.funeralDate ? Utils.formatDate(f.funeralDate) : 'no date') + ')';
+    sel.appendChild(opt);
+  });
+  openModal('bookingModal');
+}
+
+async function submitBooking() {
+  const funeralId = document.getElementById('bookFuneral').value;
+  const productId = document.getElementById('bookProduct').value;
+  const amount = parseFloat(document.getElementById('bookAmount').value);
+  const serviceDate = document.getElementById('bookDate').value;
+  const notes = document.getElementById('bookNotes').value.trim();
+  if (!funeralId) { showToast('Please select a memorial', 'error'); return; }
+  if (!amount || amount < 1) { showToast('Enter a valid amount', 'error'); return; }
+  const btn = document.getElementById('sendBookingBtn');
+  Utils.setButtonLoading(btn, true);
+  const vId = /^\d+$/.test(vendorId) ? parseInt(vendorId) : vendorId;
+  const res = await FarajaAPI.createBooking({ funeralId: parseInt(funeralId), vendorId: vId, productId: productId || null, amount, serviceDate: serviceDate || null, notes });
+  Utils.setButtonLoading(btn, false);
+  if (res.success) {
+    showToast('Booking request sent ✅', 'success');
+    closeModal('bookingModal');
+  } else {
+    showToast(res.message || 'Failed to send request', 'error');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

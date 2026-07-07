@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memorial — Faraja</title>
+  <meta name="description" content="Digital memorial tribute page on Faraja." />
+  <meta property="og:title" content="Memorial Tribute — Faraja" />
+  <meta property="og:description" content="In loving memory." />
+  <meta property="og:image" content="" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+  <style>
+    .memorial-hero { position:relative; min-height:50vh; display:flex; align-items:flex-end; justify-content:center; background:var(--charcoal-2); overflow:hidden; }
+    .memorial-hero-bg { position:absolute; inset:0; background-size:cover; background-position:center; filter:blur(8px) brightness(0.35); transform:scale(1.1); }
+    .memorial-hero-content { position:relative; z-index:2; text-align:center; padding:60px 24px 48px; color:#fff; max-width:700px; }
+    .memorial-avatar { width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.5);margin:0 auto 16px;display:block;background:var(--charcoal-3);font-size:2.5rem;display:flex;align-items:center;justify-content:center; }
+    .memorial-name { font-size:2.2rem;font-weight:700;margin-bottom:4px; }
+    .memorial-dates { color:rgba(255,255,255,0.7);font-size:1rem;margin-bottom:8px; }
+    .memorial-tier-badge { display:inline-block;padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;margin-top:8px; }
+    .tier-premium { background:var(--gold);color:#000; }
+    .tier-free { background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8); }
+    .memorial-section { background:var(--surface);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px; }
+    .memorial-section-title { font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px; }
+    .gallery-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px; }
+    .gallery-grid img { width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;transition:transform .2s; }
+    .gallery-grid img:hover { transform:scale(1.05); }
+    .service-line { display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:0.9rem;color:var(--text-secondary);border-bottom:1px solid var(--border-light); }
+    .service-line:last-child { border:none; }
+    .service-line-icon { width:24px;text-align:center;flex-shrink:0; }
+    .service-line-label { font-weight:600;color:var(--text-primary);min-width:80px; }
+    .donate-cta { text-align:center;padding:32px 24px;background:linear-gradient(135deg,var(--charcoal-2),var(--charcoal-3));border-radius:var(--radius-lg);margin-bottom:20px; }
+    .donate-cta h3 { color:#fff;font-size:1.3rem;margin-bottom:8px; }
+    .donate-cta p { color:rgba(255,255,255,0.7);margin-bottom:16px; }
+    .share-panel { display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px; }
+    .share-btn { display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;border:none;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none; }
+    .share-btn-whatsapp { background:#25D366;color:#fff; }
+    .share-btn-copy { background:var(--charcoal-2);color:var(--text-primary); }
+    .share-btn:hover { opacity:0.85;transform:translateY(-1px); }
+    @media(max-width:600px) { .memorial-name { font-size:1.6rem; } .memorial-hero { min-height:40vh; } }
+  </style>
+</head>
+<body>
+
+<div class="memorial-hero" id="memorialHero">
+  <div class="memorial-hero-bg" id="heroBg"></div>
+  <div class="memorial-hero-content">
+    <div class="memorial-avatar" id="memAvatar">🕊</div>
+    <div class="memorial-name" id="memName">Loading…</div>
+    <div class="memorial-dates" id="memDates">—</div>
+    <div id="tierBadge"></div>
+  </div>
+</div>
+
+<main style="max-width:720px;margin:0 auto;padding:20px 16px 60px;">
+
+  <!-- Biography -->
+  <div class="memorial-section" id="bioSection" style="display:none;">
+    <div class="memorial-section-title">📖 Biography</div>
+    <p id="memBio" style="font-size:0.92rem;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;"></p>
+  </div>
+
+  <!-- Service Details -->
+  <div class="memorial-section">
+    <div class="memorial-section-title">📋 Service Details</div>
+    <div id="serviceDetails"></div>
+  </div>
+
+  <!-- Order of Service -->
+  <div class="memorial-section" id="orderSection" style="display:none;">
+    <div class="memorial-section-title">📄 Order of Service</div>
+    <div id="orderContent" style="font-size:0.92rem;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;"></div>
+  </div>
+
+  <!-- Livestream -->
+  <div class="memorial-section" id="livestreamSection" style="display:none;">
+    <div class="memorial-section-title">📺 Livestream</div>
+    <div id="livestreamEmbed"></div>
+  </div>
+
+  <!-- Photo Gallery -->
+  <div class="memorial-section" id="gallerySection" style="display:none;">
+    <div class="memorial-section-title">🖼 Gallery</div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+
+  <!-- Donate CTA -->
+  <div class="donate-cta" id="donateCta" style="display:none;">
+    <h3>💚 Support the Family</h3>
+    <p>Your contribution helps cover funeral expenses and supports the bereaved family.</p>
+    <a id="donateBtn" class="btn btn-primary btn-lg" style="display:inline-flex;">Contribute Now</a>
+  </div>
+
+  <!-- Share / Diaspora -->
+  <div class="memorial-section">
+    <div class="memorial-section-title">📢 Share This Memorial</div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Share with family and friends near and far.</p>
+    <div class="share-panel">
+      <button class="share-btn share-btn-whatsapp" onclick="shareWhatsApp()">💬 WhatsApp</button>
+      <button class="share-btn share-btn-copy" onclick="copyLink()">🔗 Copy Link</button>
+      <button class="share-btn share-btn-copy" onclick="shareAnnounce()">📣 Announce</button>
+    </div>
+    <div id="announceResult" style="margin-top:12px;font-size:0.85rem;color:var(--text-muted);display:none;"></div>
+  </div>
+
+  <!-- Condolence Wall / Guestbook -->
+  <div class="memorial-section" id="condolenceSection">
+    <div class="memorial-section-title">💬 Condolence Wall <span id="condolenceCount" style="font-size:0.8rem;color:var(--text-muted);font-weight:400;"></span></div>
+
+    <!-- Condolence Form -->
+    <div style="margin-bottom:20px;padding:16px;background:var(--charcoal-3);border-radius:var(--radius);">
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Leave a message of comfort for the family.</p>
+      <textarea id="condMsg" class="form-control" rows="3" placeholder="Your message of condolence..." style="margin-bottom:10px;"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <input type="text" id="condName" class="form-control" placeholder="Your name (optional)" />
+        <input type="email" id="condEmail" class="form-control" placeholder="Your email (optional)" />
+      </div>
+      <input type="text" id="condRelationship" class="form-control" placeholder="Relationship to the deceased (optional)" style="margin-bottom:10px;" />
+      <button class="btn btn-primary btn-sm" id="condBtn" onclick="submitCondolence()">💬 Leave Message</button>
+    </div>
+
+    <!-- Condolence List -->
+    <div id="condolenceList"></div>
+  </div>
+
+  <!-- Print -->
+  <div style="text-align:center;padding:12px;">
+    <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨 Print This Page</button>
+  </div>
+</main>
+
+<div class="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+'use strict';
+
+const id = Utils.getParam('id');
+let memorial = null;
+
+async function init() {
+  if (!id) {
+    document.getElementById('memName').textContent = 'No memorial specified';
+    return;
+  }
+  try {
+    memorial = await FarajaAPI.getPublicMemorial(id);
+    if (!memorial) {
+      document.getElementById('memName').textContent = 'Memorial not found';
+      return;
+    }
+    renderMemorial();
+    loadCondolences();
+  } catch (err) {
+    document.getElementById('memName').textContent = 'Error loading memorial';
+    console.error(err);
+  }
+}
+
+function renderMemorial() {
+  document.title = `In memory of ${memorial.deceased_name} — Faraja`;
+  document.querySelector('meta[property="og:title"]').content = `In memory of ${memorial.deceased_name} — Faraja`;
+  document.querySelector('meta[property="og:description"]').content = `Support the family of ${memorial.deceased_name}.`;
+
+  const name = memorial.deceased_name || 'Unknown';
+  document.getElementById('memName').textContent = name;
+
+  const birth = memorial.date_of_birth ? new Date(memorial.date_of_birth).getFullYear() : '?';
+  const death = memorial.date_of_death ? new Date(memorial.date_of_death).getFullYear() : '?';
+  document.getElementById('memDates').textContent = `${birth} – ${death}`;
+
+  if (memorial.photo) {
+    document.getElementById('heroBg').style.backgroundImage = `url(${memorial.photo})`;
+    document.getElementById('memAvatar').style.backgroundImage = `url(${memorial.photo})`;
+    document.getElementById('memAvatar').textContent = '';
+    document.getElementById('memAvatar').style.backgroundSize = 'cover';
+    document.getElementById('memAvatar').style.backgroundPosition = 'center';
+  }
+
+  // Tier badge
+  const badge = document.getElementById('tierBadge');
+  if (memorial.tier && memorial.tier !== 'free') {
+    badge.innerHTML = `<span class="memorial-tier-badge tier-premium">⭐ ${memorial.tier.replace('_',' ').toUpperCase()}</span>`;
+  }
+
+  // Biography
+  if (memorial.biography) {
+    document.getElementById('bioSection').style.display = '';
+    document.getElementById('memBio').textContent = memorial.biography;
+  }
+
+  // Service details
+  const details = document.getElementById('serviceDetails');
+  const lines = [];
+  if (memorial.funeral_date) lines.push({ icon: '📅', label: 'Date', val: Utils.formatDate(memorial.funeral_date) });
+  if (memorial.funeral_time) lines.push({ icon: '⏰', label: 'Time', val: memorial.funeral_time.slice(0,5) });
+  if (memorial.venue) lines.push({ icon: '📍', label: 'Venue', val: memorial.venue });
+  if (memorial.burial_site) lines.push({ icon: '🪦', label: 'Burial', val: memorial.burial_site });
+  if (memorial.officiant) lines.push({ icon: '🙏', label: 'Officiant', val: memorial.officiant });
+  if (memorial.mortuary) lines.push({ icon: '🏥', label: 'Mortuary', val: memorial.mortuary });
+  if (memorial.organiser_name) lines.push({ icon: '👤', label: 'Organiser', val: memorial.organiser_name });
+  details.innerHTML = lines.map(l =>
+    `<div class="service-line"><div class="service-line-icon">${l.icon}</div><div class="service-line-label">${l.label}</div><div>${escH(l.val)}</div></div>`
+  ).join('');
+
+  // Order of service
+  if (memorial.order_of_service) {
+    document.getElementById('orderSection').style.display = '';
+    try {
+      const order = typeof memorial.order_of_service === 'string'
+        ? JSON.parse(memorial.order_of_service)
+        : memorial.order_of_service;
+      if (order.events && order.events.length) {
+        const eventIcons = { hymn:'🎵', prayer:'🙏', reading:'📖', eulogy:'💬', tribute:'🌟', speech:'🎤', music:'🎶', ritual:'🕯', announcement:'📢', closing:'🔚', general:'📋' };
+        document.getElementById('orderContent').innerHTML = order.events.map(e =>
+          `<div class="service-line">
+            <div class="service-line-icon">${eventIcons[e.type] || '📋'}</div>
+            <div style="min-width:50px;font-weight:600;color:var(--gold);font-size:0.85rem;">${e.time || '—'}</div>
+            <div style="flex:1;">
+              <div style="font-weight:600;color:var(--text-primary);">${escH(e.title)}</div>
+              ${e.person ? `<div style="font-size:0.8rem;color:var(--text-muted);">By: ${escH(e.person)}</div>` : ''}
+            </div>
+          </div>`
+        ).join('');
+      } else {
+        document.getElementById('orderContent').innerHTML = '<p style="color:var(--text-muted);">Order of service is being prepared.</p>';
+      }
+    } catch (_) {
+      document.getElementById('orderContent').textContent = memorial.order_of_service;
+    }
+  }
+
+  // Livestream
+  if (memorial.livestream_url) {
+    document.getElementById('livestreamSection').style.display = '';
+    let embedUrl = memorial.livestream_url;
+    if (embedUrl.includes('youtube.com/watch?v=')) embedUrl = embedUrl.replace('watch?v=', 'embed/');
+    else if (embedUrl.includes('youtu.be/')) embedUrl = embedUrl.replace('youtu.be/', 'www.youtube.com/embed/');
+    document.getElementById('livestreamEmbed').innerHTML =
+      `<iframe src="${escH(embedUrl)}" style="width:100%;aspect-ratio:16/9;border-radius:12px;border:none;" allowfullscreen></iframe>`;
+  }
+
+  // Gallery
+  if (memorial.galleryPhotos && memorial.galleryPhotos.length) {
+    document.getElementById('gallerySection').style.display = '';
+    document.getElementById('galleryGrid').innerHTML = memorial.galleryPhotos.map(url =>
+      `<img src="${escH(url)}" alt="Gallery photo" onclick="window.open('${escH(url)}','_blank')" />`
+    ).join('');
+  }
+
+  // Donate CTA
+  if (memorial.id) {
+    document.getElementById('donateCta').style.display = '';
+    document.getElementById('donateBtn').href = `donate.html?id=${memorial.id}`;
+  }
+
+  // OG image
+  if (memorial.photo) {
+    document.querySelector('meta[property="og:image"]').content = memorial.photo;
+  }
+}
+
+// ── Condolence Wall ──
+async function loadCondolences() {
+  if (!id) return;
+  const { condolences, count } = await FarajaAPI.getCondolences(id);
+  document.getElementById('condolenceCount').textContent = `(${count})`;
+  const list = document.getElementById('condolenceList');
+  if (!count || !condolences.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:0.9rem;">No messages yet. Be the first to leave a condolence.</div>';
+    return;
+  }
+  list.innerHTML = condolences.map(c =>
+    `<div style="padding:14px 0;border-bottom:1px solid var(--border-light);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-weight:600;color:var(--text-primary);font-size:0.9rem;">${escH(c.name)}</span>
+        <span style="font-size:0.75rem;color:var(--text-muted);">${c.relationship ? escH(c.relationship) : ''} · ${Utils.formatDateTime(c.created_at)}</span>
+      </div>
+      <p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;margin:0;white-space:pre-wrap;">${escH(c.message)}</p>
+    </div>`
+  ).join('');
+}
+
+async function submitCondolence() {
+  const message = document.getElementById('condMsg').value.trim();
+  if (!message) { showToast('Please write a message', 'error'); return; }
+  const data = {
+    funeralId: id,
+    message,
+    name: document.getElementById('condName').value.trim() || 'Anonymous',
+    email: document.getElementById('condEmail').value.trim() || undefined,
+    relationship: document.getElementById('condRelationship').value.trim() || undefined,
+  };
+  const btn = document.getElementById('condBtn');
+  Utils.setButtonLoading(btn, true);
+  const res = await FarajaAPI.saveCondolence(data);
+  Utils.setButtonLoading(btn, false);
+  if (res.success) {
+    showToast('Your condolence has been posted 💛', 'success');
+    document.getElementById('condMsg').value = '';
+    document.getElementById('condName').value = '';
+    document.getElementById('condEmail').value = '';
+    document.getElementById('condRelationship').value = '';
+    await loadCondolences();
+  } else {
+    showToast(res.message || 'Failed to post message', 'error');
+  }
+}
+
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function shareWhatsApp() {
+  const url = window.location.href;
+  const text = `🕊 In loving memory of ${memorial.deceased_name}\n\n${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    showToast('Link copied to clipboard ✅', 'success');
+  } catch {
+    showToast('Press Ctrl+C to copy the URL', 'info');
+  }
+}
+
+async function shareAnnounce() {
+  const res = await FarajaAPI.announceFuneral(id);
+  const el = document.getElementById('announceResult');
+  if (res.success) {
+    el.style.display = '';
+    el.innerHTML = `<textarea readonly style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-light);background:var(--charcoal-3);color:var(--text-primary);font-size:0.85rem;resize:vertical;" rows="4">${escH(res.shareText)}</textarea>
+      <p style="margin-top:6px;">Copy the text above to share via WhatsApp, SMS, or email.</p>`;
+  } else {
+    el.style.display = '';
+    el.textContent = 'Failed to generate announcement.';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
