@@ -16,11 +16,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth',          require('./routes/auth'));
-app.use('/api/users/profile', require('./routes/users'));
+app.use('/api/users', require('./routes/users'));
 app.use('/api/funerals',      require('./routes/funerals'));
 app.use('/api/tasks',         require('./routes/tasks'));
 app.use('/api/expenses',      require('./routes/expenses'));
 app.use('/api/donations',     require('./routes/donations'));
+app.use('/api/vendors',       require('./routes/vendors'));
+app.use('/api/products',      require('./routes/products'));
+app.use('/api/bookings',      require('./routes/bookings'));
+app.use('/api/reviews',       require('./routes/reviews'));
+app.use('/api/condolences',   require('./routes/condolences'));
 
 app.get('/api/health', (req, res) =>
   res.json({ success: true, message: 'Faraja API running', timestamp: new Date() })

@@ -11,30 +11,19 @@
 </head>
 <body>
 
-<!-- Sidebar -->
+<!-- Sidebar (role-aware) -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-icon">🕊</div>
     <span class="sidebar-logo-text">Fa<span>raja</span></span>
   </div>
-  <div class="sidebar-section-label">Management</div>
-  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
-  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
-  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
-  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
-  <div class="sidebar-section-label">Finance</div>
-  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
-  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
-  <div class="sidebar-section-label">Services</div>
-  <a href="vendor-directory.html"  class="sidebar-link active"><span class="sidebar-link-icon">🏪</span> Vendor Directory</a>
-  <div class="sidebar-section-label">Account</div>
-  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div id="sidebarNav"></div>
   <div class="sidebar-bottom">
     <div class="sidebar-user" onclick="window.location.href='profile.html'">
-      <div class="avatar user-avatar-initials">JK</div>
+      <div class="avatar user-avatar-initials">—</div>
       <div class="sidebar-user-info">
-        <div class="sidebar-user-name user-name">John Kamau</div>
-        <div class="sidebar-user-role user-role">Family Member</div>
+        <div class="sidebar-user-name user-name">User</div>
+        <div class="sidebar-user-role user-role">Loading…</div>
       </div>
     </div>
     <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
@@ -93,46 +82,9 @@
   </div>
 
   <!-- Vendor Grid -->
-  <div class="grid grid-3" id="vendorGrid" style="margin-bottom:40px;"></div>
+  <div class="grid grid-3 init-hidden" id="vendorGrid" style="margin-bottom:40px;"></div>
 
 </main>
-
-<!-- Vendor Detail Modal -->
-<div class="modal-overlay" id="vendorDetailModal">
-  <div class="modal-box" style="max-width:680px;max-height:90vh;overflow-y:auto;">
-    <button class="modal-close" onclick="closeModal('vendorDetailModal')">✕</button>
-
-    <!-- Vendor header -->
-    <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
-      <div style="font-size:2.5rem;" id="detailAvatar">🏪</div>
-      <div style="flex:1;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-          <h3 class="modal-title" id="detailName" style="margin-bottom:0;">—</h3>
-          <span class="badge badge-vendor" id="detailVerifiedBadge" style="display:none;">✔ Verified</span>
-        </div>
-        <div style="font-size:0.85rem;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap;">
-          <span>📍 <span id="detailLocation">—</span></span>
-          <span>📁 <span id="detailCategory">—</span></span>
-          <span>📞 <span id="detailPhone">—</span></span>
-          <span>✉ <span id="detailEmail">—</span></span>
-        </div>
-        <p id="detailDesc" style="font-size:0.85rem;color:var(--text-secondary);margin-top:10px;"></p>
-      </div>
-    </div>
-
-    <!-- Star rating -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
-      <div class="star-rating" id="detailStars">★★★★★</div>
-      <span style="font-size:0.82rem;color:var(--text-muted);" id="detailRating">5.0</span>
-    </div>
-
-    <!-- Products -->
-    <div style="border-top:1px solid var(--border-light);padding-top:20px;">
-      <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);margin-bottom:14px;">📦 Products &amp; Services</div>
-      <div id="detailProducts"></div>
-    </div>
-  </div>
-</div>
 
 <div class="toast-container"></div>
 <script src="js/main.js"></script>
@@ -140,6 +92,34 @@
 'use strict';
 
 requireAuth();
+
+function renderSidebar() {
+  const user = FarajaAPI.currentUser();
+  const role = user ? (user.role || user.role_name) : '';
+  const isVendor = role === 'vendor';
+  const nav = document.getElementById('sidebarNav');
+  if (isVendor) {
+    nav.innerHTML = '<div class="sidebar-section-label">Vendor Hub</div>' +
+      '<a href="vendor-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏪</span> My Dashboard</a>' +
+      '<a href="vendor-directory.html" class="sidebar-link active"><span class="sidebar-link-icon">📋</span> Vendor Directory</a>' +
+      '<div class="sidebar-section-label">Account</div>' +
+      '<a href="profile.html" class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>';
+  } else {
+    nav.innerHTML = '<div class="sidebar-section-label">Management</div>' +
+      '<a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>' +
+      '<a href="create-funeral.html" class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>' +
+      '<a href="committee.html" class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>' +
+      '<a href="tasks.html" class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>' +
+      '<a href="order-of-service.html" class="sidebar-link"><span class="sidebar-link-icon">📄</span> Order of Service</a>' +
+      '<a href="vendor-directory.html" class="sidebar-link active"><span class="sidebar-link-icon">🏪</span> Vendors</a>' +
+      '<div class="sidebar-section-label">Finance</div>' +
+      '<a href="contributions.html" class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>' +
+      '<a href="financials.html" class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>' +
+      '<div class="sidebar-section-label">Account</div>' +
+      '<a href="profile.html" class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>';
+  }
+}
+renderSidebar();
 populateUserInfo();
 
 let allVendors   = [];
@@ -147,12 +127,13 @@ let allProducts  = [];
 let selectedCat  = '';
 
 async function init() {
-  allVendors  = await FarajaAPI.getVendors();
+  allVendors  = await FarajaAPI.getActiveVendors();
   allProducts = await FarajaAPI.getProducts();
-  // Seed demo vendors if none
-  if (!allVendors.length) seedDemoVendors();
+  // Seed demo vendors if none (test mode only)
+  if (!allVendors.length && TestMode.isOn()) seedDemoVendors();
   renderVendors();
   document.getElementById('vendorCount').textContent = allVendors.length + ' vendor' + (allVendors.length !== 1 ? 's' : '');
+  document.getElementById('vendorGrid').classList.replace('init-hidden', 'init-reveal');
 }
 
 function renderVendors() {
@@ -188,7 +169,7 @@ function renderVendors() {
     const prods   = allProducts.filter(p => p.vendorId === v.id && p.status === 'active');
     const stars   = starsHtml(v.rating || 5);
     const icon    = catIcon(v.category);
-    return '<div class="vendor-card animate-on-scroll" onclick="openVendorDetail(\'' + v.id + '\')">' +
+    return '<div class="vendor-card animate-on-scroll" onclick="location.href=\'vendor-detail.html?id=' + encodeURIComponent(String(v.id)) + '\'">' +
       '<div class="vendor-card-header">' +
         '<div class="vendor-avatar">' + icon + '</div>' +
         '<div class="vendor-card-meta">' +
@@ -221,42 +202,6 @@ function renderVendors() {
   });
 }
 
-function openVendorDetail(id) {
-  const v = allVendors.find(x => x.id === id);
-  if (!v) return;
-  document.getElementById('detailAvatar').textContent   = catIcon(v.category);
-  document.getElementById('detailName').textContent     = v.businessName;
-  document.getElementById('detailLocation').textContent = v.location  || '—';
-  document.getElementById('detailCategory').textContent = v.category  || '—';
-  document.getElementById('detailPhone').textContent    = v.phone     || '—';
-  document.getElementById('detailEmail').textContent    = v.email     || '—';
-  document.getElementById('detailDesc').textContent     = v.description || 'No description provided.';
-  document.getElementById('detailStars').innerHTML      = starsHtml(v.rating || 5);
-  document.getElementById('detailRating').textContent   = (v.rating || 5).toFixed(1) + ' / 5';
-  document.getElementById('detailVerifiedBadge').style.display = v.verified ? 'inline-flex' : 'none';
-
-  const prods = allProducts.filter(p => p.vendorId === v.id);
-  const detailProds = document.getElementById('detailProducts');
-  if (!prods.length) {
-    detailProds.innerHTML = '<div class="empty-state" style="padding:30px 0;"><div class="empty-state-icon" style="font-size:2rem;">📦</div><div class="empty-state-desc">No products listed yet.</div></div>';
-  } else {
-    detailProds.innerHTML = '<div class="table-wrap"><table class="data-table">' +
-      '<thead><tr><th>Product</th><th>Category</th><th>Price (KES)</th><th>Stock</th></tr></thead>' +
-      '<tbody>' + prods.map(p =>
-        '<tr>' +
-          '<td><div class="product-info"><div class="product-thumb">' + catIcon(p.category) + '</div>' +
-            '<div><div class="td-name">' + escH(p.name) + '</div>' +
-            '<div style="font-size:0.72rem;color:var(--text-muted)">' + escH((p.description||'').slice(0,50)) + '</div></div></div></td>' +
-          '<td><span class="cat-chip ' + catClass(p.category) + '">' + escH(p.category) + '</span></td>' +
-          '<td class="td-price">' + Utils.formatCurrency(p.price) + '</td>' +
-          '<td>' + (p.stock != null ? p.stock : '—') + '</td>' +
-        '</tr>'
-      ).join('') + '</tbody>' +
-    '</table></div>';
-  }
-  openModal('vendorDetailModal');
-}
-
 function selectCatPill(btn, cat) {
   document.querySelectorAll('.cat-pill-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -285,6 +230,7 @@ function seedDemoVendors() {
     { id:'prod_d7', vendorId:'vnd_demo4', name:'Funeral Reception — 200 guests', category:'Catering', price:60000, stock:1, description:'Full buffet: ugali, nyama, rice, vegetables, chapati.', status:'active', createdAt: new Date().toISOString() },
     { id:'prod_d8', vendorId:'vnd_demo5', name:'Premium Funeral Wreath', category:'Flowers', price:3500, stock:20, description:'Fresh roses and lilies. Size: 60cm diameter.', status:'active', createdAt: new Date().toISOString() },
     { id:'prod_d9', vendorId:'vnd_demo6', name:'Hearse Hire — Nairobi CBD', category:'Transport', price:15000, stock:2, description:'Black Mercedes hearse with professional driver.', status:'active', createdAt: new Date().toISOString() },
+    { id:'prod_d10', vendorId:'vnd_demo5', name:'Bridal Lily Bouquet', category:'Flowers', price:2500, stock:0, description:'Elegant white lily bouquet — currently unavailable.', status:'active', createdAt: new Date().toISOString() },
   ];
   localStorage.setItem('faraja_vendors', JSON.stringify(demoVendors));
   localStorage.setItem('faraja_products', JSON.stringify(demoProducts));

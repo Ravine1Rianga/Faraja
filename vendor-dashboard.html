@@ -20,10 +20,6 @@
   <div class="sidebar-section-label">Vendor Hub</div>
   <a href="vendor-dashboard.html" class="sidebar-link active"><span class="sidebar-link-icon">🏪</span> My Dashboard</a>
   <a href="vendor-directory.html" class="sidebar-link"><span class="sidebar-link-icon">📋</span> Vendor Directory</a>
-  <div class="sidebar-section-label">Platform</div>
-  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Funerals</a>
-  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
-  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
   <div class="sidebar-section-label">Account</div>
   <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
   <div class="sidebar-bottom">
@@ -56,7 +52,7 @@
   </div>
 
   <!-- Vendor Banner -->
-  <div class="vendor-banner animate-on-scroll" id="vendorBanner" style="margin-bottom:28px;">
+  <div class="vendor-banner animate-on-scroll" id="vendorBanner">
     <div class="vendor-banner-avatar" id="bannerAvatar">🏪</div>
     <div class="vendor-banner-info">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -71,35 +67,35 @@
         <span>✉ <span id="bannerEmail">—</span></span>
       </div>
       <p id="bannerDesc" style="font-size:0.85rem;color:var(--text-muted);margin-top:8px;max-width:560px;"></p>
+      <div style="display:flex;gap:24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);">
+        <div style="text-align:center;"><div class="vendor-stat-val" id="statProducts">0</div><div class="vendor-stat-lbl">Products</div></div>
+        <div style="text-align:center;"><div class="vendor-stat-val" id="statActive">0</div><div class="vendor-stat-lbl">Active</div></div>
+        <div style="text-align:center;"><div class="vendor-stat-val" id="statViews">—</div><div class="vendor-stat-lbl">Views</div></div>
+        <div style="text-align:center;"><div class="vendor-stat-val" id="statRating">—</div><div class="vendor-stat-lbl">Rating</div></div>
+      </div>
     </div>
   </div>
 
-  <!-- Stats -->
-  <div class="grid grid-4" style="margin-bottom:28px;">
-    <div class="widget">
-      <div class="widget-icon widget-icon-gold">📦</div>
-      <div class="widget-value" id="statProducts">0</div>
-      <div class="widget-label">Total Products</div>
+  <!-- Booking Requests -->
+  <div class="section-card animate-on-scroll init-hidden" id="bookingsSection" style="margin-bottom:28px;">
+    <div class="section-card-header">
+      <div class="section-card-title">📅 Booking Requests</div>
+      <span class="badge badge-info" id="bookingCount">0</span>
     </div>
-    <div class="widget">
-      <div class="widget-icon widget-icon-green">✅</div>
-      <div class="widget-value" id="statActive">0</div>
-      <div class="widget-label">Active Listings</div>
-    </div>
-    <div class="widget">
-      <div class="widget-icon widget-icon-blue">👁</div>
-      <div class="widget-value" id="statViews">—</div>
-      <div class="widget-label">Profile Views</div>
-    </div>
-    <div class="widget">
-      <div class="widget-icon widget-icon-red">⭐</div>
-      <div class="widget-value" id="statRating">—</div>
-      <div class="widget-label">Rating</div>
+    <div class="section-card-body">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Memorial</th><th>Service Date</th><th>Amount</th><th>Status</th><th>Notes</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="bookingsBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <!-- Products Table -->
-  <div class="section-card animate-on-scroll">
+  <div class="section-card animate-on-scroll init-hidden" id="productsSection">
     <div class="section-card-header">
       <div class="section-card-title">📦 My Merchandise &amp; Services</div>
       <div class="toolbar">
@@ -250,7 +246,8 @@
 'use strict';
 
 const user = requireAuth();
-if (user && user.role !== 'vendor') {
+const userRole = user ? (user.role || user.role_name) : null;
+if (user && userRole !== 'vendor') {
   showToast('Access restricted to vendors', 'error');
   setTimeout(() => FarajaAPI.redirectByRole(user), 1200);
 }
@@ -260,29 +257,35 @@ let products = [];
 
 async function init() {
   populateUserInfo();
-  vendor = FarajaAPI.getVendorByUserId(user.id);
+  vendor = await FarajaAPI.getVendorByUserId(user.id);
   if (!vendor) {
-    const v = {
-      id: 'vnd_' + Date.now(),
-      userId: user.id,
-      businessName: (user.name || 'My') + "'s Services",
-      category: 'Other',
-      location: 'Nairobi',
-      phone: user.phone || '',
-      email: user.email || '',
-      description: '',
-      rating: 5,
-      verified: false,
-      status: 'active',
-      createdAt: new Date().toISOString()
-    };
-    const all = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
-    all.push(v);
-    localStorage.setItem('faraja_vendors', JSON.stringify(all));
-    vendor = v;
+    if (TestMode.isOn()) {
+      const v = {
+        id: 'vnd_' + Date.now(),
+        userId: user.id,
+        businessName: (user.name || 'My') + "'s Services",
+        category: 'Other',
+        location: 'Nairobi',
+        phone: user.phone || '',
+        email: user.email || '',
+        description: '',
+        rating: 5,
+        verified: false,
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+      const all = JSON.parse(localStorage.getItem('faraja_vendors') || '[]');
+      all.push(v);
+      localStorage.setItem('faraja_vendors', JSON.stringify(all));
+      vendor = v;
+    } else {
+      showToast('No vendor profile found. Please register as a vendor first.', 'error');
+    }
   }
   renderBanner();
   await loadProducts();
+  await loadBookings();
+  document.getElementById('productsSection').classList.replace('init-hidden', 'init-reveal');
 }
 
 function renderBanner() {
@@ -344,7 +347,7 @@ function renderProducts() {
       '</div></div></td>' +
       '<td><span class="cat-chip ' + catClass(p.category) + '">' + escH(p.category) + '</span></td>' +
       '<td class="td-price">' + Utils.formatCurrency(p.price) + '</td>' +
-      '<td>' + (p.stock != null ? p.stock : '—') + '</td>' +
+      '<td>' + (p.stock != null && p.stock > 0 ? p.stock : '<span class="badge badge-danger">Out of Stock</span>') + '</td>' +
       '<td>' + statusBadge + '</td>' +
       '<td><div class="actions">' +
         '<button class="btn-icon" title="Edit" onclick="editProduct(\'' + p.id + '\')">✏️</button>' +
@@ -359,6 +362,50 @@ function renderStats() {
   document.getElementById('statActive').textContent   = products.filter(p => p.status === 'active').length;
   document.getElementById('statViews').textContent    = vendor.views != null ? vendor.views : Math.floor(Math.random()*300 + 20);
   document.getElementById('statRating').textContent   = vendor.rating ? vendor.rating.toFixed(1) + ' ★' : '—';
+}
+
+// ── Bookings ──
+async function loadBookings() {
+  const bookings = await FarajaAPI.getVendorBookings();
+  renderBookings(bookings);
+}
+
+function renderBookings(bookings) {
+  const tbody = document.getElementById('bookingsBody');
+  const count = document.getElementById('bookingCount');
+  if (count) count.textContent = bookings.length;
+  if (!bookings.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📅</div><div class="empty-state-desc">No booking requests yet.</div></div></td></tr>';
+    return;
+  }
+  const statusBadge = (s) => {
+    const m = { requested:'badge-info', confirmed:'badge-success', completed:'badge-active', cancelled:'badge-muted' };
+    return '<span class="badge ' + (m[s]||'badge-muted') + '">' + s + '</span>';
+  };
+  tbody.innerHTML = bookings.map(b => {
+    const canAct = b.status === 'requested';
+    return '<tr>' +
+      '<td><div class="td-name">' + escH(b.deceasedName||'—') + '</div></td>' +
+      '<td>' + (b.serviceDate ? Utils.formatDate(b.serviceDate) : '—') + '</td>' +
+      '<td class="td-price">' + Utils.formatCurrency(b.amount) + '</td>' +
+      '<td>' + statusBadge(b.status) + '</td>' +
+      '<td style="font-size:0.82rem;color:var(--text-muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escH(b.notes||'—') + '</td>' +
+      '<td>' + (canAct
+        ? '<div class="actions"><button class="btn-icon" title="Confirm" onclick="updateBooking(' + b.id + ',\'confirmed\')">✅</button><button class="btn-icon danger" title="Cancel" onclick="updateBooking(' + b.id + ',\'cancelled\')">❌</button></div>'
+        : '<span style="font-size:0.8rem;color:var(--text-muted)">—</span>') +
+      '</td></tr>';
+  }).join('');
+  document.getElementById('bookingsSection').classList.replace('init-hidden', 'init-reveal');
+}
+
+async function updateBooking(id, status) {
+  const res = await FarajaAPI.updateBookingStatus(id, status);
+  if (res.success) {
+    showToast('Booking ' + status + ' ✅', 'success');
+    await loadBookings();
+  } else {
+    showToast(res.message || 'Failed to update booking', 'error');
+  }
 }
 
 function openAddProduct() {
