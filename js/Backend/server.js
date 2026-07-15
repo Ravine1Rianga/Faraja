@@ -26,6 +26,7 @@ app.use('/api/products',      require('./routes/products'));
 app.use('/api/bookings',      require('./routes/bookings'));
 app.use('/api/reviews',       require('./routes/reviews'));
 app.use('/api/condolences',   require('./routes/condolences'));
+app.use('/api/documents',     require('./routes/documents'));
 
 app.get('/api/health', (req, res) =>
   res.json({ success: true, message: 'Faraja API running', timestamp: new Date() })

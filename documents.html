@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documents — Faraja</title>
+  <meta name="description" content="Generate funeral announcements and obituaries." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕊</text></svg>" />
+  <style>
+    .doc-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: all 0.3s ease;
+    }
+    .doc-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-light);
+    }
+    .doc-icon {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+    .doc-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .doc-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .doc-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .print-only {
+      display: none;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      .print-area, .print-area * { visibility: visible; }
+      .print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #fff;
+        color: #000;
+        padding: 40px;
+      }
+      .modal-overlay, .sidebar, .page-header, .sidebar-toggle, .doc-card, .doc-actions { display: none !important; }
+      #documentContent {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+      }
+    }
+    #documentContent {
+      background: #fff;
+      color: #333;
+      padding: 40px;
+      min-height: 500px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .doc-header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 20px;
+    }
+    .doc-photo {
+      max-width: 150px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .doc-body {
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🕊</div><span class="sidebar-logo-text">Fa<span>raja</span></span></div>
+  <div class="sidebar-section-label">Management</div>
+  <a href="funeral-dashboard.html" class="sidebar-link"><span class="sidebar-link-icon">🏠</span> Dashboard</a>
+  <a href="create-funeral.html"    class="sidebar-link"><span class="sidebar-link-icon">➕</span> New Funeral</a>
+  <a href="committee.html"         class="sidebar-link"><span class="sidebar-link-icon">👥</span> Committee</a>
+  <a href="tasks.html"             class="sidebar-link"><span class="sidebar-link-icon">✅</span> Tasks</a>
+  <a href="order-of-service.html" class="sidebar-link"><span class="sidebar-link-icon">📄</span> Order of Service</a>
+  <a href="documents.html"         class="sidebar-link active"><span class="sidebar-link-icon">📑</span> Documents</a>
+  <div class="sidebar-section-label">Finance</div>
+  <a href="contributions.html"     class="sidebar-link"><span class="sidebar-link-icon">💰</span> Contributions</a>
+  <a href="financials.html"        class="sidebar-link"><span class="sidebar-link-icon">📊</span> Financials</a>
+  <div class="sidebar-section-label">Account</div>
+  <a href="profile.html"           class="sidebar-link"><span class="sidebar-link-icon">👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name user-name">Loading...</div>
+        <div class="sidebar-user-role user-role">...</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:8px;" onclick="FarajaAPI.logout()">Sign Out</button>
+  </div>
+</div>
+<button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+<main class="main-content">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="funeral-dashboard.html">Dashboard</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Documents</span>
+    </div>
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">Generate Documents</h1>
+        <p class="page-subtitle" id="pageSubtitle">Select a document to generate</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom: 40px;">
+    <!-- Announcement Card -->
+    <div class="doc-card">
+      <div class="doc-icon">📢</div>
+      <div class="doc-title">Funeral Announcement</div>
+      <div class="doc-desc">
+        A formal death and funeral announcement document containing deceased details, funeral schedule, venue, and committee contacts. Ideal for sharing on WhatsApp or printing.
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Custom Message (Optional)</label>
+        <textarea id="announcementMessage" class="form-control" rows="2" placeholder="E.g., The cortege leaves the mortuary at 8:00 AM..."></textarea>
+      </div>
+      <div class="doc-actions">
+        <button class="btn btn-primary" onclick="generateDocument('announcement')">Preview & Download</button>
+      </div>
+    </div>
+
+    <!-- Obituary Card -->
+    <div class="doc-card">
+      <div class="doc-icon">🕊️</div>
+      <div class="doc-title">Full Obituary</div>
+      <div class="doc-desc">
+        A comprehensive obituary document that includes the biography, life details, tribute messages, and full funeral arrangements. Suitable for printing as part of the funeral program.
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Custom Tribute (Optional)</label>
+        <textarea id="obituaryMessage" class="form-control" rows="2" placeholder="Add a special tribute message..."></textarea>
+      </div>
+      <div class="doc-actions">
+        <button class="btn btn-primary" onclick="generateDocument('obituary')">Preview & Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Preview Area (hidden initially, used for printing) -->
+  <div id="printArea" class="print-area" style="display:none;">
+    <div style="display:flex; justify-content: space-between; margin-bottom: 20px;" class="doc-actions">
+      <h2>Document Preview</h2>
+      <div>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <button class="btn btn-secondary" onclick="closePreview()">Close Preview</button>
+      </div>
+    </div>
+    <div id="documentContent"></div>
+  </div>
+
+</main>
+
+<script src="js/main.js"></script>
+<script>
+  requireAuth();
+
+  const funeralId = ActiveFuneral.get();
+  if (!funeralId) {
+    showToast('Please select a memorial first', 'warning');
+    setTimeout(() => window.location.href = 'funeral-dashboard.html', 1500);
+  }
+
+  async function loadData() {
+    try {
+      const f = await FarajaAPI.getFuneral(funeralId);
+      document.getElementById('pageSubtitle').textContent = `For ${f.deceasedName} Memorial`;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function generateDocument(type) {
+    if (!funeralId) return;
+    
+    const customMessage = document.getElementById(type + 'Message').value;
+    const btn = event.target;
+    Utils.setButtonLoading(btn, true);
+    
+    try {
+      const data = type === 'announcement' 
+        ? await FarajaAPI.generateAnnouncement(funeralId, customMessage)
+        : await FarajaAPI.generateObituary(funeralId, customMessage);
+        
+      renderDocument(type, data);
+      document.querySelector('.grid-2').style.display = 'none';
+      document.getElementById('printArea').style.display = 'block';
+    } catch (err) {
+      showToast(err.message || 'Failed to generate document', 'error');
+    } finally {
+      Utils.setButtonLoading(btn, false);
+    }
+  }
+
+  function renderDocument(type, data) {
+    const content = document.getElementById('documentContent');
+    const title = type === 'announcement' ? 'Funeral Announcement' : 'Obituary';
+    
+    let html = `
+      <div class="doc-header">
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px; font-family: serif;">${title}</h1>
+        ${data.photo ? `<img src="http://localhost:5000${data.photo}" class="doc-photo" alt="${data.deceasedName}">` : ''}
+        <h2 style="font-size: 2rem; margin: 10px 0;">${data.deceasedName}</h2>
+        ${data.dateOfBirth && data.dateOfDeath ? `<p style="font-size: 1.2rem; color: #555;">Sunrise: ${Utils.formatDate(data.dateOfBirth)} — Sunset: ${Utils.formatDate(data.dateOfDeath)}</p>` : ''}
+      </div>
+      <div class="doc-body">
+    `;
+
+    if (type === 'obituary' && data.biography) {
+      html += `
+        <h3 style="font-size: 1.5rem; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Biography</h3>
+        <p style="white-space: pre-wrap; margin-top: 10px;">${data.biography}</p>
+      `;
+    }
+
+    if (data.customMessage) {
+      html += `
+        <h3 style="font-size: 1.5rem; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Message</h3>
+        <p style="white-space: pre-wrap; margin-top: 10px; font-style: italic;">${data.customMessage}</p>
+      `;
+    }
+
+    html += `
+      <h3 style="font-size: 1.5rem; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Funeral Arrangements</h3>
+      <ul style="list-style: none; padding: 0; margin-top: 10px;">
+        <li style="margin-bottom: 8px;"><strong>Date:</strong> ${Utils.formatDate(data.funeralDate)}</li>
+        ${data.funeralTime ? `<li style="margin-bottom: 8px;"><strong>Time:</strong> ${data.funeralTime}</li>` : ''}
+        <li style="margin-bottom: 8px;"><strong>Venue:</strong> ${data.venue}</li>
+        ${data.burialSite ? `<li style="margin-bottom: 8px;"><strong>Burial Site:</strong> ${data.burialSite}</li>` : ''}
+        ${data.officiant ? `<li style="margin-bottom: 8px;"><strong>Officiant:</strong> ${data.officiant}</li>` : ''}
+        ${data.mortuary ? `<li style="margin-bottom: 8px;"><strong>Mortuary:</strong> ${data.mortuary}</li>` : ''}
+      </ul>
+    `;
+
+    if (data.committee && data.committee.length > 0) {
+      html += `
+        <h3 style="font-size: 1.5rem; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Committee Contacts</h3>
+        <ul style="list-style: none; padding: 0; margin-top: 10px;">
+          ${data.committee.map(c => `<li style="margin-bottom: 5px;">${c.name} ${c.role ? `(${c.role})` : ''} - ${c.phone || 'N/A'}</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    html += `</div>`;
+    content.innerHTML = html;
+  }
+
+  function closePreview() {
+    document.getElementById('printArea').style.display = 'none';
+    document.querySelector('.grid-2').style.display = 'grid';
+  }
+
+  loadData();
+</script>
+</body>
+</html>

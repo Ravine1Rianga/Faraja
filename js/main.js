@@ -675,6 +675,17 @@ const FarajaAPI = {
     return res.data;
   },
 
+  // ── Documents ──
+  generateAnnouncement: async (funeralId, customMessage) => {
+    const res = await apiRequest(`/documents/${funeralId}/announcement`, { method: 'POST', body: { customMessage } });
+    return res.data.document;
+  },
+
+  generateObituary: async (funeralId, customMessage) => {
+    const res = await apiRequest(`/documents/${funeralId}/obituary`, { method: 'POST', body: { customMessage } });
+    return res.data.document;
+  },
+
   // ── Committee ──
   getCommittee: async (funeralId) => {
     const res = await apiRequest(`/funerals/${funeralId}/committee`);
