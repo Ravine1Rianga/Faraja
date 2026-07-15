@@ -572,3 +572,24 @@ tbody td { padding: 14px 20px; font-size: 0.9rem; color: var(--text-secondary); 
 .overflow-hidden { overflow: hidden; }
 .relative { position: relative; }
 .sticky-top { position: sticky; top: 0; z-index: 50; }
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background: #1f2937;
+  color: white;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  margin-left: 20px;
+}
+
+.card {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px;
+}

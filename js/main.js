@@ -780,3 +780,18 @@ window.validators = validators;
 window.validateField = validateField;
 window.setupPasswordStrength = setupPasswordStrength;
 window.setupFileUpload = setupFileUpload;
+function bookService(service) {
+  alert(service + " booked successfully!");
+}
+
+function contribute() {
+  let name = document.getElementById("name").value;
+  let amount = document.getElementById("amount").value;
+
+  let list = document.getElementById("contributionsList");
+
+  let item = document.createElement("p");
+  item.textContent = name + " contributed KES " + amount;
+
+  list.appendChild(item);
+}

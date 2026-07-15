@@ -1,99 +1,168 @@
-v<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faraja - Memorial Portal</title>
-     <link rel="stylesheet" href="css/styles.css" />
-    <style>
-        .glass {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faraja - Memorial Portal</title>
+
+<link rel="stylesheet" href="css/styles.css" />
+
+<style>
+body {
+    line-height: 1.6;
+}
+
+.glass {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* gallery */
+.gallery img {
+    height: 120px;
+    object-fit: cover;
+}
+
+/* smooth fade */
+.fade-in {
+    animation: fade 0.4s ease-in;
+}
+
+@keyframes fade {
+    from {opacity:0; transform: translateY(10px);}
+    to {opacity:1; transform: translateY(0);}
+}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen bg-cover bg-center" style="background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95)), url('https://unsplash.com');">
 
-    <!-- Header Navigation -->
-    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur px-6 py-4 flex justify-between items-center">
-        <div class="text-xl font-bold text-amber-500">Faraja <span class="text-xs text-slate-400 font-normal">Memorials</span></div>
-        <a href="index.html" class="text-sm text-slate-400 hover:text-white transition">← Back to Home</a>
-    </header>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <!-- Glassmorphism Memorial Profile Card -->
-        <div class="glass rounded-2xl p-6 sm:p-10 shadow-2xl text-center mb-8">
-            <img src="https://dicebear.com" alt="Portrait Portrait" class="w-36 h-36 rounded-full mx-auto object-cover border-4 border-amber-500/30 shadow-md mb-4">
-            <h1 class="text-3xl font-serif font-bold text-amber-200">Celebration of Life: Mzee Joseph Odhiambo</h1>
-            <p class="text-slate-400 italic text-sm mt-1">Sunrise: 1952 – Sunset: 2026</p>
-            <div class="mt-4 flex justify-center gap-4 text-xs font-sans">
-                <a href="documents.html" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold transition">📋 View Order of Service Booklet</a>
-            </div>
-        </div>
+<header class="border-b border-slate-800 px-6 py-4 flex justify-between">
+    <div class="text-xl font-bold text-amber-500">Faraja Memorials</div>
+    <a href="index.html" class="text-sm text-slate-400">← Back</a>
+</header>
 
-        <!-- Livestream Feature Frame -->
-        <div class="glass rounded-2xl p-6 shadow-xl mb-8">
-            <h2 class="text-lg font-semibold mb-3 text-amber-100 flex items-center gap-2">📹 Funeral Service Livestream Broadcast (Diaspora Link)</h2>
-            <div class="aspect-video w-full bg-slate-950 rounded-xl flex flex-col items-center justify-center border border-slate-800 p-4 text-center">
-                <p class="text-slate-400 text-sm sm:text-base animate-pulse">The stream will broadcast live from the service location at 10:00 AM EAT</p>
-                <p class="text-slate-600 text-xs mt-2">Recording will be saved automatically for remote family members</p>
-            </div>
-        </div>
+<div class="max-w-4xl mx-auto p-6">
 
-        <!-- Image Gallery Grid Layout Component -->
-        <div class="glass rounded-2xl p-6 shadow-xl mb-8">
-            <h2 class="text-lg font-semibold mb-4 text-amber-100">📸 Photo Gallery Memoriam</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <img src="https://unsplash.com" alt="Memory 1" class="rounded-xl object-cover h-32 w-full border border-slate-800 hover:opacity-80 transition">
-                <img src="https://unsplash.com" alt="Memory 2" class="rounded-xl object-cover h-32 w-full border border-slate-800 hover:opacity-80 transition">
-                <div class="border-2 border-dashed border-slate-700 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer hover:bg-white/5 transition" onclick="alert('Upload system interface simulation loaded')">
-                    <span class="text-slate-400 text-xl">+</span>
-                    <span class="text-[10px] text-slate-500 font-medium uppercase tracking-wider text-center mt-1">Upload Photo</span>
-                </div>
-            </div>
-        </div>
+<!-- HERO -->
+<div class="glass rounded-2xl p-8 text-center mb-8">
+    <img src="https://picsum.photos/200" class="w-32 h-32 rounded-full mx-auto border-4 border-amber-500 mb-4">
+    <h1 class="text-3xl font-bold text-amber-200">Mzee Joseph Odhiambo</h1>
+    <p class="text-slate-400">1952 – 2026</p>
 
-        <!-- Condolence Input Form & Interactive Wall Box -->
-        <div class="glass rounded-2xl p-6 sm:p-8 shadow-xl">
-            <h2 class="text-xl font-serif text-amber-100 mb-4">🕊️ Public Tribute Condolence Book</h2>
-            
-            <form id="liveTributeForm" class="space-y-4 mb-8">
-                <input type="text" id="userNameInput" placeholder="Your Full Name (or Family Entity Name)" required class="w-full p-3 rounded-lg bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-amber-500">
-                <textarea id="userMessageInput" placeholder="Leave your public message, memory, or words of comfort here..." rows="3" required class="w-full p-3 rounded-lg bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-amber-500"></textarea>
-                <button type="submit" class="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-slate-950 font-bold rounded-lg text-xs tracking-wider uppercase transition">Publish Message</button>
-            </form>
+    <a href="#" class="inline-block mt-4 px-4 py-2 bg-amber-600 rounded-lg text-sm">
+        View Order of Service
+    </a>
+</div>
 
-            <div id="liveWallContainer" class="space-y-4 max-h-72 overflow-y-auto pr-2">
-                <!-- Preset Default Messages -->
-                <div class="p-4 bg-slate-950/40 border border-slate-800/80 rounded-xl">
-                    <h4 class="font-bold text-amber-200 text-xs">John Kamau (Nairobi)</h4>
-                    <p class="text-slate-300 text-xs mt-1.5">Rest in peace Mzee. Your advice and legacy live on in our hearts completely.</p>
-                </div>
-                <div class="p-4 bg-slate-950/40 border border-slate-800/80 rounded-xl">
-                    <h4 class="font-bold text-amber-200 text-xs">Mary Mwangi (Diaspora - UK)</h4>
-                    <p class="text-slate-300 text-xs mt-1.5">Sending lots of prayers and love to the entire family during this tough season. We are with you in spirit.</p>
-                </div>
-            </div>
-        </div>
+<!-- LIVESTREAM -->
+<div class="glass p-6 rounded-2xl mb-8">
+    <h2 class="text-lg text-amber-100 mb-3">📹 Livestream</h2>
+
+    <div class="aspect-video">
+        <iframe width="100%" height="100%" 
+            src="https://www.youtube.com/embed/live_stream?channel=UC4R8DWoMoI7CAwX8_LjQHig"
+            frameborder="0" allowfullscreen>
+        </iframe>
     </div>
+</div>
 
-    <!-- Active Condolence Wall Script Simulation -->
-    <script>
-        document.getElementById('liveTributeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('userNameInput').value;
-            const message = document.getElementById('userMessageInput').value;
-            
-            const container = document.getElementById('liveWallContainer');
-            const element = document.createElement('div');
-            element.className = 'p-4 bg-slate-950/40 border border-slate-800/80 rounded-xl animate-fade-in';
-            element.innerHTML = `<h4 class="font-bold text-amber-200 text-xs">${name}</h4><p class="text-slate-300 text-xs mt-1.5">${message}</p>`;
-            
-            container.insertBefore(element, container.firstChild);
-            document.getElementById('liveTributeForm').reset();
-        });
-    </script>
+<!-- GALLERY -->
+<div class="glass p-6 rounded-2xl mb-8">
+    <h2 class="text-lg text-amber-100 mb-3">📸 Photo Gallery</h2>
+
+    <input type="file" id="photoUpload" class="mb-4 text-sm">
+
+    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+</div>
+
+<!-- CONDOLENCES -->
+<div class="glass p-6 rounded-2xl">
+    <h2 class="text-lg text-amber-100 mb-4">🕊 Condolence Book</h2>
+
+    <form id="form" class="space-y-3 mb-6">
+        <input id="name" placeholder="Your Name"
+            class="w-full p-3 rounded bg-slate-900 border border-slate-700">
+
+        <textarea id="message" placeholder="Your message..."
+            class="w-full p-3 rounded bg-slate-900 border border-slate-700"></textarea>
+
+        <button class="px-5 py-2 bg-amber-600 rounded">Submit</button>
+    </form>
+
+    <div id="messages" class="space-y-3 max-h-60 overflow-y-auto"></div>
+</div>
+
+</div>
+
+<script>
+
+/* -------------------- PHOTO UPLOAD -------------------- */
+const upload = document.getElementById('photoUpload');
+const gallery = document.getElementById('gallery');
+
+let photos = JSON.parse(localStorage.getItem('photos')) || [];
+
+function renderPhotos() {
+    gallery.innerHTML = "";
+    photos.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = "rounded fade-in";
+        gallery.appendChild(img);
+    });
+}
+
+upload.addEventListener('change', () => {
+    const file = upload.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        photos.push(reader.result);
+        localStorage.setItem('photos', JSON.stringify(photos));
+        renderPhotos();
+    };
+    reader.readAsDataURL(file);
+});
+
+renderPhotos();
+
+/* -------------------- CONDOLENCES -------------------- */
+const form = document.getElementById('form');
+const container = document.getElementById('messages');
+
+let messages = JSON.parse(localStorage.getItem('messages')) || [];
+
+function renderMessages() {
+    container.innerHTML = "";
+    messages.forEach(m => {
+        const div = document.createElement('div');
+        div.className = "p-3 bg-slate-900 rounded fade-in";
+        div.innerHTML = `<strong>${m.name}</strong><p>${m.text}</p>`;
+        container.appendChild(div);
+    });
+}
+
+form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const text = document.getElementById('message').value;
+
+    const newMsg = { name, text };
+
+    messages.unshift(newMsg);
+    localStorage.setItem('messages', JSON.stringify(messages));
+
+    form.reset();
+    renderMessages();
+});
+
+renderMessages();
+
+</script>
+
 </body>
 </html>

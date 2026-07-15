@@ -1,290 +1,223 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faraja - Service Marketplace</title>
-    <!-- Standalone Offline Styles -->
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-        }
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            min-height: 100vh;
-        }
-        .navbar {
-            border-bottom: 1px solid #1e293b;
-            background-color: #020617;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .brand {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #f59e0b;
-        }
-        .brand span {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            font-weight: normal;
-        }
-        .back-link {
-            font-size: 0.875rem;
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .back-link:hover {
-            color: #ffffff;
-        }
-        .container {
-            max-width: 1150px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-        .header-section {
-            margin-bottom: 2rem;
-        }
-        .header-section h1 {
-            font-size: 1.875rem;
-            font-weight: bold;
-            color: #ffffff;
-            letter-spacing: -0.025em;
-        }
-        .header-section p {
-            color: #94a3b8;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        .filter-tabs {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.75rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #1e293b;
-        }
-        .tab-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        /* Style for the active/selected tab button */
-        .tab-btn.active {
-            background-color: #f59e0b !important;
-            color: #020617 !important;
-        }
-        /* Style for the rest of the tab buttons */
-        .tab-btn.inactive {
-            background-color: #1e293b;
-            color: #cbd5e1;
-        }
-        .tab-btn.inactive:hover {
-            background-color: #334155;
-        }
-        .grid-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .vendor-card {
-            background-color: #020617;
-            border: 1px solid #1e293b;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease-in-out;
-        }
-        .img-placeholder {
-            width: 100%;
-            height: 11rem;
-            background-color: #1e293b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            font-size: 0.875rem;
-            border-bottom: 1px solid #1e293b;
-        }
-        .card-content {
-            padding: 1.25rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .badge {
-            font-size: 0.625rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #f59e0b;
-            background-color: rgba(245, 158, 11, 0.1);
-            padding: 0.125rem 0.5rem;
-            border-radius: 0.25rem;
-            display: inline-block;
-            margin-bottom: 0.5rem;
-        }
-        .card-title {
-            font-size: 1.125rem;
-            font-weight: bold;
-            color: #ffffff;
-            margin-top: 0.25rem;
-        }
-        .card-loc {
-            color: #94a3b8;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-        }
-        .card-footer {
-            margin-top: 1.25rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(30, 41, 59, 0.6);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .price-label {
-            font-size: 0.625rem;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-        .price-val {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
-        .book-btn {
-            padding: 0.5rem 1rem;
-            background-color: #d97706;
-            color: #ffffff;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .book-btn:hover {
-            background-color: #b45309;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketplace - Faraja</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b1b34;
+    color: white;
+}
+
+.container {
+    padding: 40px;
+}
+
+h1 {
+    font-size: 36px;
+}
+
+p {
+    color: #9aa4b2;
+}
+
+/* FILTER BUTTONS */
+.tabs {
+    margin: 20px 0;
+}
+
+.tab-btn {
+    padding: 10px 18px;
+    margin-right: 10px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    background: #1e2f4d;
+    color: white;
+    transition: 0.3s;
+}
+
+.tab-btn:hover {
+    background: #2a4065;
+}
+
+.tab-btn.active {
+    background: orange;
+    color: black;
+}
+
+/* CARDS */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.vendor-card {
+    background: #122544;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+}
+
+.vendor-card:hover {
+    transform: scale(1.02);
+}
+
+.image {
+    height: 160px;
+    background: #2c3e60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+}
+
+.content {
+    padding: 20px;
+}
+
+.tag {
+    background: orange;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.price {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.btn {
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background: orange;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #ffb733;
+}
+
+/* HIDDEN CLASS */
+.hidden {
+    display: none !important;
+}
+
+</style>
 </head>
+
 <body>
 
-    <!-- Top Navigation Bar Component -->
-    <header class="navbar">
-        <div class="brand">Faraja <span>Marketplace</span></div>
-        <a href="index.html" class="back-link">← Back to Home</a>
-    </header>
+<div class="container">
 
-    <main class="container">
-        <!-- Top Info Header -->
-        <div class="header-section">
-            <h1>Verified Services Directory</h1>
-            <p>Directly book trusted local providers, transparently tracked through our system.</p>
-        </div>
+    <h1>Verified Services Directory</h1>
+    <p>Book trusted local providers easily.</p>
 
-        <!-- Filter Tabs Component with data attributes linked -->
-        <div class="filter-tabs">
-            <button class="tab-btn active" data-filter="all">All Providers</button>
-            <button class="tab-btn inactive" data-filter="transport">Hearses & Transport</button>
-            <button class="tab-btn inactive" data-filter="tents">Tents & Catering</button>
-            <button class="tab-btn inactive" data-filter="sound">Sound & PA Systems</button>
-        </div>
+    <!-- FILTER BUTTONS -->
+    <div class="tabs">
+        <button class="tab-btn active" data-filter="all">All</button>
+        <button class="tab-btn" data-filter="transport">Hearses</button>
+        <button class="tab-btn" data-filter="tents">Tents</button>
+        <button class="tab-btn" data-filter="sound">Sound</button>
+    </div>
 
-        <!-- Marketplace Cards Grid Layout Container -->
-        <div class="grid-layout">
-            
-            <!-- Vendor Card 1 (Transport Category) -->
-            <div class="vendor-card" data-category="transport">
-                <div class="img-placeholder">📬 [ Nyati Hearse Asset Image ]</div>
-                <div class="card-content">
-                    <div>
-                        <span class="badge">Transport</span>
-                        <h3 class="card-title">Nyati Executive Hearse Services</h3>
-                        <p class="card-loc">📍 Nairobi, Central & Eastern Regions</p>
-                    </div>
-                    <div class="card-footer">
-                        <div>
-                            <p class="price-label">Estimated Pricing</p>
-                            <span class="price-val">KES 25,000</span>
-                        </div>
-                        <a href="booking.html" class="book-btn">Book Service</a>
-                    </div>
-                </div>
+    <!-- CARDS -->
+    <div class="cards">
+
+        <div class="vendor-card" data-category="transport">
+            <div class="image">Hearse Image</div>
+            <div class="content">
+                <div class="tag">Transport</div>
+                <h3>Nyati Hearse Services</h3>
+                <p>Nairobi & nearby regions</p>
+                <div class="price">KES 25,000</div>
+                <button class="btn book-btn" data-name="Nyati Hearse Services">Book Service</button>
             </div>
-
-            <!-- Vendor Card 2 (Tents Category) -->
-            <div class="vendor-card" data-category="tents">
-                <div class="img-placeholder">⛺ [ Shujaa Tents Asset Image ]</div>
-                <div class="card-content">
-                    <div>
-                        <span class="badge">Tents & Decor</span>
-                        <h3 class="card-title">Shujaa Premium Event Tents</h3>
-                        <p class="card-loc">📍 Kiambu County & Nairobi Environs</p>
-                    </div>
-                    <div class="card-footer">
-                        <div>
-                            <p class="price-label">Estimated Pricing</p>
-                            <span class="price-val">KES 40,000</span>
-                        </div>
-                        <a href="booking.html" class="book-btn">Book Service</a>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </main>
 
-    <!-- Vanilla Javascript Dynamic Filter Script -->
-    <script>
-        const tabs = document.querySelectorAll('.tab-btn');
-        const cards = document.querySelectorAll('.vendor-card');
+        <div class="vendor-card" data-category="tents">
+            <div class="image">Tent Image</div>
+            <div class="content">
+                <div class="tag">Tents</div>
+                <h3>Shujaa Tent Services</h3>
+                <p>Kiambu & Nairobi</p>
+                <div class="price">KES 40,000</div>
+                <button class="btn book-btn" data-name="Shujaa Tent Services">Book Service</button>
+            </div>
+        </div>
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // 1. Reset all tabs styling back to inactive
-                tabs.forEach(t => {
-                    t.classList.remove('active');
-                    t.classList.add('inactive');
-                });
+        <div class="vendor-card" data-category="sound">
+            <div class="image">Sound System</div>
+            <div class="content">
+                <div class="tag">Sound</div>
+                <h3>Elite Sound Systems</h3>
+                <p>All regions</p>
+                <div class="price">KES 15,000</div>
+                <button class="btn book-btn" data-name="Elite Sound Systems">Book Service</button>
+            </div>
+        </div>
 
-                // 2. Set the current clicked tab to active style
-                tab.classList.remove('inactive');
-                tab.classList.add('active');
+    </div>
 
-                // 3. Get the filter category criteria label value
-                const filterCriteria = tab.getAttribute('data-filter');
+</div>
 
-                // 4. Toggle visibility across existing vendor cards
-                cards.forEach(card => {
-                    const cardCategory = card.getAttribute('data-category');
-                    
-                    if (filterCriteria === 'all' || filterCriteria === cardCategory) {
-                        card.style.display = 'flex'; // Display the item layout box
-                    } else {
-                        card.style.display = 'none'; // Hide item layout block elements
-                    }
-                });
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const tabs = document.querySelectorAll('.tab-btn');
+    const cards = document.querySelectorAll('.vendor-card');
+    const bookButtons = document.querySelectorAll('.book-btn');
+
+    // FILTER FUNCTION
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const filter = tab.dataset.filter;
+
+            cards.forEach(card => {
+                const category = card.dataset.category;
+
+                if (filter === 'all' || filter === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
             });
         });
-    </script>
+    });
+
+    // BOOK BUTTON FUNCTION
+    bookButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const serviceName = button.dataset.name;
+
+            alert("✅ Booking started for: " + serviceName);
+
+            // OPTIONAL: redirect to booking page
+            // window.location.href = "booking.html";
+        });
+    });
+
+});
+</script>
+
 </body>
 </html>
