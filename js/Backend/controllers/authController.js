@@ -28,10 +28,20 @@ async function register(req, res) {
       'INSERT INTO users (name, email, phone, password_hash, role_id) VALUES (?, ?, ?, ?, ?)',
       [name, email, phone || null, password_hash, role_id]
     );
+    const userId = result.insertId;
+
+    // If role is vendor, also create a vendor profile
+    if (role === 'vendor' && req.body.businessName) {
+      await db.query(
+        `INSERT INTO vendors (user_id, business_name, category, location, phone, email)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [userId, req.body.businessName, req.body.businessCategory || 'Other', req.body.businessLocation || null, phone || null, email]
+      );
+    }
 
     const [userRows] = await db.query(
       'SELECT u.*, r.name AS role_name FROM users u JOIN roles r ON r.id = u.role_id WHERE u.id = ?',
-      [result.insertId]
+      [userId]
     );
 
     // Welcome email (best-effort — won't block registration if it fails)
@@ -136,6 +146,7 @@ async function me(req, res) {
 
 function safeUser(u) {
   const { password_hash, ...safe } = u;
+  safe.role = safe.role_name;
   return safe;
 }
 

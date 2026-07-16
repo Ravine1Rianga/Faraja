@@ -3,7 +3,7 @@ const F        = require('../controllers/funeralController');
 const C        = require('../controllers/committeeController');
 const T        = require('../controllers/taskController');
 const E        = require('../controllers/expenseController');
-const { protect, optionalAuth } = require('../middleware/auth');
+const { protect, optionalAuth, authorize } = require('../middleware/auth');
 const upload   = require('../middleware/upload');
 
 // Funeral CRUD
@@ -30,5 +30,17 @@ router.post('/:funeralId/expenses', protect, E.createExpense);
 
 // Dashboard summary (stats, top contributors, activity feed)
 router.get('/:id/dashboard', protect, F.getDashboard);
+
+// Public memorial / tribute page (no auth)
+router.get('/:id/public',   F.getPublicMemorial);
+
+// Print-friendly memorial data
+router.get('/:id/print',    protect, F.printMemorial);
+
+// Premium tier upgrade (admin only)
+router.post('/:id/upgrade', protect, authorize('admin'), F.upgradeTier);
+
+// Announce / diaspora notification (stub)
+router.post('/:id/announce', protect, F.announceFuneral);
 
 module.exports = router;
