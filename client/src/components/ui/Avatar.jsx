@@ -5,6 +5,8 @@ export default function Avatar({ name, src, size = 'md' }) {
   const sizeMap = { sm: '28px', md: '36px', lg: '48px' }
   const px = sizeMap[size] || sizeMap.md
 
+
+  
   if (src) {
     return <img src={src} alt={name} className={`avatar avatar-${size}`} style={{ width: px, height: px, borderRadius: '50%', objectFit: 'cover' }} />
   }
