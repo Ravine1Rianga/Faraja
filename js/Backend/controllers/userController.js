@@ -77,4 +77,97 @@ async function getMyContributions(req, res) {
   }
 }
 
-module.exports = { getProfile, updateProfile, deleteProfile, getMyContributions };
+// ── Admin: list all users ─────────────────────────────────────
+async function getAllUsers(req, res) {
+  try {
+    const [rows] = await db.query(
+      `SELECT u.id, u.name, u.email, u.phone, u.is_active AS status, u.created_at,
+              r.name AS role
+       FROM users u JOIN roles r ON r.id = u.role_id
+       ORDER BY u.created_at DESC`
+    );
+    const users = rows.map(u => ({ ...u, status: u.status ? 'active' : 'suspended', createdAt: u.created_at }));
+    return R.ok(res, { users });
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+// ── Admin: update any user ────────────────────────────────────
+async function adminUpdateUser(req, res) {
+  try {
+    const { name, role, status } = req.body;
+    const userId = req.params.id;
+
+    const [existing] = await db.query('SELECT id FROM users WHERE id = ?', [userId]);
+    if (!existing[0]) return R.notFound(res, 'User not found');
+
+    if (name) {
+      await db.query('UPDATE users SET name = ? WHERE id = ?', [name, userId]);
+    }
+
+    if (role) {
+      const [roleRows] = await db.query('SELECT id FROM roles WHERE name = ?', [role]);
+      if (roleRows[0]) {
+        await db.query('UPDATE users SET role_id = ? WHERE id = ?', [roleRows[0].id, userId]);
+      }
+    }
+
+    if (status) {
+      const isActive = status === 'active' ? 1 : 0;
+      await db.query('UPDATE users SET is_active = ? WHERE id = ?', [isActive, userId]);
+    }
+
+    const [user] = await db.query(
+      'SELECT u.id, u.name, u.email, u.phone, u.is_active AS status, u.created_at, r.name AS role FROM users u JOIN roles r ON r.id = u.role_id WHERE u.id = ?',
+      [userId]
+    );
+    return R.ok(res, { user: { ...user[0], status: user[0].status ? 'active' : 'suspended' } }, 'User updated');
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+// ── Admin: delete any user ────────────────────────────────────
+async function adminDeleteUser(req, res) {
+  try {
+    const [existing] = await db.query('SELECT id FROM users WHERE id = ?', [req.params.id]);
+    if (!existing[0]) return R.notFound(res, 'User not found');
+    await db.query('DELETE FROM users WHERE id = ?', [req.params.id]);
+    return R.ok(res, {}, 'User deleted');
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+// ── Admin: platform metrics ──────────────────────────────────
+async function getAdminMetrics(req, res) {
+  try {
+    const [[userCount]]        = await db.query('SELECT COUNT(*) AS count FROM users');
+    const [[vendorCount]]      = await db.query('SELECT COUNT(*) AS count FROM vendors WHERE status = \'active\'');
+    const [[memorialCount]]    = await db.query('SELECT COUNT(*) AS count FROM funeral_projects WHERE status = \'active\'');
+    const [[raisedTotal]]      = await db.query('SELECT COALESCE(SUM(raised),0) AS total FROM funeral_projects');
+    const [[platformFees]]     = await db.query('SELECT COALESCE(SUM(platform_fee),0) AS total FROM contributions WHERE status = \'confirmed\'');
+    const [[bookingSummary]]   = await db.query('SELECT COALESCE(SUM(amount),0) AS gmv, COALESCE(SUM(commission_amount),0) AS commissions FROM bookings WHERE status = \'completed\'');
+    const [[bookingCount]]     = await db.query('SELECT COUNT(*) AS count FROM bookings');
+    const [[contribCount]]     = await db.query('SELECT COUNT(*) AS count FROM contributions WHERE status = \'confirmed\'');
+
+    return R.ok(res, {
+      metrics: {
+        totalUsers: userCount.count,
+        activeVendors: vendorCount.count,
+        activeMemorials: memorialCount.count,
+        totalRaised: raisedTotal.total,
+        platformRevenue: Number(platformFees.total) + Number(bookingSummary.commissions),
+        bookingGmv: bookingSummary.gmv,
+        bookingCommissions: bookingSummary.commissions,
+        totalBookings: bookingCount.count,
+        confirmedContributions: contribCount.count,
+      },
+    });
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+module.exports = { getProfile, updateProfile, deleteProfile, getMyContributions, getAllUsers, adminUpdateUser, adminDeleteUser, getAdminMetrics };

@@ -1,0 +1,16 @@
+import api from './client'
+
+export const getFunerals = () => api.get('/funerals')
+export const getFuneral = (id) => api.get(`/funerals/${id}`)
+export const saveFuneral = (data) => api.post('/funerals', data, { headers: { 'Content-Type': 'multipart/form-data' } })
+export const updateFuneral = (id, data) => api.put(`/funerals/${id}`, data)
+export const deleteFuneral = (id) => api.delete(`/funerals/${id}`)
+export const getDashboard = (id) => api.get(`/funerals/${id}/dashboard`)
+export const getActiveFunerals = () => api.get('/funerals/public/active')
+export const getPublicMemorial = (id) => api.get(`/funerals/${id}/public`)
+export const getCommittee = (id) => api.get(`/funerals/${id}/committee`)
+export const addCommitteeMember = (id, data) => api.post(`/funerals/${id}/committee`, data)
+export const updateCommitteeMember = (fid, mid, data) => api.put(`/funerals/${fid}/committee/${mid}`, data)
+export const deleteCommitteeMember = (fid, mid) => api.delete(`/funerals/${fid}/committee/${mid}`)
+export const announceFuneral = (id) => api.post(`/funerals/${id}/announce`)
+export const upgradeTier = (id, tier) => api.post(`/funerals/${id}/upgrade`, { tier })

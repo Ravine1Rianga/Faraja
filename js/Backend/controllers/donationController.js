@@ -1,6 +1,7 @@
 const db    = require('../config/db');
 const R     = require('../utils/response');
 const mpesa = require('../utils/mpesa');
+const PLATFORM_FEE_PCT = 5; // 5% platform fee on donations
 
 async function createDonation(req, res) {
   try {
@@ -18,15 +19,16 @@ async function createDonation(req, res) {
 
     // Test mode — skip all real payment processing, auto-confirm
     if (testMode) {
+      const platformFee = Math.round(amount * PLATFORM_FEE_PCT) / 100;
       const [cResult] = await db.query(
         `INSERT INTO contributions
-           (funeral_id, user_id, contributor_name, amount, payment_method, message, is_anonymous, status)
-         VALUES (?,?,?,?,?,?,?,'confirmed')`,
-        [funeralId, req.user?.id || null, name, amount, paymentMethod, message || null, isAnonymous]
+            (funeral_id, user_id, contributor_name, amount, platform_fee, payment_method, message, is_anonymous, status)
+         VALUES (?,?,?,?,?,?,?,?,'confirmed')`,
+        [funeralId, req.user?.id || null, name, amount, platformFee, paymentMethod, message || null, isAnonymous]
       );
       const contributionId = cResult.insertId;
-      await db.query('INSERT INTO transactions (contribution_id, phone, amount, status) VALUES (?,?,?,?)',
-        [contributionId, phone || null, amount, 'confirmed']);
+      await db.query('INSERT INTO transactions (contribution_id, phone, amount, platform_fee, status) VALUES (?,?,?,?,?)',
+        [contributionId, phone || null, amount, platformFee, 'confirmed']);
       await db.query('UPDATE funeral_projects SET raised = raised + ? WHERE id = ?', [amount, funeralId]);
       return R.created(res, { contributionId, ref: 'TEST-' + contributionId }, 'Test contribution recorded');
     }
@@ -41,16 +43,17 @@ async function createDonation(req, res) {
       }
 
       if (stkResult) {
+        const platformFee = Math.round(amount * PLATFORM_FEE_PCT) / 100;
         const [cResult] = await db.query(
           `INSERT INTO contributions
-             (funeral_id, user_id, contributor_name, amount, payment_method, message, is_anonymous, status)
-           VALUES (?,?,?,?,?,?,?,'pending')`,
-          [funeralId, req.user?.id || null, name, amount, paymentMethod, message || null, isAnonymous]
+              (funeral_id, user_id, contributor_name, amount, platform_fee, payment_method, message, is_anonymous, status)
+           VALUES (?,?,?,?,?,?,?,?,'pending')`,
+          [funeralId, req.user?.id || null, name, amount, platformFee, paymentMethod, message || null, isAnonymous]
         );
         const contributionId = cResult.insertId;
         await db.query(
-          'INSERT INTO transactions (contribution_id, phone, amount, checkout_req_id, status) VALUES (?,?,?,?,?)',
-          [contributionId, phone, amount, stkResult.CheckoutRequestID || null, 'pending']
+          'INSERT INTO transactions (contribution_id, phone, amount, platform_fee, checkout_req_id, status) VALUES (?,?,?,?,?,?)',
+          [contributionId, phone, amount, platformFee, stkResult.CheckoutRequestID || null, 'pending']
         );
         return R.created(res, {
           contributionId,
@@ -61,17 +64,18 @@ async function createDonation(req, res) {
     }
 
     // Cash / Card / Bank / failed M-PESA — auto-confirm
+    const platformFee = Math.round(amount * PLATFORM_FEE_PCT) / 100;
     const [cResult] = await db.query(
       `INSERT INTO contributions
-         (funeral_id, user_id, contributor_name, amount, payment_method, message, is_anonymous, status)
-       VALUES (?,?,?,?,?,?,?,'confirmed')`,
-      [funeralId, req.user?.id || null, name, amount, paymentMethod, message || null, isAnonymous]
+          (funeral_id, user_id, contributor_name, amount, platform_fee, payment_method, message, is_anonymous, status)
+       VALUES (?,?,?,?,?,?,?,?,'confirmed')`,
+      [funeralId, req.user?.id || null, name, amount, platformFee, paymentMethod, message || null, isAnonymous]
     );
     const contributionId = cResult.insertId;
 
     await db.query(
-      'INSERT INTO transactions (contribution_id, phone, amount, status) VALUES (?,?,?,?)',
-      [contributionId, phone || null, amount, 'confirmed']
+      'INSERT INTO transactions (contribution_id, phone, amount, platform_fee, status) VALUES (?,?,?,?,?)',
+      [contributionId, phone || null, amount, platformFee, 'confirmed']
     );
 
     await db.query(
@@ -146,7 +150,7 @@ async function getDonations(req, res) {
   try {
     const [contributions] = await db.query(
       `SELECT c.id, c.funeral_id, c.contributor_name AS donor_name, c.amount,
-              c.payment_method, c.message, c.is_anonymous, c.status, c.created_at,
+              c.platform_fee, c.payment_method, c.message, c.is_anonymous, c.status, c.created_at,
               t.mpesa_code AS mpesa_ref, t.checkout_req_id AS transaction_id
        FROM contributions c
        LEFT JOIN transactions t ON t.contribution_id = c.id
@@ -155,10 +159,31 @@ async function getDonations(req, res) {
       [req.params.funeralId]
     );
     const [totals] = await db.query(
-      "SELECT COALESCE(SUM(amount),0) AS total, COUNT(*) AS count FROM contributions WHERE funeral_id = ? AND status = 'confirmed'",
+      "SELECT COALESCE(SUM(amount),0) AS total, COALESCE(SUM(platform_fee),0) AS total_fees, COUNT(*) AS count FROM contributions WHERE funeral_id = ? AND status = 'confirmed'",
       [req.params.funeralId]
     );
-    return R.ok(res, { contributions, total: totals[0]?.total || 0, count: totals[0]?.count || 0 });
+    return R.ok(res, { contributions, total: totals[0]?.total || 0, totalFees: totals[0]?.total_fees || 0, count: totals[0]?.count || 0 });
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+async function getAllContributions(req, res) {
+  try {
+    const [contributions] = await db.query(
+      `SELECT c.id, c.funeral_id, c.contributor_name AS donor_name, c.amount,
+              c.platform_fee, c.payment_method, c.message, c.is_anonymous, c.status, c.created_at,
+              t.mpesa_code AS mpesa_ref, t.checkout_req_id AS transaction_id,
+              f.deceased_name
+       FROM contributions c
+       LEFT JOIN transactions t ON t.contribution_id = c.id
+       LEFT JOIN funeral_projects f ON f.id = c.funeral_id
+       ORDER BY c.created_at DESC`
+    );
+    const [totals] = await db.query(
+      "SELECT COALESCE(SUM(amount),0) AS total, COALESCE(SUM(platform_fee),0) AS total_fees, COUNT(*) AS count FROM contributions WHERE status = 'confirmed'"
+    );
+    return R.ok(res, { contributions, total: totals[0]?.total || 0, totalFees: totals[0]?.total_fees || 0, count: totals[0]?.count || 0 });
   } catch (err) {
     return R.serverError(res, err);
   }
@@ -186,4 +211,4 @@ async function financialReport(req, res) {
   }
 }
 
-module.exports = { createDonation, mpesaCallback, getDonations, financialReport };
+module.exports = { createDonation, mpesaCallback, getDonations, getAllContributions, financialReport };

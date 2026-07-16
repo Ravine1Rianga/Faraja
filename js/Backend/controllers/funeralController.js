@@ -106,7 +106,10 @@ async function updateFuneral(req, res) {
       funeralDate: 'funeral_date', funeralTime: 'funeral_time',
       venue: 'venue', burialSite: 'burial_site', officiant: 'officiant',
       mortuary: 'mortuary', fundraisingGoal: 'fundraising_goal',
-      privacy: 'privacy', status: 'status',
+      privacy: 'privacy', notifyMsg: 'notify_msg',
+      livestreamUrl: 'livestream_url', orderOfService: 'order_of_service',
+      galleryPhotos: 'gallery_photos',
+      status: 'status',
     };
 
     const updates = [];
@@ -228,14 +231,14 @@ async function getDashboard(req, res) {
 async function getActiveFunerals(req, res) {
   try {
     const [publicRows] = await db.query(
-      `SELECT id, deceased_name, funeral_date, fundraising_goal, raised, privacy, created_by
+      `SELECT id, deceased_name, funeral_date, funeral_time, venue, photo, fundraising_goal, raised, privacy, created_by
        FROM funeral_projects WHERE status = 'active' AND privacy = 'public'
        ORDER BY created_at DESC`
     );
     let all = [...publicRows];
     if (req.user?.id) {
       const [privateRows] = await db.query(
-        `SELECT id, deceased_name, funeral_date, fundraising_goal, raised, privacy, created_by
+        `SELECT id, deceased_name, funeral_date, funeral_time, venue, photo, fundraising_goal, raised, privacy, created_by
          FROM funeral_projects WHERE status = 'active' AND privacy = 'private' AND created_by = ?
          ORDER BY created_at DESC`,
         [req.user.id]
@@ -248,4 +251,107 @@ async function getActiveFunerals(req, res) {
   }
 }
 
-module.exports = { createFuneral, getMyFunerals, getFuneral, updateFuneral, deleteFuneral, getDashboard, getActiveFunerals };
+// ── Public memorial (tribute page, no auth required) ────────
+async function getPublicMemorial(req, res) {
+  try {
+    const [rows] = await db.query(
+      `SELECT f.id, f.created_by, f.deceased_name, f.date_of_birth, f.date_of_death,
+              f.biography, f.photo, f.gallery_photos, f.order_of_service,
+              f.funeral_date, f.funeral_time, f.venue, f.livestream_url,
+              f.burial_site, f.officiant, f.mortuary,
+              f.fundraising_goal, f.raised, f.privacy, f.notify_msg, f.tier,
+              u.name AS organiser_name
+       FROM funeral_projects f
+       JOIN users u ON u.id = f.created_by
+       WHERE f.id = ? AND f.status = 'active'`,
+      [req.params.id]
+    );
+    if (!rows[0]) return R.notFound(res, 'Memorial not found');
+    const m = rows[0];
+    return R.ok(res, {
+      memorial: {
+        ...m,
+        galleryPhotos: m.gallery_photos ? JSON.parse(m.gallery_photos) : [],
+      },
+    });
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+// ── Print-friendly memorial data ─────────────────────────────
+async function printMemorial(req, res) {
+  try {
+    const [rows] = await db.query(
+      `SELECT f.*, u.name AS organiser_name, u.email AS organiser_email, u.phone AS organiser_phone
+       FROM funeral_projects f
+       JOIN users u ON u.id = f.created_by
+       WHERE f.id = ?`,
+      [req.params.id]
+    );
+    if (!rows[0]) return R.notFound(res, 'Memorial not found');
+    const [contributions] = await db.query(
+      `SELECT contributor_name, amount, message, created_at
+       FROM contributions WHERE funeral_id = ? AND status = 'confirmed'
+       ORDER BY created_at DESC`,
+      [req.params.id]
+    );
+    return R.ok(res, { memorial: rows[0], contributions });
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+// ── Upgrade memorial tier (admin only) ───────────────────────
+async function upgradeTier(req, res) {
+  try {
+    const { tier } = req.body;
+    const valid = ['free', 'premium', 'premium_plus'];
+    if (!valid.includes(tier)) return R.fail(res, 'Invalid tier. Valid: free, premium, premium_plus');
+
+    const [rows] = await db.query('SELECT * FROM funeral_projects WHERE id = ?', [req.params.id]);
+    if (!rows[0]) return R.notFound(res, 'Memorial not found');
+
+    const expiresAt = tier !== 'free'
+      ? new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 19).replace('T', ' ')
+      : null;
+
+    await db.query('UPDATE funeral_projects SET tier = ?, premium_expires_at = ? WHERE id = ?',
+      [tier, expiresAt, req.params.id]);
+
+    const [updated] = await db.query('SELECT id, tier, premium_expires_at FROM funeral_projects WHERE id = ?', [req.params.id]);
+    return R.ok(res, { memorial: updated[0] }, `Upgraded to ${tier}`);
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+// ── Announce / notify diaspora (stub) ────────────────────────
+async function announceFuneral(req, res) {
+  try {
+    const { channels = ['whatsapp'], message } = req.body;
+    const [rows] = await db.query(
+      'SELECT id, deceased_name, funeral_date, venue FROM funeral_projects WHERE id = ?',
+      [req.params.id]
+    );
+    if (!rows[0]) return R.notFound(res, 'Memorial not found');
+
+    const shareText = message ||
+      `🕊 In loving memory of ${rows[0].deceased_name}.\nFuneral: ${rows[0].funeral_date || 'TBD'} at ${rows[0].venue || 'TBD'}.\nSupport the family: ${req.protocol}://${req.get('host')}/memorial.html?id=${rows[0].id}`;
+
+    // Stub — no real WhatsApp/SMS gateway
+    return R.ok(res, {
+      shareText,
+      channels,
+      note: 'Platform announcement recorded. Real WhatsApp/SMS gateway not yet connected.',
+    }, 'Announcement prepared');
+  } catch (err) {
+    return R.serverError(res, err);
+  }
+}
+
+module.exports = {
+  createFuneral, getMyFunerals, getFuneral, updateFuneral, deleteFuneral,
+  getDashboard, getActiveFunerals, getPublicMemorial, printMemorial,
+  upgradeTier, announceFuneral,
+};

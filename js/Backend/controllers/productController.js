@@ -51,7 +51,8 @@ async function getProduct(req, res) {
 
 async function createProduct(req, res) {
   try {
-    const { name, category, price, stock, description, imageUrl, status } = req.body;
+    const { name, category, price, stock, description, status } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : (req.body.imageUrl || null);
     const vendorId = req.params.vendorId || req.body.vendorId;
     if (!name) return R.fail(res, 'Product name is required');
     if (!vendorId) return R.fail(res, 'Vendor ID is required');
@@ -80,7 +81,8 @@ async function createProduct(req, res) {
 async function updateProduct(req, res) {
   try {
     const productId = req.params.id;
-    const { name, category, price, stock, description, imageUrl, status } = req.body;
+    const { name, category, price, stock, description, status } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl;
 
     const [existing] = await db.query(
       'SELECT p.id, p.vendor_id, v.user_id FROM products p JOIN vendors v ON v.id = p.vendor_id WHERE p.id = ?',

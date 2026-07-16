@@ -18,7 +18,7 @@ async function getActiveVendors(req, res) {
   try {
     const [vendors] = await db.query(
       `SELECT v.id, v.business_name, v.category, v.location, v.phone, v.email,
-              v.description, v.rating, v.verified, v.views, v.created_at
+              v.description, v.photo, v.rating, v.verified, v.views, v.created_at
        FROM vendors v
        WHERE v.status = 'active'
        ORDER BY v.rating DESC, v.created_at DESC`
@@ -64,13 +64,15 @@ async function createVendor(req, res) {
     const { businessName, category, location, phone, email, description } = req.body;
     if (!businessName) return R.fail(res, 'Business name is required');
 
+    const photo = req.file ? `/uploads/${req.file.filename}` : null;
+
     const [existing] = await db.query('SELECT id FROM vendors WHERE user_id = ?', [req.user.id]);
     if (existing[0]) return R.fail(res, 'Vendor profile already exists for this user');
 
     const [result] = await db.query(
-      `INSERT INTO vendors (user_id, business_name, category, location, phone, email, description)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [req.user.id, businessName, category || 'Other', location || null, phone || null, email || null, description || null]
+      `INSERT INTO vendors (user_id, business_name, category, location, phone, email, description, photo)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [req.user.id, businessName, category || 'Other', location || null, phone || null, email || null, description || null, photo]
     );
 
     const [vendor] = await db.query('SELECT * FROM vendors WHERE id = ?', [result.insertId]);
@@ -101,6 +103,8 @@ async function updateVendor(req, res) {
     if (phone !== undefined)        { updates.push('phone = ?');         values.push(phone); }
     if (email !== undefined)        { updates.push('email = ?');         values.push(email); }
     if (description !== undefined)  { updates.push('description = ?');   values.push(description); }
+    const photo = req.file ? `/uploads/${req.file.filename}` : undefined;
+    if (photo !== undefined)        { updates.push('photo = ?');         values.push(photo); }
     if (status !== undefined)       { updates.push('status = ?');        values.push(status); }
     if (verified !== undefined)     { updates.push('verified = ?');      values.push(verified); }
     if (rating !== undefined)       { updates.push('rating = ?');        values.push(rating); }
