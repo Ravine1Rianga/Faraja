@@ -8,7 +8,7 @@ A full-stack funeral/memorial management app with a **React (Vite) frontend** an
 
 | Tool | Version | Why |
 |------|---------|-----|
-| [Laragon](https://laragon.org/download/) **or** [XAMPP](https://www.apachefriends.org/) | Latest | Runs MySQL + management GUI |
+| [XAMPP](https://www.apachefriends.org/) | Latest | Runs MySQL + management GUI |
 | [Node.js](https://nodejs.org/) | 18+ | Runs backend API and frontend dev server |
 | Git | Any | Clone the repo |
 
