@@ -18,11 +18,6 @@ export default function Landing() {
               <a href="/register" className="btn btn-primary btn-lg">Get Started Free</a>
               <a href="/#how-it-works" className="btn btn-ghost btn-lg">How It Works</a>
             </div>
-            <div className="hero-stats animate-fade-up" style={{ animationDelay: '0.4s' }}>
-              <div className="hero-stat"><strong>500+</strong> Memorials Created</div>
-              <div className="hero-stat"><strong>2M+</strong> KES Raised</div>
-              <div className="hero-stat"><strong>50+</strong> Verified Vendors</div>
-            </div>
           </div>
         </div>
       </section>

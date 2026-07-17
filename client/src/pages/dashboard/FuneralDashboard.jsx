@@ -133,7 +133,7 @@ export default function FuneralDashboard() {
         <div className="grid grid-3">
           {funerals.map(f => (
             <div key={f.id} className={`funeral-card${String(f.id) === String(activeFuneralId) ? ' active' : ''}`}
-              onClick={() => setActiveFuneral(f.id)} style={{ cursor: 'pointer' }}>
+              onClick={() => { navigate('/memorial/' + f.id); setActiveFuneral(f.id) }} style={{ cursor: 'pointer' }}>
               {f.photo && <div className="funeral-card-image" style={{ backgroundImage: `url(${f.photo})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
               <div className="funeral-card-body">
                 <div className="funeral-card-name">{f.deceased_name || f.deceasedName}</div>

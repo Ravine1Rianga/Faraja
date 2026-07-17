@@ -5,6 +5,7 @@ import Icon from '../components/ui/Icon'
 const links = [
   { section: 'Management' },
   { to: '/dashboard', icon: 'home', label: 'Dashboard' },
+  { to: '/memorials', icon: 'dove', label: 'Memorials' },
   { to: '/funerals/new', icon: 'plus', label: 'New Funeral' },
   { to: '/committee', icon: 'users', label: 'Committee' },
   { to: '/tasks', icon: 'check', label: 'Tasks' },
