@@ -125,13 +125,3 @@ faraja/
 M-PESA, email, and Google OAuth vars can be left blank for local development.
 
 ---
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---------|------|
-| `ECONNREFUSED` on startup | MySQL is not running — start it in Laragon/XAMPP |
-| `ER_BAD_DB_ERROR` | Schema not imported — run `schema.sql` |
-| "Could not load" errors in app | Backend not running → `npm start` in `js/Backend` |
-| Blank page / broken CSS | Run `npm run build` in `client/` to check for build errors |
-| CORS errors | Ensure `CLIENT_URL` in `.env` matches `http://localhost:3000` |
